@@ -1,0 +1,23 @@
+cmake_minimum_required(VERSION 2.8)
+
+ENABLE_LANGUAGE(C)
+
+project(despeckCL CXX)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC") 
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
+
+find_package(OpenCL REQUIRED)
+if(OpenCL_FOUND)
+    include_directories(${OpenCL_INCLUDE_DIRS})
+    link_directories(${OpenCL_LIBRARY_DIR})
+endif()
+
+find_package(OpenMP)
+if (OPENMP_FOUND)
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+
+subdirs(src)
+subdirs(swig)
