@@ -1,6 +1,7 @@
 include_directories(${despeckCL_SOURCE_DIR}/include/clcfg)
 
-set(KERNEL_PATH kernel/boxcar)
+set(KERNEL_PATH kernel)
+
 configure_file (
     "${despeckCL_SOURCE_DIR}/include/clcfg/clcfg.h.in"
     "${despeckCL_SOURCE_DIR}/include/clcfg/clcfg.h"

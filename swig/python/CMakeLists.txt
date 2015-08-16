@@ -1,5 +1,8 @@
 include_directories(${despeckCL_SOURCE_DIR}/include)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/boxcar)
+include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlinsar)
+include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlinsar/cl_wrapper)
+include_directories(${despeckCL_SOURCE_DIR}/include/clcfg)
 
 find_package(PythonLibs REQUIRED)
 if(PYTHONLIBS_FOUND)
@@ -20,7 +23,7 @@ set_source_files_properties(despeckcl_python.i PROPERTIES SWIG_FLAGS -DSKIP_INCL
 # make is run, even if no changes where made
 set_property(SOURCE despeckcl_python.i PROPERTY SWIG_MODULE_NAME despeckcl)
 swig_add_module(despeckcl_python python despeckcl_python.i)
-swig_link_libraries(despeckcl_python ${PYTHON_LIBRARIES} boxcar_lib)
+swig_link_libraries(despeckcl_python ${PYTHON_LIBRARIES} boxcar_lib nlinsar_lib)
 
 set_target_properties(_despeckcl_python PROPERTIES OUTPUT_NAME _despeckcl)
 

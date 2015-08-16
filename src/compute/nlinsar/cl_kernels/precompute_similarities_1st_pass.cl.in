@@ -1,0 +1,57 @@
+#include "@CMAKE_INSTALL_PREFIX@/@KERNEL_PATH@/sim_measures.h"
+
+// computes the full similarities and kullback_leiblers till border_max
+__kernel void precompute_similarities_1st_pass (__global float * ampl_master, __global float * ampl_slave,  __global float * dphase,
+                                                __global float * ampl_filt,   __global float * dphase_filt, __global float * coh_filt,
+                                                __global float * similarities, __global float * kullback_leiblers,
+                                                const int height_overlap, const int width_overlap, const int border_max, const int search_window_size)
+{
+
+    const int h = get_group_id(0) * get_local_size(0) + get_local_id(0);
+    const int w = get_group_id(1) * get_local_size(1) + get_local_id(1);
+
+    const int wsh = (search_window_size - 1)/2;
+
+    const int height_sim = height_overlap - search_window_size + 1;
+    const int width_sim  = width_overlap  - search_window_size + 1;
+
+    if( h < height_sim && w < width_sim) {
+        int hstart = 0;
+        if ( h >= border_max && \
+             w >= border_max && \
+             w < width_sim - border_max) {
+            hstart = wsh;
+        }
+        for(int hh = hstart; hh < search_window_size; hh++) {
+            for(int ww = 0; ww < search_window_size; ww++) {
+
+                const int center_idx = (h+wsh)* width_overlap + w + wsh;
+                const int window_idx = (h+hh) * width_overlap + w + ww;
+
+                const float am1 = ampl_master  [center_idx];
+                const float as1 = ampl_slave   [center_idx];
+                const float dp1 = dphase       [center_idx];
+
+                const float am2 = ampl_master  [window_idx];
+                const float as2 = ampl_slave   [window_idx];
+                const float dp2 = dphase       [window_idx];
+
+                const float ref1 = ampl_filt   [center_idx];
+                const float pha1 = dphase_filt [center_idx];
+                const float coh1 = coh_filt    [center_idx];
+
+                const float ref2 = ampl_filt   [window_idx];
+                const float pha2 = dphase_filt [window_idx];
+                const float coh2 = coh_filt    [window_idx];
+
+                const int idx = hh * search_window_size * height_sim * width_sim \
+                              + ww * height_sim * width_sim \
+                              + h * width_sim \
+                              + w;
+
+                similarities     [idx] = pixel_similarity      (am1, as1, dp1, am2, as2, dp2);
+                kullback_leiblers[idx] = pixel_kullback_leibler(ref1, pha1, coh1, ref2, pha2, coh2);
+            }
+        }
+    }
+}

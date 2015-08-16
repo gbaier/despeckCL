@@ -1,2 +1,2 @@
-set(KERNEL_PATH kernel/boxcar)
+set(KERNEL_PATH kernel)
 install(DIRECTORY . DESTINATION ${KERNEL_PATH} FILES_MATCHING PATTERN "*.cl")
