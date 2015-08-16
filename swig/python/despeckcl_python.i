@@ -1,4 +1,4 @@
-%module (docstring="OpenCL implementation of InSAR boxcar filter") boxcar
+%module (docstring="OpenCL implementation of InSAR boxcar filter") despeckcl
 
 %{
     #define SWIG_FILE_WITH_INIT
@@ -11,8 +11,6 @@
     import_array();
 %}
 
-
-
 %apply( float* IN_ARRAY2,     int DIM1, int DIM2) {(float* master_amplitude,   int h1, int w1)}
 %apply( float* IN_ARRAY2,     int DIM1, int DIM2) {(float* slave_amplitude,    int h2, int w2)}
 %apply( float* IN_ARRAY2,     int DIM1, int DIM2) {(float* dphase,             int h3, int w3)}
@@ -22,6 +20,9 @@
 
 %ignore boxcar_routines;
 %feature("autodoc", "2");
+
+
+/* Boxcar declarations and definitions */
 %include "boxcar.h"
 
 %inline %{
@@ -60,7 +61,7 @@ def boxcar(master_amplitude,
     amplitude_filtered = np.zeros_like(master_amplitude)
     dphase_filtered    = np.zeros_like(master_amplitude)
     coherence_filtered = np.zeros_like(master_amplitude)
-    _boxcar._boxcar_c_wrap(master_amplitude, slave_amplitude, dphase,
+    _despeckcl._boxcar_c_wrap(master_amplitude, slave_amplitude, dphase,
                           amplitude_filtered, dphase_filtered, coherence_filtered,
                           window_width);
     return (amplitude_filtered, dphase_filtered, coherence_filtered)
