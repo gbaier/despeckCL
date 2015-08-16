@@ -1,4 +1,4 @@
-%module boxcar
+%module despeckcl
 %{
     #include "boxcar.h"
 %}
@@ -53,13 +53,13 @@
 */
 
 %inline %{
-void my_boxcar(float* master_amplitude,   int h1, int w1,
-               float* slave_amplitude,    int h2, int w2,
-               float* dphase,             int h3, int w3,
-               float** amplitude_filtered, int* h4, int* w4,
-               float** dphase_filtered,    int* h5, int* w5,
-               float** coherence_filtered, int* h6, int* w6,
-               const int window_width)
+void boxcar(float* master_amplitude,   int h1, int w1,
+            float* slave_amplitude,    int h2, int w2,
+            float* dphase,             int h3, int w3,
+            float** amplitude_filtered, int* h4, int* w4,
+            float** dphase_filtered,    int* h5, int* w5,
+            float** coherence_filtered, int* h6, int* w6,
+            const int window_width)
 {
     std::vector<el::Level> enabled_log_levels {
                    //                            el::Level::Info,
