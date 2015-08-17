@@ -22,7 +22,7 @@ class kernel_env : public routine_env<Derived>
         cl::Context context;
         cl::Program program;
         cl::Kernel kernel;
-
+        const std::string kernel_source;
         kernel_env() {}
 
         kernel_env(size_t block_size, cl::Context context) : block_size(block_size), context(context)
@@ -45,17 +45,12 @@ class kernel_env : public routine_env<Derived>
    protected:
         void build_program(std::string build_options)
         {
-            // Create a program with source code
-            const std::string full_kernel_path {"@CMAKE_INSTALL_PREFIX@/@KERNEL_PATH@/"}; //is set by cmake
-            const std::string source_file {full_kernel_path + static_cast<Derived*>(this)->routine_name + ".cl"};
-            VLOG(0) << "reading source from: " << source_file;
-            const std::string source = read_cl_file(source_file);
-            const char* source_ptr = source.c_str();
+            const char* source_ptr = kernel_source.c_str();
             
             std::vector<cl::Device> devices;
             context.getInfo(CL_CONTEXT_DEVICES, &devices);
 
-            cl::Program program{context, source.c_str()};
+            cl::Program program{context, kernel_source.c_str()};
 
             try {
                 program.build(devices, build_options.c_str());

@@ -7,6 +7,9 @@
 
 class compute_weights : public kernel_env<compute_weights>
 {
+    private:
+        const std::string kernel_source = "@CMAKE_KERNEL_SOURCE@";
+
     public:
         using kernel_env::kernel_env;
 

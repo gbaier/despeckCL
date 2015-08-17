@@ -5,6 +5,9 @@
 
 class compute_number_of_looks : public kernel_env<compute_number_of_looks>
 {
+    private:
+        const std::string kernel_source = "@CMAKE_KERNEL_SOURCE@";
+
     public:
         static constexpr const char* routine_name {"compute_number_of_looks"};
 

@@ -13,7 +13,8 @@
 
 #include "clcfg.h"
 // opencl kernels
-#include "precompute_similarities.h"
+#include "precompute_similarities_1st_pass.h"
+#include "precompute_similarities_2nd_pass.h"
 #include "precompute_patch_similarities.h"
 #include "compute_weights.h"
 #include "compute_number_of_looks.h"

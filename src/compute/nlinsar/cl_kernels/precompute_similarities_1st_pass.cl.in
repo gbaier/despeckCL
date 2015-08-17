@@ -1,4 +1,4 @@
-#include "@CMAKE_INSTALL_PREFIX@/@KERNEL_PATH@/sim_measures.h"
+@SIM_MEASURES@
 
 // computes the full similarities and kullback_leiblers till border_max
 __kernel void precompute_similarities_1st_pass (__global float * ampl_master, __global float * ampl_slave,  __global float * dphase,

@@ -9,6 +9,7 @@ class compute_insar : public kernel_env<compute_insar>
 {
     private:
         const int search_window_size;
+        const std::string kernel_source = "@CMAKE_KERNEL_SOURCE@";
 
     public:
         std::string return_build_options(void);

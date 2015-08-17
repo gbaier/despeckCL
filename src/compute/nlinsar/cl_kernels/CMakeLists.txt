@@ -1,6 +1,7 @@
+set(KERNEL_PATH ${despeckCL_SOURCE_DIR}/src/compute/nlinsar/cl_kernels/)
+FILE(READ ${despeckCL_SOURCE_DIR}/include/compute/nlinsar/sim_measures.h SIM_MEASURES)
+
 configure_file (
-    "precompute_similarities_1st_pass.cl.in"
-    "precompute_similarities_1st_pass.cl"
+    ${KERNEL_PATH}precompute_similarities_1st_pass.cl.in
+    ${KERNEL_PATH}precompute_similarities_1st_pass.cl
 )
-set(KERNEL_PATH kernel)
-install(DIRECTORY . DESTINATION ${KERNEL_PATH} FILES_MATCHING PATTERN "*.cl")

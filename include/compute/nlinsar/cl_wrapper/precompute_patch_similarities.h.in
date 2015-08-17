@@ -7,6 +7,8 @@
 
 class precompute_patch_similarities : public kernel_env<precompute_patch_similarities>
 {
+    private:
+        const std::string kernel_source = "@CMAKE_KERNEL_SOURCE@";
 
     public:
         const int window_width;

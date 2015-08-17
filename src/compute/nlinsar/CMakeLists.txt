@@ -1,5 +1,5 @@
-add_subdirectory(cl_wrapper)
 add_subdirectory(cl_kernels)
+add_subdirectory(cl_wrapper)
 
 include_directories(${despeckCL_SOURCE_DIR}/include)
 include_directories(${despeckCL_SOURCE_DIR}/include/data)

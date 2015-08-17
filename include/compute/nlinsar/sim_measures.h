@@ -1,4 +1,4 @@
-//M_PI_F is define by opencl, if we do no
+// M_PI_F is define by opencl, if we do no
 #ifndef M_PI_F
 #define _USE_MATH_DEFINES
 #include <math.h>

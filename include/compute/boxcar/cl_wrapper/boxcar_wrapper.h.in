@@ -7,6 +7,8 @@
 
 class boxcar_wrapper : public kernel_env<boxcar_wrapper>
 {
+    private:
+        const std::string kernel_source = "@CMAKE_KERNEL_SOURCE@";
 
     public:
         const int window_width;
