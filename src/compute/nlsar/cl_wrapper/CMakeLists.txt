@@ -19,8 +19,16 @@ endforeach()
 add_library(nlsar_opencl_wrapper covmat_spatial_avg.cpp covmat_rescale.cpp)
 target_link_libraries(nlsar_opencl_wrapper clcfg ${OpenCL_LIBRARIES})
 
-add_executable(nlsar_kernel_test covmat_spatial_avg_test.cpp covmat_rescale_test.cpp)
-target_link_libraries(nlsar_kernel_test nlsar_opencl_wrapper) 
+# Testing Code
+add_executable(covmat_rescale_test     covmat_rescale_test.cpp)
+target_link_libraries(covmat_rescale_test nlsar_opencl_wrapper) 
 
-add_test(NAME NLSAR
-         COMMAND nlsar_kernel_test)
+add_executable(covmat_spatial_avg_test covmat_spatial_avg_test.cpp)
+target_link_libraries(covmat_spatial_avg_test nlsar_opencl_wrapper) 
+
+
+add_test(NAME NLSAR_covmat_rescale
+         COMMAND covmat_rescale_test)
+
+add_test(NAME NLSAR_covmat_spatial_avg
+         COMMAND covmat_spatial_avg_test)

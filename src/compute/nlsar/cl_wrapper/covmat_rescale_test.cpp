@@ -1,7 +1,11 @@
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 
+#define CATCH_CONFIG_MAIN
 #include "catch.hpp"
+
+#include "easylogging++.h"
+INITIALIZE_EASYLOGGINGPP
 
 #include <string>
 #include <iostream>
