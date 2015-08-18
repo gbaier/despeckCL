@@ -22,7 +22,6 @@ class kernel_env : public routine_env<Derived>
         cl::Context context;
         cl::Program program;
         cl::Kernel kernel;
-        const std::string kernel_source;
         kernel_env() {}
 
         kernel_env(size_t block_size, cl::Context context) : block_size(block_size), context(context)
@@ -45,24 +44,23 @@ class kernel_env : public routine_env<Derived>
    protected:
         void build_program(std::string build_options)
         {
-            const char* source_ptr = static_cast<Derived*>(this)->kernel_source.c_str();
-            
             std::vector<cl::Device> devices;
             context.getInfo(CL_CONTEXT_DEVICES, &devices);
 
-            cl::Program program{context, source_ptr};
-
+            std::string routine_name  = static_cast<Derived*>(this)->routine_name;
+            std::string kernel_source = static_cast<Derived*>(this)->kernel_source;
+            VLOG(0) << "Building program for: " << routine_name.c_str();
+            cl::Program program{context, static_cast<Derived*>(this)->kernel_source};
             try {
                 program.build(devices, build_options.c_str());
             } catch (cl::Error error) {
-                std::string routine_name = static_cast<Derived*>(this)->routine_name;
-                LOG(ERROR) << "ERR while creating program for: " << routine_name;
                 LOG(ERROR) << error.what() << "(" << error.err() << ")";
                 std::string build_log;
                 program.getBuildInfo(devices[0], CL_PROGRAM_BUILD_LOG, &build_log);
                 LOG(ERROR) << build_log;
                 std::terminate();
             }
+            VLOG(0) << "done";
             this->program = program;
         }
 
@@ -77,6 +75,7 @@ class kernel_env : public routine_env<Derived>
                 LOG(ERROR) << "ERR while building kernel: " << routine_name;
                 LOG(ERROR) << error.what() << "(" << error.err() << ")";
             }
+            VLOG(0) << "done";
         }
 
    public:

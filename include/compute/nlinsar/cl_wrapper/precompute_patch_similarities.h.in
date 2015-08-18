@@ -1,8 +1,6 @@
 #ifndef PRECOMPUTE_PATCH_SIMILARITIES_H
 #define PRECOMPUTE_PATCH_SIMILARITIES_H
 
-#include <CL/cl.h>
-
 #include "clcfg.h"
 
 class precompute_patch_similarities : public kernel_env<precompute_patch_similarities>
@@ -11,11 +9,16 @@ class precompute_patch_similarities : public kernel_env<precompute_patch_similar
         const int window_width;
         const int output_block_size;
 
-        const std::string kernel_source = "@CMAKE_KERNEL_SOURCE@";
+        static constexpr const char* kernel_source =
+"@CMAKE_KERNEL_SOURCE@"
+;
 
         static constexpr const char* routine_name {"precompute_patch_similarities"};
 
-        precompute_patch_similarities(const size_t block_size, cl::Context context, const int window_width);
+        precompute_patch_similarities(const size_t block_size,
+                                      cl::Context context,
+                                      const int window_width);
+
         precompute_patch_similarities(const precompute_patch_similarities& other);
 
         std::string return_build_options(void);

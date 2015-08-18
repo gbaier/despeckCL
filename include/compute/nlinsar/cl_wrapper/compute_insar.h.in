@@ -13,7 +13,9 @@ class compute_insar : public kernel_env<compute_insar>
     public:
         std::string return_build_options(void);
 
-        const std::string kernel_source = "@CMAKE_KERNEL_SOURCE@";
+        static constexpr const char* kernel_source =
+"@CMAKE_KERNEL_SOURCE@"
+;
 
         static constexpr const char* routine_name {"compute_insar"};
 

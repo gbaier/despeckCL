@@ -10,9 +10,12 @@ class compute_weights : public kernel_env<compute_weights>
     public:
         using kernel_env::kernel_env;
 
-        const std::string kernel_source = "@CMAKE_KERNEL_SOURCE@";
-
         static constexpr const char* routine_name {"compute_weights"};
+
+        static constexpr const char* kernel_source =
+"@CMAKE_KERNEL_SOURCE@"
+;
+
 
         void run(cl::CommandQueue cmd_queue,
                  cl::Buffer patch_similarities,

@@ -6,7 +6,9 @@
 class precompute_similarities_2nd_pass : public kernel_env<precompute_similarities_2nd_pass>
 {
     public:
-        const std::string kernel_source = "@CMAKE_KERNEL_SOURCE@";
+        static constexpr const char* kernel_source =
+"@CMAKE_KERNEL_SOURCE@"
+;
 
         static constexpr const char* routine_name {"precompute_similarities_2nd_pass"};
 
