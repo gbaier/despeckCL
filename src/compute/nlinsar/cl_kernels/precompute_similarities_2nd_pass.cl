@@ -30,4 +30,3 @@ __kernel void precompute_similarities_2nd_pass (__global float * similarities, _
         }
     }
 }
-
