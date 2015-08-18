@@ -1,4 +1,5 @@
 include_directories(${despeckCL_SOURCE_DIR}/include/clcfg)
+include_directories(${despeckCL_SOURCE_DIR}/include/utils)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar/cl_wrapper)
 
 FILE(GLOB infiles "${despeckCL_SOURCE_DIR}/include/compute/nlsar/cl_wrapper/*.in")
@@ -15,5 +16,11 @@ foreach(infile ${infiles})
     configure_file(${infile} ${outfile})
 endforeach()
 
-add_library(nlsar_opencl_wrapper covmat_spatial_avg.cpp 
-                                 )
+add_library(nlsar_opencl_wrapper covmat_spatial_avg.cpp)
+target_link_libraries(nlsar_opencl_wrapper clcfg ${OpenCL_LIBRARIES})
+
+add_executable(covmat_spatial_avg_test covmat_spatial_avg_test.cpp)
+target_link_libraries(covmat_spatial_avg_test nlsar_opencl_wrapper) 
+
+add_test(NAME NLSAR
+         COMMAND covmat_spatial_avg_test)
