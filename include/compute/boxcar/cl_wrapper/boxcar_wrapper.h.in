@@ -7,12 +7,11 @@
 
 class boxcar_wrapper : public kernel_env<boxcar_wrapper>
 {
-    private:
-        const std::string kernel_source = "@CMAKE_KERNEL_SOURCE@";
-
     public:
         const int window_width;
         const int output_block_size;
+
+        const std::string kernel_source = "@CMAKE_KERNEL_SOURCE@";
 
         static constexpr const char* routine_name {"boxcar_kernel"};
 

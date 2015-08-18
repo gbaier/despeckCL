@@ -5,10 +5,8 @@
 
 class transpose : public kernel_env<transpose>
 {
-    private:
-        const std::string kernel_source = "@CMAKE_KERNEL_SOURCE@";
-
     public:
+        const std::string kernel_source = "@CMAKE_KERNEL_SOURCE@";
 
         static constexpr const char* routine_name {"transpose"};
 

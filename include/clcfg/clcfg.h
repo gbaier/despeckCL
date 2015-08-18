@@ -45,12 +45,12 @@ class kernel_env : public routine_env<Derived>
    protected:
         void build_program(std::string build_options)
         {
-            const char* source_ptr = kernel_source.c_str();
+            const char* source_ptr = static_cast<Derived*>(this)->kernel_source.c_str();
             
             std::vector<cl::Device> devices;
             context.getInfo(CL_CONTEXT_DEVICES, &devices);
 
-            cl::Program program{context, kernel_source.c_str()};
+            cl::Program program{context, source_ptr};
 
             try {
                 program.build(devices, build_options.c_str());

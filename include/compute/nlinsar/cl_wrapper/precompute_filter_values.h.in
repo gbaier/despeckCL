@@ -5,11 +5,10 @@
 
 class precompute_filter_values : public kernel_env<precompute_filter_values>
 {
-    private:
-        const std::string kernel_source = "@CMAKE_KERNEL_SOURCE@";
-
     public:
         static constexpr const char* routine_name {"precompute_filter_values"};
+
+        const std::string kernel_source = "@CMAKE_KERNEL_SOURCE@";
 
         using kernel_env::kernel_env;
 
