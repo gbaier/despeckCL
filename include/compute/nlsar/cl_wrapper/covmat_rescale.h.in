@@ -1,0 +1,27 @@
+#ifndef COVMAT_RESCALE_H
+#define COVMAT_RESCALE_H
+
+#include <CL/cl.h>
+
+#include "clcfg.h"
+
+class covmat_rescale : public kernel_env<covmat_rescale>
+{
+    public:
+        using kernel_env::kernel_env;
+
+        static constexpr const char* routine_name {"covmat_rescale"};
+
+        static constexpr const char* kernel_source =
+"@CMAKE_KERNEL_SOURCE@"
+;
+
+        void run(cl::CommandQueue cmd_queue,
+                 cl::Buffer covmat,
+                 const int dimension,
+                 const int nlooks,
+                 const int height,
+                 const int width);
+};
+
+#endif

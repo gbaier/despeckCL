@@ -16,11 +16,11 @@ foreach(infile ${infiles})
     configure_file(${infile} ${outfile})
 endforeach()
 
-add_library(nlsar_opencl_wrapper covmat_spatial_avg.cpp)
+add_library(nlsar_opencl_wrapper covmat_spatial_avg.cpp covmat_rescale.cpp)
 target_link_libraries(nlsar_opencl_wrapper clcfg ${OpenCL_LIBRARIES})
 
-add_executable(covmat_spatial_avg_test covmat_spatial_avg_test.cpp)
-target_link_libraries(covmat_spatial_avg_test nlsar_opencl_wrapper) 
+add_executable(nlsar_kernel_test covmat_spatial_avg_test.cpp covmat_rescale_test.cpp)
+target_link_libraries(nlsar_kernel_test nlsar_opencl_wrapper) 
 
 add_test(NAME NLSAR
-         COMMAND covmat_spatial_avg_test)
+         COMMAND nlsar_kernel_test)
