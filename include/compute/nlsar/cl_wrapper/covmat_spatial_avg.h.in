@@ -1,0 +1,34 @@
+#ifndef COVMAT_SPATIAL_AVG_H
+#define COVMAT_SPATIAL_AVG_H
+
+#include "clcfg.h"
+
+class covmat_spatial_avg : public kernel_env<covmat_spatial_avg>
+{
+    public:
+        const int window_width;
+        const int output_block_size;
+
+        static constexpr const char* kernel_source =
+"@CMAKE_KERNEL_SOURCE@"
+;
+
+        static constexpr const char* routine_name {"covmat_spatial_avg"};
+
+        covmat_spatial_avg(const size_t block_size,
+                           cl::Context context,
+                           const int window_width);
+
+        covmat_spatial_avg(const covmat_spatial_avg& other);
+
+        std::string return_build_options(void);
+
+        void run(cl::CommandQueue cmd_queue,
+                 cl::Buffer covmat_in,
+                 cl::Buffer covmat_out,
+                 const int dimension,
+                 const int height,
+                 const int width);
+};
+
+#endif
