@@ -60,7 +60,6 @@ TEST_CASE( "covmat_create", "[cl_kernels]" ) {
             std::complex<float> el01 {covmat[i + 2*offset], covmat[i + 3*offset]};
             std::complex<float> el10 {covmat[i + 4*offset], covmat[i + 5*offset]};
             std::complex<float> el11 {covmat[i + 6*offset], covmat[i + 7*offset]};
-            std::cout << el00 << ", " << el01 << ", " << el10 << ", " << el11 << std::endl;
             flag = flag && (0 == Approx(std::abs(el00*el11 - el01*el10)).epsilon( 0.0001 ));
         }
         REQUIRE( ( flag ) );
