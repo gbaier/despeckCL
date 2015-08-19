@@ -1,0 +1,44 @@
+@SIM_MEASURES@
+
+__kernel void compute_pixel_similarities_2x2 (__global float * covmat,
+                                              __global float * pixel_similarities,
+                                              const int height_overlap,
+                                              const int width_overlap,
+                                              const int search_window_size)
+{
+    const int h = get_group_id(0) * get_local_size(0) + get_local_id(0);
+    const int w = get_group_id(1) * get_local_size(1) + get_local_id(1);
+
+    const int wsh = (search_window_size - 1)/2;
+
+    const int height_sim = height_overlap - search_window_size + 1;
+    const int width_sim  = width_overlap  - search_window_size + 1;
+
+    if( h < height_sim && w < width_sim) {
+        for(int hh = 0; hh < search_window_size; hh++) {
+            for(int ww = 0; ww < search_window_size; ww++) {
+
+                const int center_idx = (h+wsh)* width_overlap + w + wsh;
+                const int window_idx = (h+hh) * width_overlap + w + ww;
+
+                const float el_00_p1     = covmat[center_idx];
+                const float el_01real_p1 = covmat[center_idx + 2*height_overlap*width_overlap];
+                const float el_01imag_p1 = covmat[center_idx + 3*height_overlap*width_overlap];
+                const float el_11_p1     = covmat[center_idx + 6*height_overlap*width_overlap];
+
+                const float el_00_p2     = covmat[window_idx];
+                const float el_01real_p2 = covmat[window_idx + 2*height_overlap*width_overlap];
+                const float el_01imag_p2 = covmat[window_idx + 3*height_overlap*width_overlap];
+                const float el_11_p2     = covmat[window_idx + 6*height_overlap*width_overlap];
+
+                const int idx = hh * search_window_size * height_sim * width_sim \
+                              + ww * height_sim * width_sim \
+                              + h * width_sim \
+                              + w;
+
+                pixel_similarities[idx] = pixel_similarity(el_00_p1, el_01real_p1, el_01imag_p1, el_11_p1, \
+                                                           el_00_p2, el_01real_p2, el_01imag_p2, el_11_p2);
+            }
+        }
+    }
+}

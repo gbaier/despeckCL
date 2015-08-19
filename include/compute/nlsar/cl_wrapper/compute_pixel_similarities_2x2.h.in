@@ -1,0 +1,27 @@
+#ifndef COMPUTE_PIXEL_SIMILARITIES_2X2_H
+#define COMPUTE_PIXEL_SIMILARITIES_2X2_H
+
+#include <CL/cl.h>
+
+#include "clcfg.h"
+
+class compute_pixel_similarities_2x2 : public kernel_env<compute_pixel_similarities_2x2>
+{
+    public:
+        using kernel_env::kernel_env;
+
+        static constexpr const char* routine_name {"compute_pixel_similarities_2x2"};
+
+        static constexpr const char* kernel_source =
+"@CMAKE_KERNEL_SOURCE@"
+;
+
+        void run(cl::CommandQueue cmd_queue,
+                 cl::Buffer covmat,
+                 cl::Buffer pixel_similarities,
+                 const int height_overlap,
+                 const int width_overlap,
+                 const int search_window_size);
+};
+
+#endif
