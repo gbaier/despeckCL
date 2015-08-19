@@ -4,15 +4,14 @@ __kernel void covmat_spatial_avg (__global float * covmat_in,
                                   const int height,
                                   const int width)
 {
-    const int window_radius = (WINDOW_WIDTH - 1) / 2;
     const int tx = get_local_id(0);
     const int ty = get_local_id(1);
 
     const int in_x = get_group_id(0) * OUTPUT_BLOCK_SIZE + tx;
     const int in_y = get_group_id(1) * OUTPUT_BLOCK_SIZE + ty;
 
-    const int out_x = in_x + window_radius;
-    const int out_y = in_y + window_radius;
+    const int height_new = height - WINDOW_WIDTH + 1;
+    const int width_new  = width  - WINDOW_WIDTH + 1;
 
     __local float local_data [BLOCK_SIZE][BLOCK_SIZE];
 
@@ -31,8 +30,8 @@ __kernel void covmat_spatial_avg (__global float * covmat_in,
                     sum += local_data[tx + kx][ty + ky];
                 }
             }
-            if (out_x < height - window_radius && out_y < width - window_radius) {
-                covmat_out[i*height*width + out_x*width + out_y] = sum/(WINDOW_WIDTH*WINDOW_WIDTH);
+            if (in_x < height_new &&  in_y < width_new) {
+                covmat_out[i*height_new*width_new + in_x*width_new + in_y] = sum/(WINDOW_WIDTH*WINDOW_WIDTH);
             }
         }
     }

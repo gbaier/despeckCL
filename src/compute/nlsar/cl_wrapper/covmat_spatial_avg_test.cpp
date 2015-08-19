@@ -15,22 +15,14 @@ INITIALIZE_EASYLOGGINGPP
 TEST_CASE( "covmat_spatial_avg", "[cl_kernels]" ) {
 
         // data setup
-        const int height = 10;
-        const int width = 10;
+        const int height = 30;
+        const int width = 20;
 
         const int window_width = 5;
-        const int window_radius = (window_width - 1)/2;
 
         std::vector<float> input          (height*width, 1.0);
-        std::vector<float> output         (height*width, 0.0);
-        std::vector<float> desired_output (height*width, 0.0);
-
-        float* ptr = desired_output.data();
-        for(int h = window_radius; h < height - window_radius; h++) {
-            for(int w = window_radius; w < width - window_radius; w++) {
-                ptr[h*width+w] = 1.0;
-            }
-        }
+        std::vector<float> output         ((height-window_width+1)*(width-window_width+1), 0.0);
+        std::vector<float> desired_output ((height-window_width+1)*(width-window_width+1), 1.0);
 
         // opencl setup
         cl::Context context = opencl_setup();
@@ -45,8 +37,8 @@ TEST_CASE( "covmat_spatial_avg", "[cl_kernels]" ) {
         covmat_spatial_avg KUT{block_size, context, window_width};
 
         // allocate memory
-        cl::Buffer device_input  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, height*width*sizeof(float), input.data(), NULL};
-        cl::Buffer device_output {context, CL_MEM_READ_WRITE,                        height*width*sizeof(float), NULL,         NULL};
+        cl::Buffer device_input  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, height*width*sizeof(float),                                   input.data(), NULL};
+        cl::Buffer device_output {context, CL_MEM_READ_WRITE,                        (height-window_width+1)*(width-window_width+1)*sizeof(float), NULL,         NULL};
 
         KUT.run(cmd_queue, 
                 device_input,
@@ -55,7 +47,7 @@ TEST_CASE( "covmat_spatial_avg", "[cl_kernels]" ) {
                 height,
                 width);
 
-        cmd_queue.enqueueReadBuffer(device_output, CL_TRUE, 0, height*width*sizeof(float), output.data(), NULL, NULL);
+        cmd_queue.enqueueReadBuffer(device_output, CL_TRUE, 0, (height-window_width+1)*(width-window_width+1)*sizeof(float), output.data(), NULL, NULL);
 
         REQUIRE( ( output == desired_output ) );
 }
