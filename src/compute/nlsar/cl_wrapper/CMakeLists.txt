@@ -20,6 +20,7 @@ add_library(nlsar_opencl_wrapper covmat_spatial_avg.cpp
                                  covmat_rescale.cpp
                                  covmat_create.cpp
                                  compute_pixel_similarities_2x2.cpp
+                                 weighted_means.cpp
                                  )
 target_link_libraries(nlsar_opencl_wrapper clcfg ${OpenCL_LIBRARIES})
 
@@ -36,6 +37,9 @@ target_link_libraries(covmat_create_test nlsar_opencl_wrapper)
 add_executable(compute_pixel_similarities_2x2_test compute_pixel_similarities_2x2_test.cpp)
 target_link_libraries(compute_pixel_similarities_2x2_test nlsar_opencl_wrapper) 
 
+add_executable(weighted_means_test weighted_means_test.cpp)
+target_link_libraries(weighted_means_test nlsar_opencl_wrapper) 
+
 
 add_test(NAME NLSAR_covmat_rescale
          COMMAND covmat_rescale_test)
@@ -48,3 +52,6 @@ add_test(NAME NLSAR_covmat_create
 
 add_test(NAME NLSAR_compute_pixel_similarities_2x2
          COMMAND compute_pixel_similarities_2x2_test)
+
+add_test(NAME NLSAR_weighted_means
+         COMMAND weighted_means_test)

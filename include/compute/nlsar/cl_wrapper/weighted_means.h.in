@@ -1,0 +1,37 @@
+#ifndef weighted_means_H
+#define weighted_means_H
+
+#include "clcfg.h"
+
+class weighted_means : public kernel_env<weighted_means>
+{
+    public:
+        const int search_window_size;
+        const int dimension;
+
+        static constexpr const char* kernel_source =
+"@CMAKE_KERNEL_SOURCE@"
+;
+
+        static constexpr const char* routine_name {"weighted_means"};
+
+        weighted_means(const size_t block_size,
+                           cl::Context context,
+                           const int search_window_size,
+                           const int dimension);
+
+        weighted_means(const weighted_means& other);
+
+        std::string return_build_options(void);
+
+        void run(cl::CommandQueue cmd_queue,
+                 cl::Buffer covmat_in,
+                 cl::Buffer covmat_out,
+                 cl::Buffer weights,
+                 const int height_ori,
+                 const int width_ori,
+                 const int search_window_size,
+                 const int patch_size);
+};
+
+#endif
