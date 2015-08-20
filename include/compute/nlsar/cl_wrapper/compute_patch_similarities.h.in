@@ -1,0 +1,35 @@
+#ifndef COMPUTE_PATCH_SIMILARITIES_H
+#define COMPUTE_PATCH_SIMILARITIES_H
+
+#include "clcfg.h"
+
+class compute_patch_similarities : public kernel_env<compute_patch_similarities>
+{
+    public:
+        const int patch_size;
+        const int output_block_size;
+
+        static constexpr const char* kernel_source =
+"@CMAKE_KERNEL_SOURCE@"
+;
+
+        static constexpr const char* routine_name {"compute_patch_similarities"};
+
+        compute_patch_similarities(const size_t block_size,
+                                   cl::Context context,
+                                   const int patch_size);
+
+        compute_patch_similarities(const compute_patch_similarities& other);
+
+        std::string return_build_options(void);
+
+        void run(cl::CommandQueue cmd_queue,
+                 cl::Buffer pixel_similarities,
+                 cl::Buffer patch_similarities,
+                 const int height_sim,
+                 const int width_sim,
+                 const int search_winow_size,
+                 const int patch_size);
+};
+
+#endif
