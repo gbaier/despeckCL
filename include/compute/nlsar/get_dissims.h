@@ -7,6 +7,6 @@
 
 std::vector<float> get_dissims(const insar_data& sub_insar_data,
                                const int patch_size,
-                               const int window_width = 3);
+                               const int window_width);
 
 #endif

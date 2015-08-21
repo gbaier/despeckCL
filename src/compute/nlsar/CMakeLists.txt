@@ -13,6 +13,18 @@ add_library(nlsar_lib nlsar.cpp
                       stats.cpp
                       get_dissims.cpp)
 
+find_package(GSL REQUIRED)
+if(GSL_FOUND)
+    include_directories(${GSL_INCLUDE_DIRS})
+endif()
+
+target_link_libraries(nlsar_lib nlsar_opencl_wrapper
+                                insar_data
+                                clcfg
+                                ${GSL_LIBRARIES})
+
+
+
 # Testing Code
 add_executable(sim_measures_test sim_measures_test.cpp)
 

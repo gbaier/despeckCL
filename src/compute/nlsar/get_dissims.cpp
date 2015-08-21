@@ -11,9 +11,9 @@
 
 #include "clcfg.h"
 
-std::vector<float> return_dissims(const insar_data& sub_insar_data,
-                                  const int patch_size,
-                                  const int window_width = 3)
+std::vector<float> get_dissims(const insar_data& sub_insar_data,
+                               const int patch_size,
+                               const int window_width = 3)
 {
     const int dimension = 2;
     const int nlooks = 1;
