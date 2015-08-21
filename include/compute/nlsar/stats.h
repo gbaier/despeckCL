@@ -1,3 +1,6 @@
+#ifndef STATS_H
+#define STATS_H
+
 #include <vector>
 
 class stats
@@ -5,7 +8,7 @@ class stats
     private:
         const int patch_size;
         const float h = 0.333;
-        const int float size = 1000;
+        const float size = 1000;
         const float c;
         
         std::vector<float> dissims;
@@ -19,3 +22,5 @@ class stats
         float weight(float dissim);
 
 };
+
+#endif

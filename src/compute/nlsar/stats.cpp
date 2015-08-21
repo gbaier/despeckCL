@@ -3,6 +3,7 @@
 #include <gsl/gsl_statistics_float.h>
 #include <gsl/gsl_cdf.h>
 
+#include <algorithm>
 
 float stats::dissim_lookup(float dissim)
 {

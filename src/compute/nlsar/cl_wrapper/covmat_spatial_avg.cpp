@@ -42,7 +42,7 @@ void covmat_spatial_avg::run(cl::CommandQueue cmd_queue,
 {
     kernel.setArg(0, covmat_in);
     kernel.setArg(1, covmat_out);
-    kernel.setArg(2, 1);
+    kernel.setArg(2, dimension);
     kernel.setArg(3, height);
     kernel.setArg(4, width);
 
