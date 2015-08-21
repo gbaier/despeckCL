@@ -22,7 +22,7 @@
 #include "compute_patch_similarities.h"
 #include "weighted_means.h"
 
-nlsar_routines nl_routines;
+nlsar_routines nl_routines_fixme;
 
 int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
           float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered,
@@ -103,24 +103,24 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     elapsed_seconds = end-start;
     VLOG(0) << "Time it took to build all kernels: " << elapsed_seconds.count() << "secs";
 
-#pragma omp threadprivate(nl_routines)
+#pragma omp threadprivate(nl_routines_fixme)
 
 #pragma omp parallel shared(total_image, total_image_temp)
 {
 // every thread needs its own kernel, in order not to recompile the program again
 // a new kernel is created via the copy constructor
-    nl_routines.covmat_create_routine                  = new covmat_create                  (*(nl_routines_base.covmat_create_routine));
-    nl_routines.covmat_rescale_routine                 = new covmat_rescale                 (*(nl_routines_base.covmat_rescale_routine));
-    nl_routines.covmat_spatial_avg_routine             = new covmat_spatial_avg             (*(nl_routines_base.covmat_spatial_avg_routine));
-    nl_routines.compute_pixel_similarities_2x2_routine = new compute_pixel_similarities_2x2 (*(nl_routines_base.compute_pixel_similarities_2x2_routine));
-    nl_routines.weighted_means_routine                 = new weighted_means                 (*(nl_routines_base.weighted_means_routine));
+    nl_routines_fixme.covmat_create_routine                  = new covmat_create                  (*(nl_routines_base.covmat_create_routine));
+    nl_routines_fixme.covmat_rescale_routine                 = new covmat_rescale                 (*(nl_routines_base.covmat_rescale_routine));
+    nl_routines_fixme.covmat_spatial_avg_routine             = new covmat_spatial_avg             (*(nl_routines_base.covmat_spatial_avg_routine));
+    nl_routines_fixme.compute_pixel_similarities_2x2_routine = new compute_pixel_similarities_2x2 (*(nl_routines_base.compute_pixel_similarities_2x2_routine));
+    nl_routines_fixme.weighted_means_routine                 = new weighted_means                 (*(nl_routines_base.weighted_means_routine));
 #pragma omp master
     total_image_temp = total_image;
     for( auto boundaries : gen_sub_images(total_image.height, total_image.width, sub_image_size, overlap) ) {
 #pragma omp task firstprivate(boundaries)
         {
         insar_data sub_image = total_image.get_sub_insar_data(boundaries);
-        nlsar_sub_image(context, nl_routines, // opencl stuff
+        nlsar_sub_image(context, nl_routines_fixme, // opencl stuff
                         sub_image, // data
                         search_window_size,
                         patch_size,
