@@ -55,6 +55,7 @@ int nlsar_sub_image(cl::Context context,
     //
     //***************************************************************************
 
+    LOG(DEBUG) << "allocating buffers on device";
     cl::Buffer device_ampl_master {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.a1, NULL};
     cl::Buffer device_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.a2, NULL};
     cl::Buffer device_dphase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.dp, NULL};
@@ -83,6 +84,7 @@ int nlsar_sub_image(cl::Context context,
     // executing routines and kernels
     //
     //***************************************************************************
+    LOG(DEBUG) << "covmat_create";
     nl_routines.covmat_create_routine->timed_run(cmd_queue,
                                                  device_ampl_master,
                                                  device_ampl_slave,
@@ -93,6 +95,7 @@ int nlsar_sub_image(cl::Context context,
 
     cmd_queue.enqueueCopyBuffer(covmat_ori, covmat_rescaled, 0, 0, dimension * dimension * n_elem_overlap * sizeof(float), NULL, NULL);
 
+    LOG(DEBUG) << "covmat_rescale";
     nl_routines.covmat_rescale_routine->timed_run(cmd_queue,
                                                   covmat_rescaled,
                                                   dimension,
@@ -100,6 +103,7 @@ int nlsar_sub_image(cl::Context context,
                                                   height_overlap_avg,
                                                   width_overlap_avg);
 
+    LOG(DEBUG) << "covmat_spatial_avg";
     nl_routines.covmat_spatial_avg_routine->timed_run(cmd_queue,
                                                       covmat_rescaled,
                                                       covmat_spatial_avg,
@@ -107,6 +111,7 @@ int nlsar_sub_image(cl::Context context,
                                                       height_overlap,
                                                       width_overlap);
 
+    LOG(DEBUG) << "covmat_pixel_similarities";
     nl_routines.compute_pixel_similarities_2x2_routine->timed_run(cmd_queue,
                                                                   covmat_spatial_avg,
                                                                   device_pixel_similarities,
@@ -114,6 +119,7 @@ int nlsar_sub_image(cl::Context context,
                                                                   width_overlap,
                                                                   search_window_size);
 
+    LOG(DEBUG) << "covmat_patch_similarities";
     nl_routines.compute_patch_similarities_routine->timed_run(cmd_queue,
                                                               device_pixel_similarities,
                                                               device_patch_similarities,
@@ -131,6 +137,7 @@ int nlsar_sub_image(cl::Context context,
                                 n_elem_ori * search_window_size * search_window_size * sizeof(float), weights.data());
 
 
+    LOG(DEBUG) << "weighted_means";
     nl_routines.weighted_means_routine->timed_run(cmd_queue,
                                                   covmat_ori,
                                                   covmat_filt,
@@ -146,6 +153,7 @@ int nlsar_sub_image(cl::Context context,
     //
     //***************************************************************************
     const int n_elem = (height_overlap) * (width_overlap);
+    LOG(DEBUG) << "copying sub result";
     cmd_queue.enqueueReadBuffer(covmat_filt, CL_TRUE, 0, n_elem*sizeof(float), sub_insar_data.amp_filt, NULL, NULL);
     //cmd_queue.enqueueReadBuffer(device_phi_filt, CL_TRUE, 0, n_elem*sizeof(float), sub_insar_data.phi_filt, NULL, NULL);
     //cmd_queue.enqueueReadBuffer(device_coh_filt, CL_TRUE, 0, n_elem*sizeof(float), sub_insar_data.coh_filt, NULL, NULL);
