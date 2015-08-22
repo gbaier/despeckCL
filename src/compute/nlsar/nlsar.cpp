@@ -98,6 +98,7 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     nl_routines_base.covmat_rescale_routine                 = new covmat_rescale                 (16, context);
     nl_routines_base.covmat_spatial_avg_routine             = new covmat_spatial_avg             (16, context, window_width);
     nl_routines_base.compute_pixel_similarities_2x2_routine = new compute_pixel_similarities_2x2 (16, context);
+    nl_routines_base.compute_patch_similarities_routine     = new compute_patch_similarities     (16, context, patch_size);
     nl_routines_base.weighted_means_routine                 = new weighted_means                 (16, context, search_window_size, dimension);
     end = std::chrono::system_clock::now();
     elapsed_seconds = end-start;
@@ -113,6 +114,7 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     nl_routines_fixme.covmat_rescale_routine                 = new covmat_rescale                 (*(nl_routines_base.covmat_rescale_routine));
     nl_routines_fixme.covmat_spatial_avg_routine             = new covmat_spatial_avg             (*(nl_routines_base.covmat_spatial_avg_routine));
     nl_routines_fixme.compute_pixel_similarities_2x2_routine = new compute_pixel_similarities_2x2 (*(nl_routines_base.compute_pixel_similarities_2x2_routine));
+    nl_routines_fixme.compute_patch_similarities_routine     = new compute_patch_similarities     (*(nl_routines_base.compute_patch_similarities_routine));
     nl_routines_fixme.weighted_means_routine                 = new weighted_means                 (*(nl_routines_base.weighted_means_routine));
 #pragma omp master
     total_image_temp = total_image;
