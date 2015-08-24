@@ -16,5 +16,9 @@ float pixel_similarity(float el_00_p1, float el_01real_p1, float el_01imag_p1, f
                                 el_01imag_p1 + el_01imag_p2,
                                 el_11_p1     + el_11_p2);
 
-    return -nlooks*( 2*dim*log(2.0f) +  log(nom1) + log(nom2) - 2*log(det) );
+    float similarity = -nlooks*( 2*dim*log(2.0f) +  log(nom1) + log(nom2) - 2*log(det) );
+    if (isnan(similarity)) {
+        similarity = 0;
+    }
+    return similarity;
 }
