@@ -24,10 +24,6 @@ TEST_CASE( "compute_patch_similarities", "[cl_kernels]" ) {
         std::vector<float> patch_similarities         (search_window_size * search_window_size * height_ori * width_ori, 0.0);
         std::vector<float> desired_patch_similarities (search_window_size * search_window_size * height_ori * width_ori, 0.0);
 
-        // simulate coherence value
-        static std::default_random_engine rand_eng{};
-        static std::uniform_real_distribution<float> dist {0, 1};
-
         for(int d = 0; d<search_window_size*search_window_size; d++) {
             for(int i = 0; i < height_sim * width_sim; i++) {
                 pixel_similarities[d*height_sim*width_sim + i] = d;
