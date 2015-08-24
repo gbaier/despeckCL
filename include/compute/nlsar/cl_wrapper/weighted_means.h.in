@@ -31,7 +31,8 @@ class weighted_means : public kernel_env<weighted_means>
                  const int height_ori,
                  const int width_ori,
                  const int search_window_size,
-                 const int patch_size);
+                 const int patch_size,
+                 const int window_width);
 };
 
 #endif

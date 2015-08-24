@@ -15,16 +15,17 @@ INITIALIZE_EASYLOGGINGPP
 TEST_CASE( "weighted_means", "[cl_kernels]" ) {
 
         // data setup
-        const int height_ori = 20;
-        const int width_ori = 20;
+        const int height_ori = 10;
+        const int width_ori = 10;
 
         const int search_window_size = 11;
-        const int patch_size = 5;
+        const int patch_size = 3;
+        const int window_width = 3;
         const int overlap = (patch_size-1)/2 + (search_window_size-1)/2;
-        const int overlap_avg = overlap + (patch_size-1)/2;
+        const int overlap_avg = overlap + (window_width-1)/2;
         const int dimension = 2;
 
-        const int covmat_in_nelem  = (height_ori + 2*overlap)     * (width_ori + 2*overlap)     * dimension * dimension * 2;
+        const int covmat_in_nelem  = (height_ori + 2*overlap_avg) * (width_ori + 2*overlap_avg) * dimension * dimension * 2;
         const int covmat_out_nelem = (height_ori + 2*overlap_avg) * (width_ori + 2*overlap_avg) * dimension * dimension * 2;
         const int weights_nelem    =  height_ori                  *  width_ori * search_window_size * search_window_size;
 
@@ -64,7 +65,8 @@ TEST_CASE( "weighted_means", "[cl_kernels]" ) {
                 height_ori,
                 width_ori,
                 search_window_size,
-                patch_size);
+                patch_size,
+                window_width);
 
         cmd_queue.enqueueReadBuffer(device_covmat_out, CL_TRUE, 0, covmat_out_nelem * sizeof(float), covmat_out.data(), NULL, NULL);
 

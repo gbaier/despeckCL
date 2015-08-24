@@ -41,7 +41,8 @@ void weighted_means::run(cl::CommandQueue cmd_queue,
                          const int height_ori,
                          const int width_ori,
                          const int search_window_size,
-                         const int patch_size)
+                         const int patch_size,
+                         const int window_width)
 {
     kernel.setArg(0, covmat_in);
     kernel.setArg(1, covmat_out);
@@ -50,6 +51,7 @@ void weighted_means::run(cl::CommandQueue cmd_queue,
     kernel.setArg(4, width_ori);
     kernel.setArg(5, search_window_size);
     kernel.setArg(6, patch_size);
+    kernel.setArg(7, window_width);
 
     cl::NDRange global_size {(size_t) block_size*( (height_ori - 1)/block_size + 1), \
                              (size_t) block_size*( (width_ori  - 1)/block_size + 1)};
