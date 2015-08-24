@@ -98,7 +98,7 @@ int nlsar_sub_image(cl::Context context,
                                                  height_overlap_avg,
                                                  width_overlap_avg);
 
-    cmd_queue.enqueueCopyBuffer(covmat_ori, covmat_rescaled, 0, 0, dimension * dimension * n_elem_overlap * sizeof(float), NULL, NULL);
+    cmd_queue.enqueueCopyBuffer(covmat_ori, covmat_rescaled, 0, 0, 2*dimension * dimension * n_elem_overlap_avg * sizeof(float), NULL, NULL);
 
     LOG(DEBUG) << "covmat_rescale";
     nl_routines.covmat_rescale_routine->timed_run(cmd_queue,
