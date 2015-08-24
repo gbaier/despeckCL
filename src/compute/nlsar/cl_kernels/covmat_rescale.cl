@@ -14,7 +14,8 @@ __kernel void covmat_rescale (__global float * covmat,
         for(int row_idx = 0; row_idx < dimension; row_idx++) {
             for(int col_idx = 0; col_idx < dimension; col_idx++) {
                 if (row_idx != col_idx) {
-                    covmat[ (row_idx * dimension + col_idx)*height*width + tx*width + ty ] *= gamma;
+                    covmat[  2*(row_idx * dimension + col_idx)     *height*width + tx*width + ty ] *= gamma;
+                    covmat[ (2*(row_idx * dimension + col_idx) + 1)*height*width + tx*width + ty ] *= gamma;
                 }
             }
         }
