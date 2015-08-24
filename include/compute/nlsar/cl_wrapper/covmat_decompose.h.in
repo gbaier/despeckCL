@@ -1,0 +1,29 @@
+#ifndef COVMAT_DECOMPOSE_H
+#define COVMAT_DECOMPOSE_H
+
+#include <CL/cl.h>
+
+#include "clcfg.h"
+
+class covmat_decompose : public kernel_env<covmat_decompose>
+{
+    public:
+        using kernel_env::kernel_env;
+
+        static constexpr const char* routine_name {"covmat_decompose"};
+
+        static constexpr const char* kernel_source =
+"@CMAKE_KERNEL_SOURCE@"
+;
+
+    void run(cl::CommandQueue cmd_queue,
+             cl::Buffer covmat,
+             cl::Buffer amplitude,
+             cl::Buffer dphase,
+             cl::Buffer coherence,
+             const int height,
+             const int width);
+
+};
+
+#endif
