@@ -60,9 +60,9 @@ int nlsar_sub_image(cl::Context context,
     cl::Buffer device_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.a2, NULL};
     cl::Buffer device_dphase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.dp, NULL};
 
-    cl::Buffer covmat_ori                 {context, CL_MEM_READ_WRITE, 2*dimension * dimension * n_elem_overlap * sizeof(float), NULL, NULL};
-    cl::Buffer covmat_rescaled            {context, CL_MEM_READ_WRITE, 2*dimension * dimension * n_elem_overlap * sizeof(float), NULL, NULL};
-    cl::Buffer covmat_spatial_avg         {context, CL_MEM_READ_WRITE, 2*dimension * dimension * n_elem_sim     * sizeof(float), NULL, NULL};
+    cl::Buffer covmat_ori                 {context, CL_MEM_READ_WRITE, 2*dimension * dimension * n_elem_overlap_avg * sizeof(float), NULL, NULL};
+    cl::Buffer covmat_rescaled            {context, CL_MEM_READ_WRITE, 2*dimension * dimension * n_elem_overlap_avg * sizeof(float), NULL, NULL};
+    cl::Buffer covmat_spatial_avg         {context, CL_MEM_READ_WRITE, 2*dimension * dimension * n_elem_overlap     * sizeof(float), NULL, NULL};
 
 
     cl::Buffer device_pixel_similarities  {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_sim * sizeof(float), NULL, NULL};
@@ -72,9 +72,9 @@ int nlsar_sub_image(cl::Context context,
     std::vector<float> patch_similarities (search_window_size * search_window_size * n_elem_ori); 
     std::vector<float> weights            (search_window_size * search_window_size * n_elem_ori); 
 
-    cl::Buffer device_ampl_filt   {context, CL_MEM_READ_WRITE,                         n_elem_overlap_avg * sizeof(float), NULL, NULL};
-    cl::Buffer device_dphase_filt {context, CL_MEM_READ_WRITE,                         n_elem_overlap_avg * sizeof(float), NULL, NULL};
-    cl::Buffer device_coh_filt    {context, CL_MEM_READ_WRITE,                         n_elem_overlap_avg * sizeof(float), NULL, NULL};
+    cl::Buffer device_ampl_filt   {context, CL_MEM_READ_WRITE,                             n_elem_overlap_avg * sizeof(float), NULL, NULL};
+    cl::Buffer device_dphase_filt {context, CL_MEM_READ_WRITE,                             n_elem_overlap_avg * sizeof(float), NULL, NULL};
+    cl::Buffer device_coh_filt    {context, CL_MEM_READ_WRITE,                             n_elem_overlap_avg * sizeof(float), NULL, NULL};
     cl::Buffer covmat_filt        {context, CL_MEM_READ_WRITE, 2 * dimension * dimension * n_elem_overlap_avg * sizeof(float), NULL, NULL};
 
     // smoothing for a guaranteed minimum number of looks is done on the CPU,
@@ -150,10 +150,11 @@ int nlsar_sub_image(cl::Context context,
                                                   height_ori,
                                                   width_ori,
                                                   search_window_size,
-                                                  patch_size);
+                                                  patch_size,
+                                                  window_width);
 
     nl_routines.covmat_decompose_routine->timed_run(cmd_queue,
-                                                    covmat_ori,
+                                                    covmat_filt,
                                                     device_ampl_filt,
                                                     device_dphase_filt,
                                                     device_coh_filt,

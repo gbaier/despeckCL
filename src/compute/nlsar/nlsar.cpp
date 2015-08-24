@@ -31,6 +31,12 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
           const int patch_size,
           std::vector<el::Level> enabled_log_levels)
 {
+    // FIXME
+    const int window_width = 3;
+    const int dimension = 2;
+
+
+
     el::Configurations log_config;
     log_config.setToDefault();
     log_config.setGlobally(el::ConfigurationType::Enabled, "false");
@@ -51,8 +57,8 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
 
     // overlap consists of:
     // - (patch_size - 1)/2 + (search_window_size - 1)/2 for similarities
-    // - (patch_size - 1)/2 for spatial averaging of covariance matrices
-    const int overlap = (patch_size - 1) + (search_window_size - 1)/2;
+    // - (window_width - 1)/2 for spatial averaging of covariance matrices
+    const int overlap = (patch_size - 1)/2 + (search_window_size - 1)/2 + (window_width - 1)/2;
 
     LOG(INFO) << "filter parameters";
     LOG(INFO) << "search window size: " << search_window_size;
@@ -62,10 +68,6 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     LOG(INFO) << "data dimensions";
     LOG(INFO) << "height: " << height;
     LOG(INFO) << "width: " << width;
-
-    // FIXME
-    const int window_width = 3;
-    const int dimension = 2;
 
     stats nlsar_stats(get_dissims(total_image.get_sub_insar_data(bbox{0,15,0,15}), patch_size, window_width), patch_size);
 
