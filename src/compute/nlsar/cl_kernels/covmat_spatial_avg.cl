@@ -15,7 +15,7 @@ __kernel void covmat_spatial_avg (__global float * covmat_in,
 
     __local float local_data [BLOCK_SIZE][BLOCK_SIZE];
 
-    for(int i = 0; i < (dimension * (dimension+1))/2; i++) {
+    for(int i = 0; i < 2*dimension*dimension; i++) {
         if ( (in_x < height) && (in_y < width) ) {
             local_data [tx][ty] = covmat_in [i*height*width + in_x*width + in_y];
         }

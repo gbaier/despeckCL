@@ -27,7 +27,7 @@ class covmat_spatial_avg : public kernel_env<covmat_spatial_avg>
 "\n"
 "    __local float local_data [BLOCK_SIZE][BLOCK_SIZE];\n"
 "\n"
-"    for(int i = 0; i < (dimension * (dimension+1))/2; i++) {\n"
+"    for(int i = 0; i < 2*dimension*dimension; i++) {\n"
 "        if ( (in_x < height) && (in_y < width) ) {\n"
 "            local_data [tx][ty] = covmat_in [i*height*width + in_x*width + in_y];\n"
 "        }\n"
