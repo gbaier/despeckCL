@@ -82,7 +82,7 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     // similarty, patch_similarity, kullback_leibler, patch_kullback_leibler, weights
     // memory consumption in bytes:
     // sws^2 * sis^2 * n_threads * 4 (float) * 5
-    const int sub_image_size = 80;
+    const int sub_image_size = 200;
 
     total_image.pad(overlap);
 
@@ -99,6 +99,7 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     nl_routines_base.covmat_spatial_avg_routine             = new covmat_spatial_avg             (16, context, window_width);
     nl_routines_base.compute_pixel_similarities_2x2_routine = new compute_pixel_similarities_2x2 (16, context);
     nl_routines_base.compute_patch_similarities_routine     = new compute_patch_similarities     (16, context, patch_size);
+    nl_routines_base.covmat_decompose_routine               = new covmat_decompose               (16, context);
     nl_routines_base.weighted_means_routine                 = new weighted_means                 (16, context, search_window_size, dimension);
     end = std::chrono::system_clock::now();
     elapsed_seconds = end-start;
@@ -115,8 +116,10 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     nl_routines_fixme.covmat_spatial_avg_routine             = new covmat_spatial_avg             (*(nl_routines_base.covmat_spatial_avg_routine));
     nl_routines_fixme.compute_pixel_similarities_2x2_routine = new compute_pixel_similarities_2x2 (*(nl_routines_base.compute_pixel_similarities_2x2_routine));
     nl_routines_fixme.compute_patch_similarities_routine     = new compute_patch_similarities     (*(nl_routines_base.compute_patch_similarities_routine));
+    nl_routines_fixme.covmat_decompose_routine               = new covmat_decompose               (*(nl_routines_base.covmat_decompose_routine));
     nl_routines_fixme.weighted_means_routine                 = new weighted_means                 (*(nl_routines_base.weighted_means_routine));
 #pragma omp master
+    {
     total_image_temp = total_image;
     for( auto boundaries : gen_sub_images(total_image.height, total_image.width, sub_image_size, overlap) ) {
 #pragma omp task firstprivate(boundaries)
@@ -130,11 +133,9 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
                         nlsar_stats);
         total_image_temp.write_sub_insar_data(sub_image, overlap, boundaries);
         }
+    }
 #pragma omp taskwait
-        total_image = total_image_temp;
-        // the next two lines pad the overlap borders with the filtered pixel values
-        total_image.unpad(overlap);
-        total_image.pad(overlap);
+    total_image = total_image_temp;
     }
 }
     total_image.unpad(overlap);

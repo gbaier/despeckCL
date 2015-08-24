@@ -8,6 +8,7 @@
 #include "covmat_spatial_avg.h"
 #include "compute_pixel_similarities_2x2.h"
 #include "compute_patch_similarities.h"
+#include "covmat_decompose.h"
 #include "weighted_means.h"
 
 struct nlsar_routines {
@@ -16,6 +17,7 @@ struct nlsar_routines {
     covmat_spatial_avg*             covmat_spatial_avg_routine;
     compute_pixel_similarities_2x2* compute_pixel_similarities_2x2_routine;
     compute_patch_similarities*     compute_patch_similarities_routine;
+    covmat_decompose*                  covmat_decompose_routine;
     weighted_means*                 weighted_means_routine;
 };
 
