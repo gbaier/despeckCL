@@ -21,6 +21,7 @@ stats::stats(std::vector<float> dissims, unsigned int patch_size): patch_size(pa
 {
     std::sort(dissims.begin(), dissims.end());
     std::remove_if(dissims.begin(), dissims.end(), [] (float num) { return std::isnan(num);} );
+    this -> dissims = dissims;
 
     for(float d=0; d<1; d += 1./size) {
         // chi square cdf with patch_size*patch_size degrees of freedom
