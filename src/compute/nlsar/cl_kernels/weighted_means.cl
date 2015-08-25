@@ -46,11 +46,10 @@ __kernel void weighted_means (__global float * covmat_in,
         float weight_sum = 0.0f;
         for(int x = 0; x<SEARCH_WINDOW_SIZE; x++ ) {
             for(int y = 0; y<SEARCH_WINDOW_SIZE; y++ ) {
-                // FIXME maybe there is a way to make use of coalesce memory access
-                const float weight = weights[ out_x * width_ori * SEARCH_WINDOW_SIZE * SEARCH_WINDOW_SIZE \
-                                                        + out_y * SEARCH_WINDOW_SIZE * SEARCH_WINDOW_SIZE \
-                                                                                 + x * SEARCH_WINDOW_SIZE \
-                                                                                                      + y ];
+                const float weight = weights[x * SEARCH_WINDOW_SIZE * height_ori * width_ori \
+                                                                + y * height_ori * width_ori \
+                                                                        + out_x * width_ori \
+                                                                                    + out_y];
                 weight_sum += weight;
                 for(int d = 0; d<2*DIMENSION*DIMENSION; d++) {
                     covmat_new[d] += weight * covmat_local[d][tx+x][ty+y];
