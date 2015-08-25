@@ -141,6 +141,13 @@ int nlsar_sub_image(cl::Context context,
     cmd_queue.enqueueWriteBuffer(device_weights, CL_TRUE, 0,
                                 n_elem_ori * search_window_size * search_window_size * sizeof(float), weights.data());
 
+    const cl_int self_weight = 1;
+    cmd_queue.enqueueFillBuffer(device_weights,
+                                self_weight,
+                                height_ori * width_ori * (search_window_size * wsh + wsh) * sizeof(float), //offset
+                                height_ori * width_ori * sizeof(float),
+                                NULL, NULL);
+
 
     LOG(DEBUG) << "weighted_means";
     nl_routines.weighted_means_routine->timed_run(cmd_queue,
