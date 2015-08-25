@@ -51,6 +51,15 @@ std::vector<float> get_dissims(const insar_data& sub_insar_data,
     const int width_ori  = width_overlap - 2*overlap;
     const int n_elem_ori = height_ori * width_ori;
 
+    LOG(DEBUG) << "height_overlap_avg: " << height_overlap_avg;
+    LOG(DEBUG) << "width_overlap_avg: " << width_overlap_avg;
+    LOG(DEBUG) << "height_overlap: " << height_overlap;
+    LOG(DEBUG) << "width_overlap: " << width_overlap;
+    LOG(DEBUG) << "height_sim: " << height_sim;
+    LOG(DEBUG) << "width_sim: " << width_sim;
+    LOG(DEBUG) << "height_ori: " << height_ori;
+    LOG(DEBUG) << "width_ori: " << width_ori;
+
     std::vector<float> patch_similarities (n_elem_ori * search_window_size * search_window_size);
 
     //***************************************************************************
@@ -63,8 +72,8 @@ std::vector<float> get_dissims(const insar_data& sub_insar_data,
     cl::Buffer device_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.a2, NULL};
     cl::Buffer device_dphase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.dp, NULL};
 
-    cl::Buffer device_covmat              {context, CL_MEM_READ_WRITE, dimension * dimension * n_elem_overlap * sizeof(float), NULL, NULL};
-    cl::Buffer device_covmat_spatial_avg  {context, CL_MEM_READ_WRITE, dimension * dimension * n_elem_sim     * sizeof(float), NULL, NULL};
+    cl::Buffer device_covmat              {context, CL_MEM_READ_WRITE, 2 * dimension * dimension * n_elem_overlap_avg * sizeof(float), NULL, NULL};
+    cl::Buffer device_covmat_spatial_avg  {context, CL_MEM_READ_WRITE, 2 * dimension * dimension * n_elem_overlap     * sizeof(float), NULL, NULL};
 
     cl::Buffer device_pixel_similarities  {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_sim * sizeof(float), NULL, NULL};
     cl::Buffer device_patch_similarities  {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
