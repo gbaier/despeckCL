@@ -8,7 +8,7 @@
 #include "cl_wrapper/boxcar_wrapper.h"
 
 int boxcar_sub_image(cl::Context context,
-                     boxcar_wrapper& boxcar_routine,
+                     boxcar_wrapper boxcar_routine,
                      insar_data& sub_insar_data,
                      const int window_width);
 

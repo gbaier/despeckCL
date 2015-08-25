@@ -11,8 +11,6 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-extern boxcar_wrapper boxcar_routine;
-
 void boxcar(float* master_amplitude,
             float* slave_amplitude,
             float* dphase,
@@ -69,7 +67,7 @@ void boxcar(float* master_amplitude,
     std::chrono::duration<double> elapsed_seconds = end-start;
     start = std::chrono::system_clock::now();
     VLOG(0) << "Building kernel";
-    boxcar_wrapper boxcar_routine_base{16, context, window_width};
+    boxcar_wrapper boxcar_routine{16, context, window_width};
     end = std::chrono::system_clock::now();
     elapsed_seconds = end-start;
     VLOG(0) << "Time it took to build the kernels: " << elapsed_seconds.count() << "secs";
@@ -81,29 +79,20 @@ void boxcar(float* master_amplitude,
     
 
     LOG(INFO) << "starting filtering";
-#pragma omp threadprivate(boxcar_routine)
-
 #pragma omp parallel shared(total_image)
 {
-    // every thread needs its own kernel, in order not to recompile the program again
-    // a new kernel is created via the copy constructor
-    boxcar_wrapper boxcar_routine{boxcar_routine_base};
 #pragma omp master
     for( auto boundaries : gen_sub_images(total_image.height, total_image.width, sub_image_size, overlap) ) {
 #pragma omp task firstprivate(boundaries)
         {
         insar_data sub_image = total_image.get_sub_insar_data(boundaries);
-        boxcar_sub_image(context, boxcar_routine_base, // opencl stuff
+        boxcar_sub_image(context, boxcar_routine, // opencl stuff
                          sub_image, // data
                          window_width); // filter parameters
         total_image.write_sub_insar_data(sub_image, overlap, boundaries);
         }
     }
 #pragma omp taskwait
-#pragma omp critical
-    {
-        boxcar_timing += boxcar_routine_base.elapsed_seconds.count();
-    }
 }
     total_image.unpad(overlap);
     LOG(INFO) << "filtering done";
