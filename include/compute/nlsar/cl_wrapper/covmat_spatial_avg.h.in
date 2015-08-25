@@ -27,8 +27,8 @@ class covmat_spatial_avg : public kernel_env<covmat_spatial_avg>
                  cl::Buffer covmat_in,
                  cl::Buffer covmat_out,
                  const int dimension,
-                 const int height,
-                 const int width);
+                 const int height_overlap,
+                 const int width_overlap);
 };
 
 #endif

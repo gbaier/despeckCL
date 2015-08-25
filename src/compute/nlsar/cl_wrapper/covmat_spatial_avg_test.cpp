@@ -45,8 +45,8 @@ TEST_CASE( "covmat_spatial_avg", "[cl_kernels]" ) {
                 device_input,
                 device_output,
                 dimension,
-                height,
-                width);
+                height-window_width+1,
+                width-window_width+1);
 
         cmd_queue.enqueueReadBuffer(device_output, CL_TRUE, 0, 2*dimension*dimension*(height-window_width+1)*(width-window_width+1)*sizeof(float), output.data(), NULL, NULL);
 
