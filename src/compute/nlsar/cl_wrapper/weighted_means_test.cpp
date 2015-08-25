@@ -35,7 +35,7 @@ TEST_CASE( "weighted_means", "[cl_kernels]" ) {
         for(int h = overlap_avg; h < height_ori + overlap_avg; h++) {
             for(int w = overlap_avg; w < width_ori + overlap_avg; w++) {
                 for(int d = 0; d < 2*dimension*dimension; d++) {
-                    desired_covmat_out[d*(height_ori + 2*overlap_avg)*(width_ori + 2*overlap_avg) + h*(width_ori + 2*overlap_avg) + w] = 121.0;
+                    desired_covmat_out[d*(height_ori + 2*overlap_avg)*(width_ori + 2*overlap_avg) + h*(width_ori + 2*overlap_avg) + w] = 1.0;
                 }
             }
         }

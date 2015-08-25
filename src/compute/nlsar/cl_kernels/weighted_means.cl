@@ -43,6 +43,7 @@ __kernel void weighted_means (__global float * covmat_in,
     barrier(CLK_LOCAL_MEM_FENCE);
     if (out_x < height_ori && out_y < width_ori) {
         float covmat_new[2*DIMENSION*DIMENSION] = {0};
+        float weight_sum = 0.0f;
         for(int x = 0; x<SEARCH_WINDOW_SIZE; x++ ) {
             for(int y = 0; y<SEARCH_WINDOW_SIZE; y++ ) {
                 // FIXME maybe there is a way to make use of coalesce memory access
@@ -50,6 +51,7 @@ __kernel void weighted_means (__global float * covmat_in,
                                                         + out_y * SEARCH_WINDOW_SIZE * SEARCH_WINDOW_SIZE \
                                                                                  + x * SEARCH_WINDOW_SIZE \
                                                                                                       + y ];
+                weight_sum += weight;
                 for(int d = 0; d<2*DIMENSION*DIMENSION; d++) {
                     covmat_new[d] += weight * covmat_local[d][tx+x][ty+y];
                 }
@@ -59,7 +61,7 @@ __kernel void weighted_means (__global float * covmat_in,
         for(int d = 0; d<2*DIMENSION*DIMENSION; d++) {
             covmat_out[d*height_overlap_avg*width_overlap_avg \
                       + (wsh+psh+wwh+out_x)*width_overlap_avg \
-                                         + (wsh+psh+wwh+out_y)] = covmat_new[d];
+                                         + (wsh+psh+wwh+out_y)] = covmat_new[d]/weight_sum;
         }
     }
 }
