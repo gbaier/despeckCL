@@ -31,7 +31,7 @@ std::string weighted_means::return_build_options(void)
 {
     std::ostringstream out;
     out << " -D SEARCH_WINDOW_SIZE=" << search_window_size << " -D BLOCK_SIZE=" << block_size << " -D DIMENSION=" << dimension;
-    return "-Werror -cl-std=CL1.1" + out.str();
+    return kernel_env::return_build_options() + out.str();
 }
 
 void weighted_means::run(cl::CommandQueue cmd_queue,

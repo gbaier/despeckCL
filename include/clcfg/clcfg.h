@@ -38,7 +38,7 @@ class kernel_env : public routine_env<Derived>
 
         std::string return_build_options(void)
         {
-            return std::string{"-Werror -cl-std=CL1.1"};
+            return std::string{"-Werror -cl-std=CL1.2"};
         }
 
    protected:

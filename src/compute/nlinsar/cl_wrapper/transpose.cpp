@@ -28,7 +28,7 @@ std::string transpose::return_build_options(void)
 {
     std::ostringstream out;
     out << " -D THREAD_SIZE_ROW=" << thread_size_row << " -D THREAD_SIZE_COL=" << thread_size_col;
-    return "-Werror -cl-std=CL1.1" + out.str();
+    return kernel_env::return_build_options() + out.str();
 }
 
 void transpose::run(cl::CommandQueue cmd_queue,

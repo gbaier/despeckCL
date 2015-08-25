@@ -24,7 +24,7 @@ std::string compute_patch_similarities::return_build_options(void)
 {
     std::ostringstream out;
     out << " -D PATCH_SIZE=" << patch_size << " -D BLOCK_SIZE=" << block_size << " -D OUTPUT_BLOCK_SIZE=" << output_block_size;
-    return "-Werror -cl-std=CL1.1" + out.str();
+    return kernel_env::return_build_options() + out.str();
 }
 
 void compute_patch_similarities::run(cl::CommandQueue cmd_queue,

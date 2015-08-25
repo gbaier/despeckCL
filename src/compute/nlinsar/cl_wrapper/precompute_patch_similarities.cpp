@@ -30,7 +30,7 @@ std::string precompute_patch_similarities::return_build_options(void)
 {
     std::ostringstream out;
     out << " -D WINDOW_WIDTH=" << window_width << " -D BLOCK_SIZE=" << block_size << " -D OUTPUT_BLOCK_SIZE=" << output_block_size;
-    return "-Werror -cl-std=CL1.1" + out.str();
+    return kernel_env::return_build_options() + out.str();
 }
 
 void precompute_patch_similarities::run(cl::CommandQueue cmd_queue,

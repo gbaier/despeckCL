@@ -25,7 +25,7 @@ std::string compute_insar::return_build_options(void)
 {
     std::ostringstream out;
     out << " -D BLOCK_SIZE=" << block_size << " -D SEARCH_WINDOW_SIZE=" << search_window_size;
-    return "-Werror -cl-std=CL1.1" + out.str();
+    return kernel_env::return_build_options() + out.str();
 }
 
 void compute_insar::run(cl::CommandQueue cmd_queue,
