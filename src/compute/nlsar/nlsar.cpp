@@ -2,9 +2,6 @@
 
 #include <CL/cl.h>
 #include <chrono>
-#include <iostream>
-#define _USE_MATH_DEFINES
-#include <math.h>
 #include <string.h> // for memcpy
 
 #include "nlsar_routines.h"
@@ -26,34 +23,11 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     // FIXME
     const int window_width = 3;
     const int dimension = 2;
-
-    logging_setup(enabled_log_levels);
-
-    insar_data total_image{master_amplitude, slave_amplitude, dphase,
-                           amplitude_filtered, dphase_filtered, coherence_filtered,
-                           height, width};
-
     // overlap consists of:
     // - (patch_size - 1)/2 + (search_window_size - 1)/2 for similarities
     // - (window_width - 1)/2 for spatial averaging of covariance matrices
     const int overlap = (patch_size - 1)/2 + (search_window_size - 1)/2 + (window_width - 1)/2;
 
-    LOG(INFO) << "filter parameters";
-    LOG(INFO) << "search window size: " << search_window_size;
-    LOG(INFO) << "patch_size: " << patch_size;
-    LOG(INFO) << "overlap: " << overlap;
-
-    LOG(INFO) << "data dimensions";
-    LOG(INFO) << "height: " << height;
-    LOG(INFO) << "width: " << width;
-
-    stats nlsar_stats(get_dissims(total_image.get_sub_insar_data(bbox{0,15,0,15}), patch_size, window_width), patch_size);
-
-    // legacy opencl setup
-    cl::Context context = opencl_setup();
-
-    // filtering
-    LOG(INFO) << "starting filtering";
     // the sub image size needs to be picked so that all buffers fit in the GPUs memory
     // Use the following formula to get a rough estimate of the memory consumption
     // sws: search window size
@@ -64,26 +38,45 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     // sws^2 * sis^2 * n_threads * 4 (float) * 5
     const int sub_image_size = 200;
 
-    total_image.pad(overlap);
+    logging_setup(enabled_log_levels);
 
-    insar_data total_image_temp = total_image;
-    
+
+    LOG(INFO) << "filter parameters";
+    LOG(INFO) << "search window size: " << search_window_size;
+    LOG(INFO) << "patch_size: " << patch_size;
+    LOG(INFO) << "overlap: " << overlap;
+
+    LOG(INFO) << "data dimensions";
+    LOG(INFO) << "height: " << height;
+    LOG(INFO) << "width: " << width;
+
+    // legacy opencl setup
+    cl::Context context = opencl_setup();
+
     // new build kernel interface
     std::chrono::time_point<std::chrono::system_clock> start, end;
     std::chrono::duration<double> elapsed_seconds = end-start;
     start = std::chrono::system_clock::now();
     VLOG(0) << "Building kernels";
     nlsar_routines nl_routines (context, search_window_size, patch_size, window_width, dimension);
-
     end = std::chrono::system_clock::now();
     elapsed_seconds = end-start;
     VLOG(0) << "Time it took to build all kernels: " << elapsed_seconds.count() << "secs";
 
+    // prepare data
+    insar_data total_image{master_amplitude, slave_amplitude, dphase,
+                           amplitude_filtered, dphase_filtered, coherence_filtered,
+                           height, width};
+    stats nlsar_stats(get_dissims(total_image.get_sub_insar_data(bbox{0,15,0,15}), patch_size, window_width), patch_size);
+    total_image.pad(overlap);
+    insar_data total_image_temp = total_image;
+
+    // filtering
+    LOG(INFO) << "starting filtering";
 #pragma omp parallel shared(total_image, total_image_temp)
 {
 #pragma omp master
     {
-    total_image_temp = total_image;
     for( auto boundaries : gen_sub_images(total_image.height, total_image.width, sub_image_size, overlap) ) {
 #pragma omp task firstprivate(boundaries)
         {
