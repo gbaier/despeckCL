@@ -3,7 +3,7 @@
 
 #include "nlsar_sub_image.h"
 
-#include "nlsar.h"
+#include "nlsar_routines.h"
 #include "insar_data.h"
 #include "stats.h"
 

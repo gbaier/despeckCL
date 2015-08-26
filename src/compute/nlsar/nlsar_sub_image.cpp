@@ -1,17 +1,9 @@
 #include "nlsar_sub_image.h"
 
 #include "nlsar.h"
+#include "nlsar_routines.h"
 
 #include <iostream>
-
-#include "../compute_env.h"
-
-// opencl kernel wrappers
-#include "compute_pixel_similarities_2x2.h"
-#include "covmat_create.h"
-#include "covmat_rescale.h"
-#include "covmat_spatial_avg.h"
-#include "weighted_means.h"
 
 int nlsar_sub_image(cl::Context context,
                     nlsar_routines nl_routines,
@@ -90,7 +82,7 @@ int nlsar_sub_image(cl::Context context,
     //
     //***************************************************************************
     LOG(DEBUG) << "covmat_create";
-    nl_routines.covmat_create_routine->timed_run(cmd_queue,
+    nl_routines.covmat_create_routine.timed_run(cmd_queue,
                                                  device_ampl_master,
                                                  device_ampl_slave,
                                                  device_dphase,
@@ -101,7 +93,7 @@ int nlsar_sub_image(cl::Context context,
     cmd_queue.enqueueCopyBuffer(covmat_ori, covmat_rescaled, 0, 0, 2*dimension * dimension * n_elem_overlap_avg * sizeof(float), NULL, NULL);
 
     LOG(DEBUG) << "covmat_rescale";
-    nl_routines.covmat_rescale_routine->timed_run(cmd_queue,
+    nl_routines.covmat_rescale_routine.timed_run(cmd_queue,
                                                   covmat_rescaled,
                                                   dimension,
                                                   nlooks,
@@ -109,7 +101,7 @@ int nlsar_sub_image(cl::Context context,
                                                   width_overlap_avg);
 
     LOG(DEBUG) << "covmat_spatial_avg";
-    nl_routines.covmat_spatial_avg_routine->timed_run(cmd_queue,
+    nl_routines.covmat_spatial_avg_routine.timed_run(cmd_queue,
                                                       covmat_rescaled,
                                                       covmat_spatial_avg,
                                                       dimension,
@@ -117,7 +109,7 @@ int nlsar_sub_image(cl::Context context,
                                                       width_overlap);
 
     LOG(DEBUG) << "covmat_pixel_similarities";
-    nl_routines.compute_pixel_similarities_2x2_routine->timed_run(cmd_queue,
+    nl_routines.compute_pixel_similarities_2x2_routine.timed_run(cmd_queue,
                                                                   covmat_spatial_avg,
                                                                   device_pixel_similarities,
                                                                   height_overlap,
@@ -125,7 +117,7 @@ int nlsar_sub_image(cl::Context context,
                                                                   search_window_size);
 
     LOG(DEBUG) << "covmat_patch_similarities";
-    nl_routines.compute_patch_similarities_routine->timed_run(cmd_queue,
+    nl_routines.compute_patch_similarities_routine.timed_run(cmd_queue,
                                                               device_pixel_similarities,
                                                               device_patch_similarities,
                                                               height_sim,
@@ -150,7 +142,7 @@ int nlsar_sub_image(cl::Context context,
 
 
     LOG(DEBUG) << "weighted_means";
-    nl_routines.weighted_means_routine->timed_run(cmd_queue,
+    nl_routines.weighted_means_routine.timed_run(cmd_queue,
                                                   covmat_ori,
                                                   covmat_filt,
                                                   device_weights,
@@ -160,7 +152,7 @@ int nlsar_sub_image(cl::Context context,
                                                   patch_size,
                                                   window_width);
 
-    nl_routines.covmat_decompose_routine->timed_run(cmd_queue,
+    nl_routines.covmat_decompose_routine.timed_run(cmd_queue,
                                                     covmat_filt,
                                                     device_ampl_filt,
                                                     device_dphase_filt,

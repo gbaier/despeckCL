@@ -9,6 +9,7 @@ include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar/cl_wrapper)
 
 add_library(nlsar_lib nlsar.cpp
+                      nlsar_routines.cpp
                       nlsar_sub_image.cpp
                       stats.cpp
                       get_dissims.cpp)

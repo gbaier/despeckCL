@@ -1,3 +1,5 @@
+#include "nlsar.h"
+
 #include <CL/cl.h>
 #include <chrono>
 #include <iostream>
@@ -5,24 +7,13 @@
 #include <math.h>
 #include <string.h> // for memcpy
 
-#include "nlsar.h"
+#include "nlsar_routines.h"
 #include "insar_data.h"
 #include "nlsar_sub_image.h"
 #include "sub_images.h"
 #include "stats.h"
 #include "get_dissims.h"
 #include "clcfg.h"
-
-// opencl kernels
-
-#include "covmat_create.h"
-#include "covmat_rescale.h"
-#include "covmat_spatial_avg.h"
-#include "compute_pixel_similarities_2x2.h"
-#include "compute_patch_similarities.h"
-#include "weighted_means.h"
-
-nlsar_routines nl_routines_fixme;
 
 int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
           float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered,
@@ -94,32 +85,15 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     std::chrono::time_point<std::chrono::system_clock> start, end;
     std::chrono::duration<double> elapsed_seconds = end-start;
     start = std::chrono::system_clock::now();
-    nlsar_routines nl_routines_base;
     VLOG(0) << "Building kernels";
-    nl_routines_base.covmat_create_routine                  = new covmat_create                  (16, context);
-    nl_routines_base.covmat_rescale_routine                 = new covmat_rescale                 (16, context);
-    nl_routines_base.covmat_spatial_avg_routine             = new covmat_spatial_avg             (16, context, window_width);
-    nl_routines_base.compute_pixel_similarities_2x2_routine = new compute_pixel_similarities_2x2 (16, context);
-    nl_routines_base.compute_patch_similarities_routine     = new compute_patch_similarities     (16, context, patch_size);
-    nl_routines_base.covmat_decompose_routine               = new covmat_decompose               (16, context);
-    nl_routines_base.weighted_means_routine                 = new weighted_means                 (16, context, search_window_size, dimension);
+    nlsar_routines nl_routines (context, search_window_size, patch_size, window_width, dimension);
+
     end = std::chrono::system_clock::now();
     elapsed_seconds = end-start;
     VLOG(0) << "Time it took to build all kernels: " << elapsed_seconds.count() << "secs";
 
-#pragma omp threadprivate(nl_routines_fixme)
-
 #pragma omp parallel shared(total_image, total_image_temp)
 {
-// every thread needs its own kernel, in order not to recompile the program again
-// a new kernel is created via the copy constructor
-    nl_routines_fixme.covmat_create_routine                  = new covmat_create                  (*(nl_routines_base.covmat_create_routine));
-    nl_routines_fixme.covmat_rescale_routine                 = new covmat_rescale                 (*(nl_routines_base.covmat_rescale_routine));
-    nl_routines_fixme.covmat_spatial_avg_routine             = new covmat_spatial_avg             (*(nl_routines_base.covmat_spatial_avg_routine));
-    nl_routines_fixme.compute_pixel_similarities_2x2_routine = new compute_pixel_similarities_2x2 (*(nl_routines_base.compute_pixel_similarities_2x2_routine));
-    nl_routines_fixme.compute_patch_similarities_routine     = new compute_patch_similarities     (*(nl_routines_base.compute_patch_similarities_routine));
-    nl_routines_fixme.covmat_decompose_routine               = new covmat_decompose               (*(nl_routines_base.covmat_decompose_routine));
-    nl_routines_fixme.weighted_means_routine                 = new weighted_means                 (*(nl_routines_base.weighted_means_routine));
 #pragma omp master
     {
     total_image_temp = total_image;
@@ -127,7 +101,7 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
 #pragma omp task firstprivate(boundaries)
         {
         insar_data sub_image = total_image.get_sub_insar_data(boundaries);
-        nlsar_sub_image(context, nl_routines_fixme, // opencl stuff
+        nlsar_sub_image(context, nl_routines, // opencl stuff
                         sub_image, // data
                         search_window_size,
                         patch_size,
