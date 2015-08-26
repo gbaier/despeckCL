@@ -22,6 +22,7 @@ endif()
 target_link_libraries(nlsar_lib nlsar_opencl_wrapper
                                 insar_data
                                 clcfg
+                                logging
                                 ${GSL_LIBRARIES})
 
 
