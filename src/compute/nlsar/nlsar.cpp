@@ -84,7 +84,7 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
         nlsar_sub_image(context, nl_routines, // opencl stuff
                         sub_image, // data
                         search_window_size,
-                        patch_size,
+                        {patch_size},
                         dimension,
                         nlsar_stats);
         total_image_temp.write_sub_insar_data(sub_image, overlap, boundaries);

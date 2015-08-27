@@ -9,11 +9,12 @@ int nlsar_sub_image(cl::Context context,
                     nlsar_routines nl_routines,
                     insar_data& sub_insar_data,
                     const int search_window_size,
-                    const int patch_size,
+                    const std::vector<int> patch_sizes,
                     const int dimension,
                     stats dissim_stats)
 {
-    const int psh = (patch_size - 1)/2;
+    const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
+    const int psh = (patch_size_max - 1)/2;
     const int wsh = (search_window_size - 1)/2;
     const int overlap = wsh+psh;
 
@@ -58,19 +59,34 @@ int nlsar_sub_image(cl::Context context,
 
 
     cl::Buffer device_pixel_similarities  {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_sim * sizeof(float), NULL, NULL};
-    cl::Buffer device_patch_similarities  {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
-    cl::Buffer device_weights             {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
+    std::map<int, cl::Buffer> device_patch_similarities;
+    std::map<int, cl::Buffer> device_weights;
+    std::map<int, cl::Buffer> device_enl; // equivalent number of looks
 
-    std::vector<float> patch_similarities (search_window_size * search_window_size * n_elem_ori); 
-    std::vector<float> weights            (search_window_size * search_window_size * n_elem_ori); 
+    std::map<int, std::vector<float>> patch_similarities;
+    std::map<int, std::vector<float>> weights;
+    std::map<int, std::vector<float>> enl;
+
+    for(int patch_size : patch_sizes) {
+        device_patch_similarities [patch_size] = cl::Buffer {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
+        device_weights            [patch_size] = cl::Buffer {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
+        device_enl                [patch_size] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
+
+        patch_similarities [patch_size] = std::vector<float> (search_window_size * search_window_size * n_elem_ori);
+        weights            [patch_size] = std::vector<float> (search_window_size * search_window_size * n_elem_ori);
+        enl                [patch_size] = std::vector<float> (n_elem_ori);
+    }
 
     cl::Buffer device_ampl_filt   {context, CL_MEM_READ_WRITE,                             n_elem_overlap_avg * sizeof(float), NULL, NULL};
     cl::Buffer device_dphase_filt {context, CL_MEM_READ_WRITE,                             n_elem_overlap_avg * sizeof(float), NULL, NULL};
     cl::Buffer device_coh_filt    {context, CL_MEM_READ_WRITE,                             n_elem_overlap_avg * sizeof(float), NULL, NULL};
     cl::Buffer covmat_filt        {context, CL_MEM_READ_WRITE, 2 * dimension * dimension * n_elem_overlap_avg * sizeof(float), NULL, NULL};
 
-    // smoothing for a guaranteed minimum number of looks is done on the CPU,
-    // since sorting is extremely slow on the GPU for this problem size.
+    //***************************************************************************
+    //
+    // command queue
+    //
+    //***************************************************************************
 
     std::vector<cl::Device> devices;
     context.getInfo(CL_CONTEXT_DEVICES, &devices);
@@ -117,40 +133,46 @@ int nlsar_sub_image(cl::Context context,
                                                                   search_window_size);
 
     LOG(DEBUG) << "covmat_patch_similarities";
-    nl_routines.compute_patch_similarities_routine.timed_run(cmd_queue,
-                                                              device_pixel_similarities,
-                                                              device_patch_similarities,
-                                                              height_sim,
-                                                              width_sim,
-                                                              search_window_size,
-                                                              patch_size);
+    for(const int patch_size : patch_sizes) {
+        nl_routines.compute_patch_similarities_routine.timed_run(cmd_queue,
+                                                                 device_pixel_similarities,
+                                                                 device_patch_similarities[patch_size],
+                                                                 height_sim,
+                                                                 width_sim,
+                                                                 search_window_size,
+                                                                 patch_size);
 
-    cmd_queue.enqueueReadBuffer(device_patch_similarities, CL_TRUE, 0,
-                                n_elem_ori * search_window_size * search_window_size * sizeof(float), patch_similarities.data(), NULL, NULL);
+        cmd_queue.enqueueReadBuffer(device_patch_similarities[patch_size], CL_TRUE, 0,
+                                    n_elem_ori * search_window_size * search_window_size * sizeof(float), patch_similarities[patch_size].data(), NULL, NULL);
 
-    std::transform(patch_similarities.begin(), patch_similarities.end(), weights.begin(), [&dissim_stats] (float dissim) {return dissim_stats.weight(dissim);});
+        std::transform(patch_similarities[patch_size].begin(),
+                       patch_similarities[patch_size].end(),
+                       weights[patch_size].begin(), [&dissim_stats] (float dissim) {return dissim_stats.weight(dissim);});
 
-    cmd_queue.enqueueWriteBuffer(device_weights, CL_TRUE, 0,
-                                n_elem_ori * search_window_size * search_window_size * sizeof(float), weights.data());
+        cmd_queue.enqueueWriteBuffer(device_weights[patch_size], CL_TRUE, 0,
+                                     n_elem_ori * search_window_size * search_window_size * sizeof(float), weights[patch_size].data());
 
-    const cl_int self_weight = 1;
-    cmd_queue.enqueueFillBuffer(device_weights,
-                                self_weight,
-                                height_ori * width_ori * (search_window_size * wsh + wsh) * sizeof(float), //offset
-                                height_ori * width_ori * sizeof(float),
-                                NULL, NULL);
+        // set weight for self similarity
+        const cl_int self_weight = 1;
+        cmd_queue.enqueueFillBuffer(device_weights[patch_size],
+                                    self_weight,
+                                    height_ori * width_ori * (search_window_size * wsh + wsh) * sizeof(float), //offset
+                                    height_ori * width_ori * sizeof(float),
+                                    NULL, NULL);
+
+        LOG(DEBUG) << "weighted_means";
+        nl_routines.weighted_means_routine.timed_run(cmd_queue,
+                                                      covmat_ori,
+                                                      covmat_filt,
+                                                      device_weights[patch_size],
+                                                      height_ori,
+                                                      width_ori,
+                                                      search_window_size,
+                                                      patch_size,
+                                                      window_width);
+    }
 
 
-    LOG(DEBUG) << "weighted_means";
-    nl_routines.weighted_means_routine.timed_run(cmd_queue,
-                                                  covmat_ori,
-                                                  covmat_filt,
-                                                  device_weights,
-                                                  height_ori,
-                                                  width_ori,
-                                                  search_window_size,
-                                                  patch_size,
-                                                  window_width);
 
     nl_routines.covmat_decompose_routine.timed_run(cmd_queue,
                                                     covmat_filt,
