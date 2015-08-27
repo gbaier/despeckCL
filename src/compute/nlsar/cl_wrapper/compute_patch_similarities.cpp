@@ -20,13 +20,6 @@ compute_patch_similarities::compute_patch_similarities(const compute_patch_simil
     build_kernel();
 }
 
-std::string compute_patch_similarities::return_build_options(void)
-{
-    std::ostringstream out;
-    out << " -D PATCH_SIZE=" << patch_size << " -D BLOCK_SIZE=" << block_size << " -D OUTPUT_BLOCK_SIZE=" << output_block_size;
-    return kernel_env::return_build_options() + out.str();
-}
-
 void compute_patch_similarities::run(cl::CommandQueue cmd_queue,
                                      cl::Buffer pixel_similarities,
                                      cl::Buffer patch_similarities,
@@ -40,6 +33,8 @@ void compute_patch_similarities::run(cl::CommandQueue cmd_queue,
     kernel.setArg(2, height_sim);
     kernel.setArg(3, width_sim);
     kernel.setArg(4, patch_size);
+    kernel.setArg(5, cl::Local(block_size*block_size*sizeof(float)));
+    kernel.setArg(6, cl::Local(block_size*output_block_size*sizeof(float)));
 
     cl::NDRange global_size {(size_t) block_size*( (height_sim - 1)/output_block_size + 1), \
                              (size_t) block_size*( (width_sim  - 1)/output_block_size + 1), \

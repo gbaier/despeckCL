@@ -21,8 +21,6 @@ class compute_patch_similarities : public kernel_env<compute_patch_similarities>
 
         compute_patch_similarities(const compute_patch_similarities& other);
 
-        std::string return_build_options(void);
-
         void run(cl::CommandQueue cmd_queue,
                  cl::Buffer pixel_similarities,
                  cl::Buffer patch_similarities,
