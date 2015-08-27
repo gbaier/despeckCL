@@ -1,7 +1,7 @@
 include_directories(${despeckCL_SOURCE_DIR}/include/clcfg)
-include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlinsar/cl_wrapper)
+include_directories(${despeckCL_SOURCE_DIR}/include/compute/common/cl_wrappers)
 
-FILE(GLOB infiles "${despeckCL_SOURCE_DIR}/include/compute/nlinsar/cl_wrapper/*.in")
+FILE(GLOB infiles "${despeckCL_SOURCE_DIR}/include/compute/common/cl_wrappers/*.in")
 
 foreach(infile ${infiles})
     get_filename_component(file_name_we ${infile} NAME_WE)
@@ -15,11 +15,5 @@ foreach(infile ${infiles})
     configure_file(${infile} ${outfile})
 endforeach()
 
-add_library(nlinsar_opencl_wrapper precompute_similarities_1st_pass.cpp 
-                                   precompute_similarities_2nd_pass.cpp 
-                                   precompute_patch_similarities.cpp
-                                   compute_weights.cpp
-                                   transpose.cpp
-                                   precompute_filter_values.cpp
-                                   compute_insar.cpp
+add_library(common_opencl_wrappers compute_number_of_looks.cpp
                                    )

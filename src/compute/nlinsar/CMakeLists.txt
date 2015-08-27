@@ -11,4 +11,8 @@ add_library(nlinsar_lib nlinsar.cpp
                         insarsim_simu.cpp
                         nlinsar_sub_image.cpp
                         smoothing)
-target_link_libraries(nlinsar_lib nlinsar_opencl_wrapper insar_data clcfg)
+
+target_link_libraries(nlinsar_lib nlinsar_opencl_wrapper
+                                  common_opencl_wrappers
+                                  insar_data
+                                  clcfg)

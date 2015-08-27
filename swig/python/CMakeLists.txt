@@ -4,6 +4,8 @@ include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlinsar)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlinsar/cl_wrapper)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar/cl_wrapper)
+include_directories(${despeckCL_SOURCE_DIR}/include/compute/common)
+include_directories(${despeckCL_SOURCE_DIR}/include/compute/common/cl_wrapper)
 include_directories(${despeckCL_SOURCE_DIR}/include/clcfg)
 
 find_package(PythonLibs REQUIRED)
