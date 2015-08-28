@@ -6,8 +6,7 @@
 class compute_patch_similarities : public kernel_env<compute_patch_similarities>
 {
     public:
-        const int patch_size;
-        const int output_block_size;
+        using kernel_env::kernel_env;
 
         static constexpr const char* kernel_source =
 "@CMAKE_KERNEL_SOURCE@"
@@ -15,11 +14,7 @@ class compute_patch_similarities : public kernel_env<compute_patch_similarities>
 
         static constexpr const char* routine_name {"compute_patch_similarities"};
 
-        compute_patch_similarities(const size_t block_size,
-                                   cl::Context context,
-                                   const int patch_size);
-
-        compute_patch_similarities(const compute_patch_similarities& other);
+        const int get_output_block_size(const int patch_size);
 
         void run(cl::CommandQueue cmd_queue,
                  cl::Buffer pixel_similarities,

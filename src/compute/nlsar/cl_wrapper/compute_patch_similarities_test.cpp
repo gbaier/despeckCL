@@ -43,7 +43,7 @@ TEST_CASE( "compute_patch_similarities", "[cl_kernels]" ) {
 
         // kernel setup
         const int block_size = 16;
-        compute_patch_similarities KUT{block_size, context, patch_size};
+        compute_patch_similarities KUT{block_size, context};
 
         // allocate memory
         cl::Buffer device_pixel_similarities{context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, pixel_similarities.size() * sizeof(float), pixel_similarities.data(), NULL};

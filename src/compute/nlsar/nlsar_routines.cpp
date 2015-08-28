@@ -9,7 +9,7 @@ nlsar_routines::nlsar_routines(cl::Context context,
                                                        covmat_rescale_routine                 (block_size, context),
                                                        covmat_spatial_avg_routine             (block_size, context, window_width),
                                                        compute_pixel_similarities_2x2_routine (block_size, context),
-                                                       compute_patch_similarities_routine     (block_size, context, patch_size),
+                                                       compute_patch_similarities_routine     (block_size, context),
                                                        covmat_decompose_routine               (block_size, context),
                                                        weighted_means_routine                 (block_size, context, search_window_size, dimension)
 {

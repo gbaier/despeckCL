@@ -1,23 +1,8 @@
 #include "compute_patch_similarities.h"
 
-compute_patch_similarities::compute_patch_similarities(const size_t block_size,
-                                                       cl::Context context,
-                                                       const int patch_size) : patch_size(patch_size),
-                                                                               output_block_size(block_size - patch_size + 1)
+const int compute_patch_similarities::get_output_block_size(const int patch_size)
 {
-    kernel_env::block_size = block_size;
-    kernel_env::context    = context;
-    build_program(return_build_options());
-    build_kernel();
-}
-
-compute_patch_similarities::compute_patch_similarities(const compute_patch_similarities& other) : patch_size(other.patch_size),
-                                                                                                  output_block_size(other.output_block_size)
-{
-    kernel_env::block_size = other.block_size;
-    kernel_env::context    = other.context;
-    program = other.program;
-    build_kernel();
+    return block_size - patch_size + 1;
 }
 
 void compute_patch_similarities::run(cl::CommandQueue cmd_queue,
@@ -28,6 +13,8 @@ void compute_patch_similarities::run(cl::CommandQueue cmd_queue,
                                      const int search_window_size,
                                      const int patch_size)
 {
+    const int output_block_size = get_output_block_size(patch_size);
+
     kernel.setArg(0, pixel_similarities);
     kernel.setArg(1, patch_similarities);
     kernel.setArg(2, height_sim);
