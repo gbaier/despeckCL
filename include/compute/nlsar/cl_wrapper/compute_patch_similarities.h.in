@@ -22,7 +22,8 @@ class compute_patch_similarities : public kernel_env<compute_patch_similarities>
                  const int height_sim,
                  const int width_sim,
                  const int search_winow_size,
-                 const int patch_size);
+                 const int patch_size,
+                 const int patch_size_max);
 };
 
 #endif

@@ -140,7 +140,8 @@ int nlsar_sub_image(cl::Context context,
                                                                  height_sim,
                                                                  width_sim,
                                                                  search_window_size,
-                                                                 patch_size);
+                                                                 patch_size,
+                                                                 patch_size_max);
 
         cmd_queue.enqueueReadBuffer(device_patch_similarities[patch_size], CL_TRUE, 0,
                                     n_elem_ori * search_window_size * search_window_size * sizeof(float), patch_similarities[patch_size].data(), NULL, NULL);

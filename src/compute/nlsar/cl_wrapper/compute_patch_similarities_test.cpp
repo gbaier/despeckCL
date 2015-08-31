@@ -16,6 +16,7 @@ TEST_CASE( "compute_patch_similarities", "[cl_kernels]" ) {
         const int width_sim  = 10;
         const int search_window_size = 5;
         const int patch_size         = 3;
+        const int patch_size_max     = patch_size;
 
         const int height_ori = height_sim - patch_size + 1;
         const int width_ori  = width_sim  - patch_size + 1;
@@ -55,7 +56,8 @@ TEST_CASE( "compute_patch_similarities", "[cl_kernels]" ) {
                 height_sim,
                 width_sim,
                 search_window_size,
-                patch_size);
+                patch_size,
+                patch_size_max);
 
         cmd_queue.enqueueReadBuffer(device_patch_similarities, CL_TRUE, 0, patch_similarities.size() * sizeof(float), patch_similarities.data(), NULL, NULL);
 

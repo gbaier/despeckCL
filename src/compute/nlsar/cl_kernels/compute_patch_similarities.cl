@@ -3,11 +3,14 @@ __kernel void compute_patch_similarities (__global float * pixel_similarities,
                                           const int height_sim,
                                           const int width_sim,
                                           const int patch_size,
+                                          const int patch_size_max,
                                           __local float * pixel_similarities_local,
                                           __local float * cache)
 {
-    const int height_ori = height_sim - patch_size + 1;
-    const int width_ori  = width_sim  - patch_size + 1;
+    const int offset = (patch_size_max - patch_size) / 2;
+
+    const int height_ori = height_sim - patch_size_max + 1;
+    const int width_ori  = width_sim  - patch_size_max + 1;
 
     const int output_block_size = get_local_size(0) - patch_size + 1;
 
@@ -19,7 +22,7 @@ __kernel void compute_patch_similarities (__global float * pixel_similarities,
     const int out_y = get_group_id(1) * output_block_size + ty;
 
     if ( (out_x < height_sim) && (out_y < width_sim) ) {
-        pixel_similarities_local[tx*get_local_size(1) + ty] = pixel_similarities[tz*height_sim*width_sim + out_x*width_sim + out_y];
+        pixel_similarities_local[tx*get_local_size(1) + ty] = pixel_similarities[tz*height_sim*width_sim + (offset+out_x)*width_sim + offset + out_y];
     } else {
         pixel_similarities_local[tx*get_local_size(1) + ty] = 0;
     }

@@ -119,6 +119,7 @@ std::vector<float> get_dissims(const insar_data& sub_insar_data,
                                                  height_sim,
                                                  width_sim,
                                                  search_window_size,
+                                                 patch_size,
                                                  patch_size);
 
     cmd_queue.enqueueReadBuffer(device_patch_similarities, CL_TRUE, 0, patch_similarities.size() * sizeof(float), patch_similarities.data(), NULL, NULL);
