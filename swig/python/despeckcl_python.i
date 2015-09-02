@@ -8,6 +8,12 @@
 %}
 
 %include "numpy.i"
+%include "typemaps.i"
+%include "std_vector.i"
+
+namespace std {
+   %template(IntVector) vector<int>;
+}
 
 %init %{
     import_array();
@@ -139,7 +145,7 @@ void _nlsar_c_wrap(float* master_amplitude,   int h1, int w1,
                    float* dphase_filtered,    int h5, int w5,
                    float* coherence_filtered, int h6, int w6,
                    const int search_window_size,
-                   const int patch_size)
+                   const std::vector<int> patch_sizes)
 {
     std::vector<el::Level> enabled_log_levels {
                                                el::Level::Info,
@@ -155,7 +161,7 @@ void _nlsar_c_wrap(float* master_amplitude,   int h1, int w1,
           h1,
           w1,
           search_window_size,
-          patch_size,
+          patch_sizes,
           enabled_log_levels);
     return;
 }
@@ -168,12 +174,13 @@ def nlsar(master_amplitude,
           slave_amplitude,
           dphase,
           search_window_size,
-          patch_size):
+          patch_sizes):
     amplitude_filtered = np.zeros_like(master_amplitude)
     dphase_filtered    = np.zeros_like(master_amplitude)
     coherence_filtered = np.zeros_like(master_amplitude)
     _despeckcl._nlsar_c_wrap(master_amplitude, slave_amplitude, dphase,
                              amplitude_filtered, dphase_filtered, coherence_filtered,
-                             search_window_size, patch_size)
+                             search_window_size,
+                             patch_sizes)
     return (amplitude_filtered, dphase_filtered, coherence_filtered)
 }
