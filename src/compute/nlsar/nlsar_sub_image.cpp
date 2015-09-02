@@ -13,7 +13,7 @@ int nlsar_sub_image(cl::Context context,
                     const int search_window_size,
                     const std::vector<int> patch_sizes,
                     const int dimension,
-                    stats dissim_stats)
+                    std::map<int, stats> &dissim_stats)
 {
     const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
     const int psh = (patch_size_max - 1)/2;
@@ -158,7 +158,7 @@ int nlsar_sub_image(cl::Context context,
 
         std::transform(patch_similarities[parameter].begin(),
                        patch_similarities[parameter].end(),
-                       weights[parameter].begin(), [&dissim_stats] (float dissim) {return dissim_stats.weight(dissim);});
+                       weights[parameter].begin(), [&dissim_stats, parameter] (float dissim) {return dissim_stats.find(parameter.patch_size)->second.weight(dissim);});
 
         cmd_queue.enqueueWriteBuffer(device_weights[parameter], CL_TRUE, 0,
                                      n_elem_ori * search_window_size * search_window_size * sizeof(float), weights[parameter].data());

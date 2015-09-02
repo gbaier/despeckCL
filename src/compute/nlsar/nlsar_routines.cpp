@@ -2,7 +2,6 @@
 
 nlsar_routines::nlsar_routines(cl::Context context,
                                const int search_window_size,
-                               const int patch_size,
                                const int window_width,
                                const int dimension,
                                const int block_size) : covmat_create_routine                  (block_size, context),

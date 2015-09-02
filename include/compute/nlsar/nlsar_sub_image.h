@@ -13,6 +13,6 @@ int nlsar_sub_image(cl::Context context,
                     const int search_window_size,
                     const std::vector<int> patch_sizes,
                     const int dimension,
-                    stats dissim_stats);
+                    std::map<int, stats> &dissim_stats);
 
 #endif
