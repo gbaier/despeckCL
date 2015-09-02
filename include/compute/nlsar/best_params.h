@@ -16,6 +16,7 @@ struct params {
                        (scale_size == other.scale_size);
     };
 
+    // needed if params is to be used as a key for a map
     bool operator< (const params& other) const {
         return (search_window_size < other.search_window_size) || \
                        (patch_size < other.patch_size) || \

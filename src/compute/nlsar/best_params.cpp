@@ -20,6 +20,7 @@ std::vector<params> best_params(std::map<params, std::vector<float>> &enl,
     for(int h = 0; h < height; h++) {
         for(int w = 0; w < width; w++) {
             std::vector<params_enl> penl_map;
+            // get best parameter for a single pixel
             for(auto const& param : enl) {
                 penl_map.push_back(params_enl{param.first, param.second[h*width + w]});
             }
