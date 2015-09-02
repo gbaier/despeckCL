@@ -25,10 +25,16 @@ target_link_libraries(nlsar_lib nlsar_opencl_wrapper
                                 logging
                                 ${GSL_LIBRARIES})
 
+add_library(best_params_lib best_params.cpp)
 
 
 # Testing Code
 add_executable(sim_measures_test sim_measures_test.cpp)
+add_executable(best_params_test best_params_test.cpp)
+target_link_libraries(best_params_test best_params_lib) 
 
 add_test(NAME NLSAR_sim_measures
          COMMAND sim_measures_test)
+
+add_test(NAME NLSAR_best_params
+         COMMAND best_params_test)
