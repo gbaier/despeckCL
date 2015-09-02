@@ -2,6 +2,8 @@
 
 #include "nlsar.h"
 #include "nlsar_routines.h"
+#include "best_params.h"
+#include "best_weights_copy.h"
 
 #include <iostream>
 
@@ -20,6 +22,12 @@ int nlsar_sub_image(cl::Context context,
 
     const int window_width = 3;
     const int nlooks = 1;
+    
+    std::vector<params> parameters;
+
+    for(auto patch_size : patch_sizes) {
+        parameters.push_back({search_window_size, patch_size, window_width});
+    }
 
     // overlapped dimension, large enough to include the complete padded data to compute the similarities;
     // also includes overlap for spatial averaging
@@ -59,23 +67,25 @@ int nlsar_sub_image(cl::Context context,
 
 
     cl::Buffer device_pixel_similarities  {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_sim * sizeof(float), NULL, NULL};
-    std::map<int, cl::Buffer> device_patch_similarities;
-    std::map<int, cl::Buffer> device_weights;
-    std::map<int, cl::Buffer> device_enl; // equivalent number of looks
+    std::map<params, cl::Buffer> device_patch_similarities;
+    std::map<params, cl::Buffer> device_weights;
+    std::map<params, cl::Buffer> device_enl; // equivalent number of looks
 
-    std::map<int, std::vector<float>> patch_similarities;
-    std::map<int, std::vector<float>> weights;
-    std::map<int, std::vector<float>> enl;
+    std::map<params, std::vector<float>> patch_similarities;
+    std::map<params, std::vector<float>> weights;
+    std::map<params, std::vector<float>> enl;
 
-    for(int patch_size : patch_sizes) {
-        device_patch_similarities [patch_size] = cl::Buffer {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
-        device_weights            [patch_size] = cl::Buffer {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
-        device_enl                [patch_size] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
+    for(params parameter : parameters) {
+        device_patch_similarities [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
+        device_weights            [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
+        device_enl                [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
 
-        patch_similarities [patch_size] = std::vector<float> (search_window_size * search_window_size * n_elem_ori);
-        weights            [patch_size] = std::vector<float> (search_window_size * search_window_size * n_elem_ori);
-        enl                [patch_size] = std::vector<float> (n_elem_ori);
+        patch_similarities [parameter] = std::vector<float> (search_window_size * search_window_size * n_elem_ori);
+        weights            [parameter] = std::vector<float> (search_window_size * search_window_size * n_elem_ori);
+        enl                [parameter] = std::vector<float> (n_elem_ori);
     }
+
+    cl::Buffer device_best_weights {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
 
     cl::Buffer device_ampl_filt   {context, CL_MEM_READ_WRITE,                             n_elem_overlap_avg * sizeof(float), NULL, NULL};
     cl::Buffer device_dphase_filt {context, CL_MEM_READ_WRITE,                             n_elem_overlap_avg * sizeof(float), NULL, NULL};
@@ -133,47 +143,61 @@ int nlsar_sub_image(cl::Context context,
                                                                   search_window_size);
 
     LOG(DEBUG) << "covmat_patch_similarities";
-    for(const int patch_size : patch_sizes) {
+    for(auto parameter : parameters) {
         nl_routines.compute_patch_similarities_routine.timed_run(cmd_queue,
                                                                  device_pixel_similarities,
-                                                                 device_patch_similarities[patch_size],
+                                                                 device_patch_similarities[parameter],
                                                                  height_sim,
                                                                  width_sim,
                                                                  search_window_size,
-                                                                 patch_size,
+                                                                 parameter.patch_size,
                                                                  patch_size_max);
 
-        cmd_queue.enqueueReadBuffer(device_patch_similarities[patch_size], CL_TRUE, 0,
-                                    n_elem_ori * search_window_size * search_window_size * sizeof(float), patch_similarities[patch_size].data(), NULL, NULL);
+        cmd_queue.enqueueReadBuffer(device_patch_similarities[parameter], CL_TRUE, 0,
+                                    n_elem_ori * search_window_size * search_window_size * sizeof(float), patch_similarities[parameter].data(), NULL, NULL);
 
-        std::transform(patch_similarities[patch_size].begin(),
-                       patch_similarities[patch_size].end(),
-                       weights[patch_size].begin(), [&dissim_stats] (float dissim) {return dissim_stats.weight(dissim);});
+        std::transform(patch_similarities[parameter].begin(),
+                       patch_similarities[parameter].end(),
+                       weights[parameter].begin(), [&dissim_stats] (float dissim) {return dissim_stats.weight(dissim);});
 
-        cmd_queue.enqueueWriteBuffer(device_weights[patch_size], CL_TRUE, 0,
-                                     n_elem_ori * search_window_size * search_window_size * sizeof(float), weights[patch_size].data());
+        cmd_queue.enqueueWriteBuffer(device_weights[parameter], CL_TRUE, 0,
+                                     n_elem_ori * search_window_size * search_window_size * sizeof(float), weights[parameter].data());
 
         // set weight for self similarity
         const cl_int self_weight = 1;
-        cmd_queue.enqueueFillBuffer(device_weights[patch_size],
+        cmd_queue.enqueueFillBuffer(device_weights[parameter],
                                     self_weight,
                                     height_ori * width_ori * (search_window_size * wsh + wsh) * sizeof(float), //offset
                                     height_ori * width_ori * sizeof(float),
                                     NULL, NULL);
 
-        LOG(DEBUG) << "weighted_means";
-        nl_routines.weighted_means_routine.timed_run(cmd_queue,
-                                                      covmat_ori,
-                                                      covmat_filt,
-                                                      device_weights[patch_size],
-                                                      height_ori,
-                                                      width_ori,
-                                                      search_window_size,
-                                                      patch_size,
-                                                      window_width);
+        nl_routines.compute_number_of_looks_routine.timed_run(cmd_queue,
+                                                              device_weights[parameter],
+                                                              device_enl[parameter],
+                                                              height_ori,
+                                                              width_ori,
+                                                              search_window_size);
+
+        cmd_queue.enqueueReadBuffer(device_enl[parameter], CL_TRUE, 0,
+                                    n_elem_ori * sizeof(float), enl[parameter].data(), NULL, NULL);
     }
 
+    std::vector<params> best_parameters = best_params(enl, height_ori, width_ori);
+    std::vector<float> best_weights = best_weights_copy(weights, best_parameters, height_ori, width_ori, search_window_size);
 
+    cmd_queue.enqueueWriteBuffer(device_best_weights, CL_TRUE, 0,
+                                 n_elem_ori * search_window_size * search_window_size * sizeof(float), best_weights.data());
+
+    LOG(DEBUG) << "weighted_means";
+    nl_routines.weighted_means_routine.timed_run(cmd_queue,
+                                                  covmat_ori,
+                                                  covmat_filt,
+                                                  device_best_weights,
+                                                  height_ori,
+                                                  width_ori,
+                                                  search_window_size,
+                                                  patch_size_max,
+                                                  window_width);
 
     nl_routines.covmat_decompose_routine.timed_run(cmd_queue,
                                                     covmat_filt,

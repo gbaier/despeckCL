@@ -7,6 +7,7 @@ include_directories(${despeckCL_SOURCE_DIR}/include/clcfg)
 include_directories(${despeckCL_SOURCE_DIR}/include/utils)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar/cl_wrapper)
+include_directories(${despeckCL_SOURCE_DIR}/include/compute/common/cl_wrappers)
 
 add_library(nlsar_lib nlsar.cpp
                       nlsar_routines.cpp
@@ -20,9 +21,12 @@ if(GSL_FOUND)
 endif()
 
 target_link_libraries(nlsar_lib nlsar_opencl_wrapper
+                                common_opencl_wrappers
                                 insar_data
                                 clcfg
                                 logging
+                                best_params_lib
+                                best_weights_copy_lib
                                 ${GSL_LIBRARIES})
 
 add_library(best_params_lib best_params.cpp)
