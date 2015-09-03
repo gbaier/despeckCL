@@ -18,7 +18,7 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
           const int height, const int width,
           const int search_window_size,
           const std::vector<int> patch_sizes,
-          std::vector<el::Level> enabled_log_levels)
+          std::vector<std::string> enabled_log_levels)
 {
     const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
     // FIXME

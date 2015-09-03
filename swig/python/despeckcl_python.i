@@ -9,10 +9,12 @@
 
 %include "numpy.i"
 %include "typemaps.i"
+%include "std_string.i"
 %include "std_vector.i"
 
 namespace std {
    %template(IntVector) vector<int>;
+   %template(StringVector) vector<string>;
 }
 
 %init %{
@@ -145,17 +147,9 @@ void _nlsar_c_wrap(float* master_amplitude,   int h1, int w1,
                    float* dphase_filtered,    int h5, int w5,
                    float* coherence_filtered, int h6, int w6,
                    const int search_window_size,
-                   const std::vector<int> patch_sizes)
+                   const std::vector<int> patch_sizes,
+                   const std::vector<std::string> enabled_log_levels)
 {
-    std::vector<el::Level> enabled_log_levels {
-                                               el::Level::Info,
-                                               el::Level::Verbose,
-                                               el::Level::Debug,
-                                               el::Level::Warning,
-                                               el::Level::Error,
-                                               el::Level::Fatal,
-                                               };
-
     nlsar(master_amplitude, slave_amplitude, dphase,
           amplitude_filtered, dphase_filtered, coherence_filtered,
           h1,
@@ -174,13 +168,15 @@ def nlsar(master_amplitude,
           slave_amplitude,
           dphase,
           search_window_size,
-          patch_sizes):
+          patch_sizes,
+          enabled_log_levels = ['warning', 'fatal']):
     amplitude_filtered = np.zeros_like(master_amplitude)
     dphase_filtered    = np.zeros_like(master_amplitude)
     coherence_filtered = np.zeros_like(master_amplitude)
     _despeckcl._nlsar_c_wrap(master_amplitude, slave_amplitude, dphase,
                              amplitude_filtered, dphase_filtered, coherence_filtered,
                              search_window_size,
-                             patch_sizes)
+                             patch_sizes,
+                             enabled_log_levels)
     return (amplitude_filtered, dphase_filtered, coherence_filtered)
 }
