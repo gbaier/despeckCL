@@ -24,7 +24,7 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     // FIXME
     const int window_width = 3;
     const int dimension = 2;
-    const int lut_size = 1024;
+    const int lut_size = 256;
     // overlap consists of:
     // - (patch_size_max - 1)/2 + (search_window_size - 1)/2 for similarities
     // - (window_width - 1)/2 for spatial averaging of covariance matrices
