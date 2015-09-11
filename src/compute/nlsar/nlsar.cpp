@@ -24,6 +24,7 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     // FIXME
     const int window_width = 3;
     const int dimension = 2;
+    const int lut_size = 1024;
     // overlap consists of:
     // - (patch_size_max - 1)/2 + (search_window_size - 1)/2 for similarities
     // - (window_width - 1)/2 for spatial averaging of covariance matrices
@@ -70,7 +71,7 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
                            height, width};
     std::map<int, stats> nlsar_stats;
     for(int patch_size : patch_sizes) {
-        nlsar_stats.emplace(patch_size, stats(get_dissims(total_image.get_sub_insar_data(bbox{0,15,0,15}), patch_size, window_width), patch_size));
+        nlsar_stats.emplace(patch_size, stats(get_dissims(total_image.get_sub_insar_data(bbox{0,15,0,15}), patch_size, window_width), patch_size, lut_size));
     }
     total_image.pad(overlap);
     insar_data total_image_temp = total_image;
