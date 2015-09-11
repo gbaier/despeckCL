@@ -8,8 +8,10 @@
 
 float stats::dissim_lookup(float dissim)
 {
-    std::vector<float>::iterator low = std::lower_bound(dissims.begin(), dissims.end(), dissim);
-    return dissim2relidx[*low];
+    dissim = std::max<float>(dissim, dissims_min);
+    dissim = std::min<float>(dissim, dissims_max);
+    const int mapped_idx = (dissim-dissims_min)/(dissims_max - dissims_min)*lut_size;
+    return dissims2relidx[(int) mapped_idx];
 }
 
 float stats::chi2cdf_inv_lookup(float idx)
@@ -24,8 +26,6 @@ stats::stats(std::vector<float> dissims, unsigned int patch_size, unsigned int l
     dissims_min = *std::min_element(dissims.begin(), dissims.end());
     dissims_max = *std::max_element(dissims.begin(), dissims.end());
 
-    std::vector<float> dissims_resampled;
-
     for(float dissim = dissims_min; dissim<dissims_max; dissim += (dissims_max - dissims_min)/lut_size) {
         const std::vector<float>::iterator lower_bound = std::lower_bound(dissims.begin(), dissims.end(), dissim);
 
@@ -39,16 +39,13 @@ stats::stats(std::vector<float> dissims, unsigned int patch_size, unsigned int l
 
         //std::cout << dissim_resampled_lower << ", " << dissim << ", " << dissim_resampled_upper << std::endl;
         if (dissim - dissim_resampled_lower < dissim_resampled_upper - dissim) {
-            dissims_resampled.push_back(dissim_resampled_lower);
             const float rel_idx = ((float) (lower_bound - dissims.begin()-1))/dissims.size();
-            this->dissim2relidx[dissim_resampled_lower] = rel_idx;
+            this->dissims2relidx.push_back(rel_idx);
         } else {
-            dissims_resampled.push_back(dissim_resampled_upper);
             const float rel_idx = ((float) (lower_bound - dissims.begin()))/dissims.size();
-            this->dissim2relidx[dissim_resampled_upper] = rel_idx;
+            this->dissims2relidx.push_back(rel_idx);
         }
     }
-    this -> dissims = dissims_resampled;
 
     for(float d=0; d<1; d += 1./lut_size) {
         // chi square cdf with patch_size*patch_size degrees of freedom

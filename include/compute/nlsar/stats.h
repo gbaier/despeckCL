@@ -14,8 +14,7 @@ class stats
         float dissims_min;
         float dissims_max;
         
-        std::vector<float> dissims;
-        std::map<float, float> dissim2relidx;
+        std::vector<float> dissims2relidx;
         std::vector<float> chi2cdf_inv;
 
         float dissim_lookup(float dissim);
