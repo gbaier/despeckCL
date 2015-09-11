@@ -70,8 +70,9 @@ int nlsar_sub_image(cl::Context context,
     std::map<params, cl::Buffer> device_patch_similarities;
     std::map<params, cl::Buffer> device_weights;
     std::map<params, cl::Buffer> device_enl; // equivalent number of looks
+    std::map<params, cl::Buffer> device_lut_dissims2relidx;
+    std::map<params, cl::Buffer> device_lut_chi2cdf_inv;
 
-    std::map<params, std::vector<float>> patch_similarities;
     std::map<params, std::vector<float>> weights;
     std::map<params, std::vector<float>> enl;
 
@@ -79,10 +80,15 @@ int nlsar_sub_image(cl::Context context,
         device_patch_similarities [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
         device_weights            [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
         device_enl                [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
+        const stats* para_stats = &dissim_stats.find(parameter.patch_size)->second;
+        const int lut_size = para_stats->lut_size;
+        device_lut_dissims2relidx [parameter] = cl::Buffer {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                                            lut_size * sizeof(float), (void*) para_stats->dissims2relidx.data(), NULL};
+        device_lut_chi2cdf_inv    [parameter] = cl::Buffer {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, \
+                                                            lut_size * sizeof(float), (void*) para_stats->chi2cdf_inv.data(), NULL};
 
-        patch_similarities [parameter] = std::vector<float> (search_window_size * search_window_size * n_elem_ori);
-        weights            [parameter] = std::vector<float> (search_window_size * search_window_size * n_elem_ori);
-        enl                [parameter] = std::vector<float> (n_elem_ori);
+        weights  [parameter] = std::vector<float> (search_window_size * search_window_size * n_elem_ori);
+        enl      [parameter] = std::vector<float> (n_elem_ori);
     }
 
     cl::Buffer device_best_weights {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
@@ -153,15 +159,19 @@ int nlsar_sub_image(cl::Context context,
                                                                  parameter.patch_size,
                                                                  patch_size_max);
 
-        cmd_queue.enqueueReadBuffer(device_patch_similarities[parameter], CL_TRUE, 0,
-                                    n_elem_ori * search_window_size * search_window_size * sizeof(float), patch_similarities[parameter].data(), NULL, NULL);
-
-        std::transform(patch_similarities[parameter].begin(),
-                       patch_similarities[parameter].end(),
-                       weights[parameter].begin(), [&dissim_stats, parameter] (float dissim) {return dissim_stats.find(parameter.patch_size)->second.weight(dissim);});
-
-        cmd_queue.enqueueWriteBuffer(device_weights[parameter], CL_TRUE, 0,
-                                     n_elem_ori * search_window_size * search_window_size * sizeof(float), weights[parameter].data());
+        const stats* para_stats = &dissim_stats.find(parameter.patch_size)->second;
+        nl_routines.compute_weights_routine.timed_run(cmd_queue,
+                                                      device_patch_similarities[parameter],
+                                                      device_weights[parameter],
+                                                      height_ori,
+                                                      width_ori,
+                                                      search_window_size,
+                                                      parameter.patch_size,
+                                                      device_lut_dissims2relidx[parameter],
+                                                      device_lut_chi2cdf_inv[parameter],
+                                                      para_stats->lut_size,
+                                                      para_stats->dissims_min,
+                                                      para_stats->dissims_max);
 
         // set weight for self similarity
         const cl_int self_weight = 1;
@@ -170,6 +180,9 @@ int nlsar_sub_image(cl::Context context,
                                     height_ori * width_ori * (search_window_size * wsh + wsh) * sizeof(float), //offset
                                     height_ori * width_ori * sizeof(float),
                                     NULL, NULL);
+
+        cmd_queue.enqueueReadBuffer(device_weights[parameter], CL_TRUE, 0,
+                                    n_elem_ori * search_window_size * search_window_size * sizeof(float), weights[parameter].data(), NULL, NULL);
 
         nl_routines.compute_number_of_looks_routine.timed_run(cmd_queue,
                                                               device_weights[parameter],

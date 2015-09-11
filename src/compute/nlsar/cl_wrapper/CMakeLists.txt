@@ -21,6 +21,7 @@ add_library(nlsar_opencl_wrapper covmat_spatial_avg.cpp
                                  covmat_create.cpp
                                  compute_pixel_similarities_2x2.cpp
                                  compute_patch_similarities.cpp
+                                 compute_weights.cpp
                                  covmat_decompose.cpp
                                  weighted_means.cpp
                                  )

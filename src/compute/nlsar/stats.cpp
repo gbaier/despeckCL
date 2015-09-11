@@ -52,12 +52,3 @@ stats::stats(std::vector<float> dissims, unsigned int patch_size, unsigned int l
         chi2cdf_inv.push_back(gsl_cdf_chisq_Pinv(d, patch_size*patch_size));
     }
 }
-
-float stats::weight(float dissim)
-{
-    // relative index in the cdf of the dissimilarities idx \in (0,1)
-    float idx = dissim_lookup(dissim);
-    // find corresponding x value in chi2cdf_inv
-    float x = chi2cdf_inv_lookup(idx);
-    return exp(-(std::abs(x-c))/h);
-}
