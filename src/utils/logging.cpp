@@ -11,6 +11,7 @@ void logging_setup(std::vector<std::string> enabled_log_levels)
     log_config.set(el::Level::Debug,   el::ConfigurationType::Format, "[%level] %fbase:%line %msg");
     log_config.set(el::Level::Warning, el::ConfigurationType::Format, "[%level] %fbase:%line %msg");
     log_config.set(el::Level::Fatal,   el::ConfigurationType::Format, "[%level] %fbase:%line %msg");
+    log_config.set(el::Level::Error,   el::ConfigurationType::Format, "[%level] %fbase:%line %msg");
     for(auto level : enabled_log_levels) {
         log_config.set(loglevel_map.at(level), el::ConfigurationType::Enabled, "true");
     }

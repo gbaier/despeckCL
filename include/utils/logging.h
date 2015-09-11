@@ -13,7 +13,8 @@ const std::map<const std::string, const el::Level> loglevel_map {
                                                                   {"info",    el::Level::Info},
                                                                   {"verbose", el::Level::Verbose},
                                                                   {"warning", el::Level::Warning},
-                                                                  {"fatal",   el::Level::Fatal}
+                                                                  {"fatal",   el::Level::Fatal},
+                                                                  {"error",   el::Level::Error}
                                                                 };
 
 #endif
