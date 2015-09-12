@@ -1,12 +1,12 @@
 #include "covmat_create.h"
 
-void covmat_create::run(cl::CommandQueue cmd_queue,
-                        cl::Buffer ampl_master,
-                        cl::Buffer ampl_slave,
-                        cl::Buffer dphase,
-                        cl::Buffer covmat,
-                        const int height,
-                        const int width)
+void nlsar::covmat_create::run(cl::CommandQueue cmd_queue,
+                               cl::Buffer ampl_master,
+                               cl::Buffer ampl_slave,
+                               cl::Buffer dphase,
+                               cl::Buffer covmat,
+                               const int height,
+                               const int width)
 {
     kernel.setArg(0, ampl_master);
     kernel.setArg(1, ampl_slave);

@@ -6,11 +6,11 @@
 #include <iostream>
 #include <sstream>
 
-weighted_means::weighted_means(const size_t block_size,
-                               cl::Context context,
-                               const int search_window_size,
-                               const int dimension) : search_window_size(search_window_size),
-                                                      dimension(dimension)
+nlsar::weighted_means::weighted_means(const size_t block_size,
+                                      cl::Context context,
+                                      const int search_window_size,
+                                      const int dimension) : search_window_size(search_window_size),
+                                                             dimension(dimension)
 {
     kernel_env::block_size = block_size;
     kernel_env::context = context;
@@ -18,8 +18,8 @@ weighted_means::weighted_means(const size_t block_size,
     build_kernel();
 }
 
-weighted_means::weighted_means(const weighted_means& other) : search_window_size(other.search_window_size),
-                                                              dimension(other.dimension)
+nlsar::weighted_means::weighted_means(const weighted_means& other) : search_window_size(other.search_window_size),
+                                                                     dimension(other.dimension)
 {
     kernel_env::block_size = other.block_size;
     kernel_env::context = other.context;
@@ -27,22 +27,22 @@ weighted_means::weighted_means(const weighted_means& other) : search_window_size
     build_kernel();
 }
 
-std::string weighted_means::return_build_options(void)
+std::string nlsar::weighted_means::return_build_options(void)
 {
     std::ostringstream out;
     out << " -D SEARCH_WINDOW_SIZE=" << search_window_size << " -D BLOCK_SIZE=" << block_size << " -D DIMENSION=" << dimension;
     return kernel_env::return_build_options() + out.str();
 }
 
-void weighted_means::run(cl::CommandQueue cmd_queue,
-                         cl::Buffer covmat_in,
-                         cl::Buffer covmat_out,
-                         cl::Buffer weights,
-                         const int height_ori,
-                         const int width_ori,
-                         const int search_window_size,
-                         const int patch_size,
-                         const int window_width)
+void nlsar::weighted_means::run(cl::CommandQueue cmd_queue,
+                                cl::Buffer covmat_in,
+                                cl::Buffer covmat_out,
+                                cl::Buffer weights,
+                                const int height_ori,
+                                const int width_ori,
+                                const int search_window_size,
+                                const int patch_size,
+                                const int window_width)
 {
     kernel.setArg(0, covmat_in);
     kernel.setArg(1, covmat_out);

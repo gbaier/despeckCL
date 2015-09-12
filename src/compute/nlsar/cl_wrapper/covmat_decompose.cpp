@@ -1,12 +1,12 @@
 #include "covmat_decompose.h"
 
-void covmat_decompose::run(cl::CommandQueue cmd_queue,
-                           cl::Buffer covmat,
-                           cl::Buffer amplitude,
-                           cl::Buffer dphase,
-                           cl::Buffer coherence,
-                           const int height,
-                           const int width)
+void nlsar::covmat_decompose::run(cl::CommandQueue cmd_queue,
+                                  cl::Buffer covmat,
+                                  cl::Buffer amplitude,
+                                  cl::Buffer dphase,
+                                  cl::Buffer coherence,
+                                  const int height,
+                                  const int width)
 {
     kernel.setArg(0, covmat);
     kernel.setArg(1, amplitude);

@@ -1,6 +1,6 @@
 #include "compute_weights.h"
 
-void nlsar_asdf::compute_weights::run(cl::CommandQueue cmd_queue,
+void nlsar::compute_weights::run(cl::CommandQueue cmd_queue,
                                  cl::Buffer patch_similarities,
                                  cl::Buffer weights,
                                  const int height_ori,

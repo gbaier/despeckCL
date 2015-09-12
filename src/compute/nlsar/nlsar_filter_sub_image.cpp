@@ -1,4 +1,4 @@
-#include "nlsar_sub_image.h"
+#include "nlsar_filter_sub_image.h"
 
 #include "nlsar.h"
 #include "nlsar_routines.h"
@@ -7,13 +7,13 @@
 
 #include <iostream>
 
-int nlsar_sub_image(cl::Context context,
-                    nlsar_routines nl_routines,
-                    insar_data& sub_insar_data,
-                    const int search_window_size,
-                    const std::vector<int> patch_sizes,
-                    const int dimension,
-                    std::map<int, stats> &dissim_stats)
+int nlsar::filter_sub_image(cl::Context context,
+                            routines nl_routines,
+                            insar_data& sub_insar_data,
+                            const int search_window_size,
+                            const std::vector<int> patch_sizes,
+                            const int dimension,
+                            std::map<int, stats> &dissim_stats)
 {
     const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
     const int psh = (patch_size_max - 1)/2;

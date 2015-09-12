@@ -6,19 +6,19 @@
 
 #include "nlsar_routines.h"
 #include "insar_data.h"
-#include "nlsar_sub_image.h"
+#include "nlsar_filter_sub_image.h"
 #include "sub_images.h"
 #include "stats.h"
 #include "get_dissims.h"
 #include "clcfg.h"
 #include "logging.h"
 
-int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
-          float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered,
-          const int height, const int width,
-          const int search_window_size,
-          const std::vector<int> patch_sizes,
-          std::vector<std::string> enabled_log_levels)
+int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
+                 float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered,
+                 const int height, const int width,
+                 const int search_window_size,
+                 const std::vector<int> patch_sizes,
+                 std::vector<std::string> enabled_log_levels)
 {
     const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
     // FIXME
@@ -60,7 +60,7 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     std::chrono::duration<double> elapsed_seconds = end-start;
     start = std::chrono::system_clock::now();
     VLOG(0) << "Building kernels";
-    nlsar_routines nl_routines (context, search_window_size, window_width, dimension);
+    routines nl_routines (context, search_window_size, window_width, dimension);
     end = std::chrono::system_clock::now();
     elapsed_seconds = end-start;
     VLOG(0) << "Time it took to build all kernels: " << elapsed_seconds.count() << "secs";
@@ -86,12 +86,12 @@ int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
 #pragma omp task firstprivate(boundaries)
         {
         insar_data sub_image = total_image.get_sub_insar_data(boundaries);
-        nlsar_sub_image(context, nl_routines, // opencl stuff
-                        sub_image, // data
-                        search_window_size,
-                        patch_sizes,
-                        dimension,
-                        nlsar_stats);
+        filter_sub_image(context, nl_routines, // opencl stuff
+                         sub_image, // data
+                         search_window_size,
+                         patch_sizes,
+                         dimension,
+                         nlsar_stats);
         total_image_temp.write_sub_insar_data(sub_image, overlap, boundaries);
         }
     }

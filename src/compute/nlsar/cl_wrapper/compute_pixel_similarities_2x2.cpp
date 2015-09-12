@@ -1,11 +1,11 @@
 #include "compute_pixel_similarities_2x2.h"
 
-void compute_pixel_similarities_2x2::run(cl::CommandQueue cmd_queue,
-                                         cl::Buffer covmat,
-                                         cl::Buffer pixel_similarities,
-                                         const int height_overlap,
-                                         const int width_overlap,
-                                         const int search_window_size)
+void nlsar::compute_pixel_similarities_2x2::run(cl::CommandQueue cmd_queue,
+                                                cl::Buffer covmat,
+                                                cl::Buffer pixel_similarities,
+                                                const int height_overlap,
+                                                const int width_overlap,
+                                                const int search_window_size)
 {
     kernel.setArg(0, covmat);
     kernel.setArg(1, pixel_similarities);

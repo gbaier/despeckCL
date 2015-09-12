@@ -12,6 +12,8 @@ INITIALIZE_EASYLOGGINGPP
 
 #include "covmat_rescale.h"
 
+using namespace nlsar;
+
 TEST_CASE( "covmat_rescale", "[cl_kernels]" ) {
 
         // data setup

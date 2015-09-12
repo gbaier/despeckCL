@@ -11,6 +11,8 @@ INITIALIZE_EASYLOGGINGPP
 
 #include "covmat_create.h"
 
+using namespace nlsar;
+
 TEST_CASE( "covmat_create", "[cl_kernels]" ) {
 
         // data setup

@@ -3,27 +3,29 @@
 
 #include "clcfg.h"
 
-class compute_patch_similarities : public kernel_env<compute_patch_similarities>
-{
-    public:
-        using kernel_env::kernel_env;
+namespace nlsar {
+    class compute_patch_similarities : public kernel_env<compute_patch_similarities>
+    {
+        public:
+            using kernel_env::kernel_env;
 
-        static constexpr const char* kernel_source =
-"@CMAKE_KERNEL_SOURCE@"
-;
+            static constexpr const char* kernel_source =
+    "@CMAKE_KERNEL_SOURCE@"
+    ;
 
-        static constexpr const char* routine_name {"compute_patch_similarities"};
+            static constexpr const char* routine_name {"compute_patch_similarities"};
 
-        const int get_output_block_size(const int patch_size);
+            const int get_output_block_size(const int patch_size);
 
-        void run(cl::CommandQueue cmd_queue,
-                 cl::Buffer pixel_similarities,
-                 cl::Buffer patch_similarities,
-                 const int height_sim,
-                 const int width_sim,
-                 const int search_winow_size,
-                 const int patch_size,
-                 const int patch_size_max);
-};
+            void run(cl::CommandQueue cmd_queue,
+                     cl::Buffer pixel_similarities,
+                     cl::Buffer patch_similarities,
+                     const int height_sim,
+                     const int width_sim,
+                     const int search_winow_size,
+                     const int patch_size,
+                     const int patch_size_max);
+    };
+}
 
 #endif

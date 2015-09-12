@@ -12,6 +12,8 @@ INITIALIZE_EASYLOGGINGPP
 
 #include "covmat_spatial_avg.h"
 
+using namespace nlsar;
+
 TEST_CASE( "covmat_spatial_avg", "[cl_kernels]" ) {
 
         // data setup

@@ -9,6 +9,8 @@ INITIALIZE_EASYLOGGINGPP
 
 #include "compute_patch_similarities.h"
 
+using namespace nlsar;
+
 TEST_CASE( "compute_patch_similarities", "[cl_kernels]" ) {
 
         // data setup

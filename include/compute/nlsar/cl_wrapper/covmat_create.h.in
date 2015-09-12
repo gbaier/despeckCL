@@ -5,24 +5,25 @@
 
 #include "clcfg.h"
 
-class covmat_create : public kernel_env<covmat_create>
-{
-    public:
-        using kernel_env::kernel_env;
+namespace nlsar {
+    class covmat_create : public kernel_env<covmat_create>
+    {
+        public:
+            using kernel_env::kernel_env;
 
-        static constexpr const char* routine_name {"covmat_create"};
+            static constexpr const char* routine_name {"covmat_create"};
 
-        static constexpr const char* kernel_source =
-"@CMAKE_KERNEL_SOURCE@"
-;
+            static constexpr const char* kernel_source =
+    "@CMAKE_KERNEL_SOURCE@"
+    ;
 
-        void run(cl::CommandQueue cmd_queue,
-                 cl::Buffer ampl_master,
-                 cl::Buffer ampl_slave,
-                 cl::Buffer dphase,
-                 cl::Buffer covmat,
-                 const int height,
-                 const int width);
-};
-
+            void run(cl::CommandQueue cmd_queue,
+                     cl::Buffer ampl_master,
+                     cl::Buffer ampl_slave,
+                     cl::Buffer dphase,
+                     cl::Buffer covmat,
+                     const int height,
+                     const int width);
+    };
+}
 #endif

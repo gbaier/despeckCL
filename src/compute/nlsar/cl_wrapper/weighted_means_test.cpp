@@ -12,6 +12,8 @@ INITIALIZE_EASYLOGGINGPP
 
 #include "weighted_means.h"
 
+using namespace nlsar;
+
 TEST_CASE( "weighted_means", "[cl_kernels]" ) {
 
         // data setup

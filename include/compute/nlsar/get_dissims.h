@@ -5,8 +5,10 @@
 
 #include "insar_data.h"
 
-std::vector<float> get_dissims(const insar_data& sub_insar_data,
-                               const int patch_size,
-                               const int window_width);
+namespace nlsar {
+    std::vector<float> get_dissims(const insar_data& sub_insar_data,
+                                   const int patch_size,
+                                   const int window_width);
+}
 
 #endif

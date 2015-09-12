@@ -150,13 +150,13 @@ void _nlsar_c_wrap(float* master_amplitude,   int h1, int w1,
                    const std::vector<int> patch_sizes,
                    const std::vector<std::string> enabled_log_levels)
 {
-    nlsar(master_amplitude, slave_amplitude, dphase,
-          amplitude_filtered, dphase_filtered, coherence_filtered,
-          h1,
-          w1,
-          search_window_size,
-          patch_sizes,
-          enabled_log_levels);
+    nlsar::nlsar(master_amplitude, slave_amplitude, dphase,
+                 amplitude_filtered, dphase_filtered, coherence_filtered,
+                 h1,
+                 w1,
+                 search_window_size,
+                 patch_sizes,
+                 enabled_log_levels);
     return;
 }
 %}

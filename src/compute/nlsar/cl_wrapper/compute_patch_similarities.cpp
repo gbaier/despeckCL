@@ -1,18 +1,18 @@
 #include "compute_patch_similarities.h"
 
-const int compute_patch_similarities::get_output_block_size(const int patch_size)
+const int nlsar::compute_patch_similarities::get_output_block_size(const int patch_size)
 {
     return block_size - patch_size + 1;
 }
 
-void compute_patch_similarities::run(cl::CommandQueue cmd_queue,
-                                     cl::Buffer pixel_similarities,
-                                     cl::Buffer patch_similarities,
-                                     const int height_sim,
-                                     const int width_sim,
-                                     const int search_window_size,
-                                     const int patch_size,
-                                     const int patch_size_max)
+void nlsar::compute_patch_similarities::run(cl::CommandQueue cmd_queue,
+                                            cl::Buffer pixel_similarities,
+                                            cl::Buffer patch_similarities,
+                                            const int height_sim,
+                                            const int width_sim,
+                                            const int search_window_size,
+                                            const int patch_size,
+                                            const int patch_size_max)
 {
     const int output_block_size = get_output_block_size(patch_size);
 

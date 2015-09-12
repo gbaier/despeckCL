@@ -12,6 +12,8 @@ INITIALIZE_EASYLOGGINGPP
 
 #include "compute_pixel_similarities_2x2.h"
 
+using namespace nlsar;
+
 TEST_CASE( "compute_pixel_similarities_2x2", "[cl_kernels]" ) {
 
         // data setup
