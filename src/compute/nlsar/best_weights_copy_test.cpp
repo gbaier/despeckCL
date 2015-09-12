@@ -3,6 +3,8 @@
 
 #include "best_weights_copy.h"
 
+using namespace nlsar;
+
 TEST_CASE( "beist_weights_copy", "[routines]" ) {
 
     // data setup

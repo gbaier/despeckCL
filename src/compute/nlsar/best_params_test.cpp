@@ -3,6 +3,8 @@
 
 #include "best_params.h"
 
+using namespace nlsar;
+
 TEST_CASE( "covmat_create", "[cl_kernels]" ) {
 
     // data setup

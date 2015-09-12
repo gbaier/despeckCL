@@ -1,10 +1,10 @@
 #include "best_weights_copy.h"
 
-std::vector<float> best_weights_copy(std::map<params, std::vector<float>> &weights,
-                                     std::vector<params> best_parameters,
-                                     const int height,
-                                     const int width,
-                                     const int search_window_size)
+std::vector<float> nlsar::best_weights_copy(std::map<params, std::vector<float>> &weights,
+                                            std::vector<params> best_parameters,
+                                            const int height,
+                                            const int width,
+                                            const int search_window_size)
 {
     std::vector<float> best_weights (search_window_size*search_window_size*height*width);
     for(int h = 0; h < height; h++) {
