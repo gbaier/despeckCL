@@ -22,6 +22,7 @@ add_library(nlsar_opencl_wrapper covmat_spatial_avg.cpp
                                  compute_pixel_similarities_2x2.cpp
                                  compute_patch_similarities.cpp
                                  compute_weights.cpp
+                                 compute_nl_statistics.cpp
                                  covmat_decompose.cpp
                                  weighted_means.cpp
                                  )
@@ -42,6 +43,9 @@ target_link_libraries(compute_pixel_similarities_2x2_test nlsar_opencl_wrapper)
 
 add_executable(compute_patch_similarities_test compute_patch_similarities_test.cpp)
 target_link_libraries(compute_patch_similarities_test nlsar_opencl_wrapper) 
+
+add_executable(compute_nl_statistics_test compute_nl_statistics_test.cpp)
+target_link_libraries(compute_nl_statistics_test nlsar_opencl_wrapper) 
 
 add_executable(covmat_decompose_test covmat_decompose_test.cpp)
 target_link_libraries(covmat_decompose_test nlsar_opencl_wrapper) 
@@ -64,6 +68,9 @@ add_test(NAME NLSAR_compute_pixel_similarities_2x2
 
 add_test(NAME NLSAR_compute_patch_similarities
          COMMAND compute_patch_similarities_test)
+
+add_test(NAME NLSAR_compute_nl_statistics
+         COMMAND compute_nl_statistics_test)
 
 add_test(NAME NLSAR_covmat_decompose
          COMMAND covmat_decompose_test)

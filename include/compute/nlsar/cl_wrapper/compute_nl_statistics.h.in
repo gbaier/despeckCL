@@ -1,0 +1,41 @@
+#ifndef COMPUTE_NL_STATISTICS_H
+#define COMPUTE_NL_STATISTICS_H
+
+#include "clcfg.h"
+
+namespace nlsar {
+    class compute_nl_statistics : public kernel_env<compute_nl_statistics>
+    {
+        public:
+            const int search_window_size;
+            const int dimension;
+
+            static constexpr const char* kernel_source =
+    "@CMAKE_KERNEL_SOURCE@"
+    ;
+
+            static constexpr const char* routine_name {"compute_nl_statistics"};
+
+            compute_nl_statistics(const size_t block_size,
+                               cl::Context context,
+                               const int search_window_size,
+                               const int dimension);
+
+            compute_nl_statistics(const compute_nl_statistics& other);
+
+            std::string return_build_options(void);
+
+            void run(cl::CommandQueue cmd_queue,
+                     cl::Buffer covmat_ori,
+                     cl::Buffer weights,
+                     cl::Buffer intensities_nl,
+                     cl::Buffer weighted_variances,
+                     cl::Buffer weight_sums,
+                     const int height_ori,
+                     const int width_ori,
+                     const int search_window_size,
+                     const int patch_size_max,
+                     const int window_width);
+    };
+}
+#endif
