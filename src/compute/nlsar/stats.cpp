@@ -6,20 +6,7 @@
 
 #include <algorithm>
 
-float stats::dissim_lookup(float dissim)
-{
-    dissim = std::max<float>(dissim, dissims_min);
-    dissim = std::min<float>(dissim, dissims_max);
-    const int mapped_idx = (dissim-dissims_min)/(dissims_max - dissims_min)*lut_size;
-    return dissims2relidx[(int) mapped_idx];
-}
-
-float stats::chi2cdf_inv_lookup(float idx)
-{
-    return chi2cdf_inv[(unsigned int) lut_size*idx];
-}
-
-stats::stats(std::vector<float> dissims, unsigned int patch_size, unsigned int lut_size): patch_size(patch_size), c(patch_size*patch_size), lut_size(lut_size)
+nlsar::stats::stats(std::vector<float> dissims, unsigned int patch_size, unsigned int lut_size): lut_size(lut_size)
 {
     std::sort(dissims.begin(), dissims.end());
     std::remove_if(dissims.begin(), dissims.end(), [] (float num) { return std::isnan(num);} );
