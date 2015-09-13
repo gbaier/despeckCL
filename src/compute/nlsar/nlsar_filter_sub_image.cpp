@@ -148,7 +148,8 @@ int nlsar::filter_sub_image(cl::Context context,
                                                       covmat_spatial_avg,
                                                       dimension,
                                                       height_overlap,
-                                                      width_overlap);
+                                                      width_overlap,
+                                                      window_width);
 
     LOG(DEBUG) << "covmat_pixel_similarities";
     nl_routines.compute_pixel_similarities_2x2_routine.timed_run(cmd_queue,

@@ -1,36 +1,8 @@
 #include "covmat_spatial_avg.h"
 
-#include <stdio.h>
-#include <vector>
-#include <cstdlib>
-#include <iostream>
-#include <sstream>
-
-nlsar::covmat_spatial_avg::covmat_spatial_avg(const size_t block_size,
-                                              cl::Context context,
-                                              const int window_width) : window_width(window_width),
-                                                                        output_block_size(block_size - window_width + 1)
+const int nlsar::covmat_spatial_avg::get_output_block_size(const int scale_size)
 {
-    kernel_env::block_size = block_size;
-    kernel_env::context = context;
-    build_program(return_build_options());
-    build_kernel();
-}
-
-nlsar::covmat_spatial_avg::covmat_spatial_avg(const covmat_spatial_avg& other) : window_width(other.window_width),
-                                                                                 output_block_size(other.output_block_size)
-{
-    kernel_env::block_size = other.block_size;
-    kernel_env::context = other.context;
-    program = other.program;
-    build_kernel();
-}
-
-std::string nlsar::covmat_spatial_avg::return_build_options(void)
-{
-    std::ostringstream out;
-    out << " -D WINDOW_WIDTH=" << window_width << " -D BLOCK_SIZE=" << block_size << " -D OUTPUT_BLOCK_SIZE=" << output_block_size;
-    return kernel_env::return_build_options() + out.str();
+    return block_size - scale_size + 1;
 }
 
 void nlsar::covmat_spatial_avg::run(cl::CommandQueue cmd_queue,
@@ -38,13 +10,18 @@ void nlsar::covmat_spatial_avg::run(cl::CommandQueue cmd_queue,
                                     cl::Buffer covmat_out,
                                     const int dimension,
                                     const int height_overlap,
-                                    const int width_overlap)
+                                    const int width_overlap,
+                                    const int scale_size)
 {
+    const int output_block_size = get_output_block_size(scale_size);
+
     kernel.setArg(0, covmat_in);
     kernel.setArg(1, covmat_out);
     kernel.setArg(2, dimension);
     kernel.setArg(3, height_overlap);
     kernel.setArg(4, width_overlap);
+    kernel.setArg(5, scale_size);
+    kernel.setArg(6, cl::Local(block_size*block_size*sizeof(float)));
 
     cl::NDRange global_size {(size_t) block_size*( (height_overlap - 1)/output_block_size + 1), \
                              (size_t) block_size*( (width_overlap  - 1)/output_block_size + 1)};

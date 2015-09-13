@@ -37,7 +37,7 @@ TEST_CASE( "covmat_spatial_avg", "[cl_kernels]" ) {
 
         // kernel setup
         const int block_size = 16;
-        covmat_spatial_avg KUT{block_size, context, window_width};
+        covmat_spatial_avg KUT{block_size, context};
 
         // allocate memory
         cl::Buffer device_input  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR,            2*dimension*dimension*height*width*sizeof(float), input.data(), NULL};
@@ -48,7 +48,8 @@ TEST_CASE( "covmat_spatial_avg", "[cl_kernels]" ) {
                 device_output,
                 dimension,
                 height-window_width+1,
-                width-window_width+1);
+                width-window_width+1,
+                window_width);
 
         cmd_queue.enqueueReadBuffer(device_output, CL_TRUE, 0, 2*dimension*dimension*(height-window_width+1)*(width-window_width+1)*sizeof(float), output.data(), NULL, NULL);
 

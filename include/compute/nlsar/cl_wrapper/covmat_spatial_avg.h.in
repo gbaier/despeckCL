@@ -6,9 +6,11 @@
 namespace nlsar {
     class covmat_spatial_avg : public kernel_env<covmat_spatial_avg>
     {
+        private:
+            const int get_output_block_size(const int patch_size);
+
         public:
-            const int window_width;
-            const int output_block_size;
+            using kernel_env::kernel_env;
 
             static constexpr const char* kernel_source =
     "@CMAKE_KERNEL_SOURCE@"
@@ -16,20 +18,13 @@ namespace nlsar {
 
             static constexpr const char* routine_name {"covmat_spatial_avg"};
 
-            covmat_spatial_avg(const size_t block_size,
-                               cl::Context context,
-                               const int window_width);
-
-            covmat_spatial_avg(const covmat_spatial_avg& other);
-
-            std::string return_build_options(void);
-
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer covmat_in,
                      cl::Buffer covmat_out,
                      const int dimension,
                      const int height_overlap,
-                     const int width_overlap);
+                     const int width_overlap,
+                     const int scale_size);
     };
 }
 

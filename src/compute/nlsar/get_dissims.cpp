@@ -80,7 +80,7 @@ std::vector<float> nlsar::get_dissims(const insar_data& sub_insar_data,
 
     covmat_create                  covmat_create_routine                  (16, context);
     covmat_rescale                 covmat_rescale_routine                 (16, context);
-    covmat_spatial_avg             covmat_spatial_avg_routine             (16, context, window_width);
+    covmat_spatial_avg             covmat_spatial_avg_routine             (16, context);
     compute_pixel_similarities_2x2 compute_pixel_similarities_2x2_routine (16, context);
     compute_patch_similarities     compute_patch_similarities_routine     (16, context);
 
@@ -104,7 +104,8 @@ std::vector<float> nlsar::get_dissims(const insar_data& sub_insar_data,
                                          device_covmat_spatial_avg,
                                          dimension,
                                          height_overlap,
-                                         width_overlap);
+                                         width_overlap,
+                                         window_width);
 
     compute_pixel_similarities_2x2_routine.timed_run(cmd_queue,
                                                      device_covmat_spatial_avg,
