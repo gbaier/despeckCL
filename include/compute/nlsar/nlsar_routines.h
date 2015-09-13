@@ -10,6 +10,9 @@
 #include "compute_patch_similarities.h"
 #include "compute_weights.h"
 #include "compute_number_of_looks.h"
+#include "compute_nl_statistics.h"
+#include "compute_alphas.h"
+#include "compute_enls_nobias.h"
 #include "covmat_decompose.h"
 #include "weighted_means.h"
 
@@ -22,6 +25,9 @@ namespace nlsar {
         compute_patch_similarities     compute_patch_similarities_routine;
         compute_weights                compute_weights_routine;
         compute_number_of_looks        compute_number_of_looks_routine;
+        compute_nl_statistics          compute_nl_statistics_routine;
+        compute_alphas                 compute_alphas_routine;
+        compute_enls_nobias            compute_enls_nobias_routine;
         covmat_decompose               covmat_decompose_routine;
         weighted_means                 weighted_means_routine;
 

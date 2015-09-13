@@ -70,16 +70,26 @@ int nlsar::filter_sub_image(cl::Context context,
     std::map<params, cl::Buffer> device_patch_similarities;
     std::map<params, cl::Buffer> device_weights;
     std::map<params, cl::Buffer> device_enl; // equivalent number of looks
+    std::map<params, cl::Buffer> device_enls_nobias;
+    std::map<params, cl::Buffer> device_intensities_nl;
+    std::map<params, cl::Buffer> device_weighted_variances;
+    std::map<params, cl::Buffer> device_wsums;
+    std::map<params, cl::Buffer> device_alphas;
     std::map<params, cl::Buffer> device_lut_dissims2relidx;
     std::map<params, cl::Buffer> device_lut_chi2cdf_inv;
 
     std::map<params, std::vector<float>> weights;
-    std::map<params, std::vector<float>> enl;
+    std::map<params, std::vector<float>> enls_nobias;
 
     for(params parameter : parameters) {
         device_patch_similarities [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
         device_weights            [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
         device_enl                [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
+        device_enls_nobias        [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
+        device_intensities_nl     [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
+        device_weighted_variances [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
+        device_wsums              [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
+        device_alphas             [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
         const stats* para_stats = &dissim_stats.find(parameter.patch_size)->second;
         const int lut_size = para_stats->lut_size;
         device_lut_dissims2relidx [parameter] = cl::Buffer {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
@@ -87,8 +97,8 @@ int nlsar::filter_sub_image(cl::Context context,
         device_lut_chi2cdf_inv    [parameter] = cl::Buffer {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, \
                                                             lut_size * sizeof(float), (void*) para_stats->chi2cdf_inv.data(), NULL};
 
-        weights  [parameter] = std::vector<float> (search_window_size * search_window_size * n_elem_ori);
-        enl      [parameter] = std::vector<float> (n_elem_ori);
+        weights     [parameter] = std::vector<float> (search_window_size * search_window_size * n_elem_ori);
+        enls_nobias [parameter] = std::vector<float> (n_elem_ori);
     }
 
     cl::Buffer device_best_weights {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
@@ -190,12 +200,40 @@ int nlsar::filter_sub_image(cl::Context context,
                                                               height_ori,
                                                               width_ori,
                                                               search_window_size);
+        nl_routines.compute_nl_statistics_routine.run(cmd_queue, 
+                                                      covmat_ori,
+                                                      device_weights[parameter],
+                                                      device_intensities_nl[parameter],
+                                                      device_weighted_variances[parameter],
+                                                      device_wsums[parameter],
+                                                      height_ori,
+                                                      width_ori,
+                                                      search_window_size,
+                                                      parameter.patch_size,
+                                                      window_width);
 
-        cmd_queue.enqueueReadBuffer(device_enl[parameter], CL_TRUE, 0,
-                                    n_elem_ori * sizeof(float), enl[parameter].data(), NULL, NULL);
+        nl_routines.compute_alphas_routine.run(cmd_queue, 
+                                               device_intensities_nl[parameter],
+                                               device_weighted_variances[parameter],
+                                               device_alphas[parameter],
+                                               height_ori,
+                                               width_ori,
+                                               dimension,
+                                               nlooks);
+
+        nl_routines.compute_enls_nobias_routine.run(cmd_queue, 
+                                                    device_enl[parameter],
+                                                    device_alphas[parameter],
+                                                    device_wsums[parameter],
+                                                    device_enls_nobias[parameter],
+                                                    height_ori,
+                                                    width_ori);
+
+        cmd_queue.enqueueReadBuffer(device_enls_nobias[parameter], CL_TRUE, 0,
+                                    n_elem_ori * sizeof(float), enls_nobias[parameter].data(), NULL, NULL);
     }
 
-    std::vector<params> best_parameters = best_params(enl, height_ori, width_ori);
+    std::vector<params> best_parameters = best_params(enls_nobias, height_ori, width_ori);
     std::vector<float> best_weights = best_weights_copy(weights, best_parameters, height_ori, width_ori, search_window_size);
 
     cmd_queue.enqueueWriteBuffer(device_best_weights, CL_TRUE, 0,

@@ -11,6 +11,9 @@ nlsar::routines::routines(cl::Context context,
                                                   compute_patch_similarities_routine     (block_size, context),
                                                   compute_weights_routine                (64, context),
                                                   compute_number_of_looks_routine        (block_size, context),
+                                                  compute_nl_statistics_routine          (block_size, context, search_window_size, dimension),
+                                                  compute_alphas_routine                 (block_size, context),
+                                                  compute_enls_nobias_routine            (block_size, context),
                                                   covmat_decompose_routine               (block_size, context),
                                                   weighted_means_routine                 (block_size, context, search_window_size, dimension)
 {
@@ -23,6 +26,9 @@ nlsar::routines::routines(const routines& other) : covmat_create_routine        
                                                    compute_patch_similarities_routine     (other.compute_patch_similarities_routine),
                                                    compute_weights_routine                (other.compute_weights_routine),
                                                    compute_number_of_looks_routine        (other.compute_number_of_looks_routine),
+                                                   compute_nl_statistics_routine          (other.compute_nl_statistics_routine),
+                                                   compute_alphas_routine                 (other.compute_alphas_routine),
+                                                   compute_enls_nobias_routine            (other.compute_enls_nobias_routine),
                                                    covmat_decompose_routine               (other.covmat_decompose_routine),
                                                    weighted_means_routine                 (other.weighted_means_routine)
 {
