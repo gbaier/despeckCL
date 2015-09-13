@@ -24,6 +24,7 @@ add_library(nlsar_opencl_wrapper covmat_spatial_avg.cpp
                                  compute_weights.cpp
                                  compute_nl_statistics.cpp
                                  compute_alphas.cpp
+                                 compute_enls_nobias.cpp
                                  covmat_decompose.cpp
                                  weighted_means.cpp
                                  )
@@ -50,6 +51,9 @@ target_link_libraries(compute_nl_statistics_test nlsar_opencl_wrapper)
 
 add_executable(compute_alphas_test compute_alphas_test.cpp)
 target_link_libraries(compute_alphas_test nlsar_opencl_wrapper) 
+
+add_executable(compute_enls_nobias_test compute_enls_nobias_test.cpp)
+target_link_libraries(compute_enls_nobias_test nlsar_opencl_wrapper) 
 
 add_executable(covmat_decompose_test covmat_decompose_test.cpp)
 target_link_libraries(covmat_decompose_test nlsar_opencl_wrapper) 
@@ -78,6 +82,9 @@ add_test(NAME NLSAR_compute_nl_statistics
 
 add_test(NAME NLSAR_compute_alphas
          COMMAND compute_alphas_test)
+
+add_test(NAME NLSAR_compute_enls_nobias
+         COMMAND compute_enls_nobias_test)
 
 add_test(NAME NLSAR_covmat_decompose
          COMMAND covmat_decompose_test)

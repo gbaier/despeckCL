@@ -1,0 +1,29 @@
+#ifndef COMPUTE_ENLS_NOBIAS_H
+#define COMPUTE_ENLS_NOBIAS_H
+
+#include <CL/cl.h>
+
+#include "clcfg.h"
+
+namespace nlsar {
+    class compute_enls_nobias : public kernel_env<compute_enls_nobias>
+    {
+        public:
+            using kernel_env::kernel_env;
+
+            static constexpr const char* routine_name {"compute_enls_nobias"};
+
+            static constexpr const char* kernel_source =
+    "@CMAKE_KERNEL_SOURCE@"
+    ;
+
+    void run(cl::CommandQueue cmd_queue,
+             cl::Buffer enls,
+             cl::Buffer alphas,
+             cl::Buffer wsums,
+             cl::Buffer enls_nobias,
+             const int height_ori,
+             const int width_ori);
+    };
+}
+#endif
