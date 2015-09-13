@@ -12,7 +12,7 @@ __kernel void compute_alphas (__global float * intensities_nl,
     float alpha = 0.0f;
 
     if (tx < height_ori && ty < width_ori) {
-        const int idx = tx + width_ori + ty;
+        const int idx = tx * width_ori + ty;
         for(int d=0; d<dimension; d++) {
             const float var    = weighted_variances [d*height_ori*width_ori + idx];
             const float int_nl = intensities_nl     [d*height_ori*width_ori + idx];
