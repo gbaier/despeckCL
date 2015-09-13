@@ -33,8 +33,8 @@ __kernel void weighted_means (__global float * covmat_in,
               && (out_y+y) < width_overlap ) {
                 for(int d = 0; d<2*DIMENSION*DIMENSION; d++) {
                     covmat_local [d][tx+x][ty+y] = covmat_in[d*height_overlap_avg*width_overlap_avg \
-                                                                + (out_x+x+2*psh)*width_overlap_avg \
-                                                                                 + (out_y+y+2*psh) ];
+                                                              + (out_x+x+wwh+psh)*width_overlap_avg \
+                                                                                 + (out_y+y+wwh+psh) ];
                 }
             }
         }
