@@ -22,6 +22,18 @@ namespace nlsar {
                                 cl::Buffer& lut_dissims2relidx,
                                 cl::Buffer& lut_chi2cdf_inv,
                                 cl_wrappers& nl_routines);
+
+        cl::Buffer get_enls_nobias (cl::Context context,
+                                    cl::Buffer& device_weights,
+                                    cl::Buffer& covmat_ori,
+                                    const int height_ori,
+                                    const int width_ori,
+                                    const int search_window_size,
+                                    const int patch_size,
+                                    const int scale_size_max,
+                                    const int nlooks,
+                                    const int dimension,
+                                    cl_wrappers& nl_routines);
     }
 }
 
