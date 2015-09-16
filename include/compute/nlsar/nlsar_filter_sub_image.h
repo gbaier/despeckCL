@@ -1,14 +1,14 @@
 #ifndef NLSAR_SUB_IMAGE_H
 #define NLSAR_SUB_IMAGE_H
 
-#include "nlsar_routines.h"
+#include "cl_wrappers.h"
 #include "insar_data.h"
 #include "stats.h"
 #include "best_params.h"
 
 namespace nlsar {
     int filter_sub_image(cl::Context context,
-                         routines nl_routines,
+                         cl_wrappers nlsar_cl_wrappers,
                          insar_data& sub_insar_data,
                          const int search_window_size,
                          const int dimension,

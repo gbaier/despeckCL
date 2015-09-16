@@ -1,16 +1,15 @@
 add_subdirectory(cl_kernels)
-add_subdirectory(cl_wrapper)
+add_subdirectory(cl_wrappers)
 
 include_directories(${despeckCL_SOURCE_DIR}/include)
 include_directories(${despeckCL_SOURCE_DIR}/include/data)
 include_directories(${despeckCL_SOURCE_DIR}/include/clcfg)
 include_directories(${despeckCL_SOURCE_DIR}/include/utils)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar)
-include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar/cl_wrapper)
+include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar/cl_wrappers)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/common/cl_wrappers)
 
 add_library(nlsar_lib nlsar.cpp
-                      nlsar_routines.cpp
                       nlsar_filter_sub_image.cpp
                       stats.cpp
                       get_dissims.cpp)
@@ -20,7 +19,7 @@ if(GSL_FOUND)
     include_directories(${GSL_INCLUDE_DIRS})
 endif()
 
-target_link_libraries(nlsar_lib nlsar_opencl_wrapper
+target_link_libraries(nlsar_lib nlsar_cl_wrappers
                                 common_opencl_wrappers
                                 insar_data
                                 clcfg

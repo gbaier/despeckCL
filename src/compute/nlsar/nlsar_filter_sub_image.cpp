@@ -1,14 +1,13 @@
 #include "nlsar_filter_sub_image.h"
 
 #include "nlsar.h"
-#include "nlsar_routines.h"
 #include "best_params.h"
 #include "best_weights_copy.h"
 
 #include <iostream>
 
 int nlsar::filter_sub_image(cl::Context context,
-                            routines nl_routines,
+                            cl_wrappers nl_routines,
                             insar_data& sub_insar_data,
                             const int search_window_size,
                             const int dimension,

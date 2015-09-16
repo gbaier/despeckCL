@@ -4,7 +4,7 @@
 #include <chrono>
 #include <string.h> // for memcpy
 
-#include "nlsar_routines.h"
+#include "cl_wrappers.h"
 #include "insar_data.h"
 #include "nlsar_filter_sub_image.h"
 #include "sub_images.h"
@@ -63,7 +63,7 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     std::chrono::duration<double> elapsed_seconds = end-start;
     start = std::chrono::system_clock::now();
     VLOG(0) << "Building kernels";
-    routines nl_routines (context, search_window_size, dimension);
+    cl_wrappers nlsar_cl_wrappers (context, search_window_size, dimension);
     end = std::chrono::system_clock::now();
     elapsed_seconds = end-start;
     VLOG(0) << "Time it took to build all kernels: " << elapsed_seconds.count() << "secs";
@@ -92,7 +92,7 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
 #pragma omp task firstprivate(boundaries)
         {
         insar_data sub_image = total_image.get_sub_insar_data(boundaries);
-        filter_sub_image(context, nl_routines, // opencl stuff
+        filter_sub_image(context, nlsar_cl_wrappers, // opencl stuff
                          sub_image, // data
                          search_window_size,
                          dimension,

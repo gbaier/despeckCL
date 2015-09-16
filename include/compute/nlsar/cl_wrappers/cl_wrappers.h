@@ -1,5 +1,5 @@
-#ifndef NLSAR_ROUTINES_H
-#define NLSAR_ROUTINES_H
+#ifndef CL_WRAPPERS_H
+#define CL_WRAPPERS_H
 
 #include <CL/cl.h>
 
@@ -17,7 +17,7 @@
 #include "weighted_means.h"
 
 namespace nlsar {
-    struct routines {
+    struct cl_wrappers {
         covmat_create                  covmat_create_routine;
         covmat_rescale                 covmat_rescale_routine;
         covmat_spatial_avg             covmat_spatial_avg_routine;
@@ -31,12 +31,12 @@ namespace nlsar {
         covmat_decompose               covmat_decompose_routine;
         weighted_means                 weighted_means_routine;
 
-        routines(cl::Context context,
-                       const int search_window_size,
-                       const int dimension,
-                       const int block_size = 16);
+        cl_wrappers(cl::Context context,
+                    const int search_window_size,
+                    const int dimension,
+                    const int block_size = 16);
 
-        routines(const routines& other);
+        cl_wrappers(const cl_wrappers& other);
     };
 }
 

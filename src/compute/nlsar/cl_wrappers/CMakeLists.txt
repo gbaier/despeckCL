@@ -1,8 +1,9 @@
 include_directories(${despeckCL_SOURCE_DIR}/include/clcfg)
 include_directories(${despeckCL_SOURCE_DIR}/include/utils)
-include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar/cl_wrapper)
+include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar/cl_wrappers)
+include_directories(${despeckCL_SOURCE_DIR}/include/compute/common/cl_wrappers)
 
-FILE(GLOB infiles "${despeckCL_SOURCE_DIR}/include/compute/nlsar/cl_wrapper/*.in")
+FILE(GLOB infiles "${despeckCL_SOURCE_DIR}/include/compute/nlsar/cl_wrappers/*.in")
 
 foreach(infile ${infiles})
     get_filename_component(file_name_we ${infile} NAME_WE)
@@ -16,50 +17,51 @@ foreach(infile ${infiles})
     configure_file(${infile} ${outfile})
 endforeach()
 
-add_library(nlsar_opencl_wrapper covmat_spatial_avg.cpp
-                                 covmat_rescale.cpp
-                                 covmat_create.cpp
-                                 compute_pixel_similarities_2x2.cpp
-                                 compute_patch_similarities.cpp
-                                 compute_weights.cpp
-                                 compute_nl_statistics.cpp
-                                 compute_alphas.cpp
-                                 compute_enls_nobias.cpp
-                                 covmat_decompose.cpp
-                                 weighted_means.cpp
-                                 )
-target_link_libraries(nlsar_opencl_wrapper clcfg ${OpenCL_LIBRARIES})
+add_library(nlsar_cl_wrappers cl_wrappers.cpp
+                              covmat_spatial_avg.cpp
+                              covmat_rescale.cpp
+                              covmat_create.cpp
+                              compute_pixel_similarities_2x2.cpp
+                              compute_patch_similarities.cpp
+                              compute_weights.cpp
+                              compute_nl_statistics.cpp
+                              compute_alphas.cpp
+                              compute_enls_nobias.cpp
+                              covmat_decompose.cpp
+                              weighted_means.cpp
+                             )
+target_link_libraries(nlsar_cl_wrappers clcfg ${OpenCL_LIBRARIES})
 
 # Testing Code
 add_executable(covmat_rescale_test     covmat_rescale_test.cpp)
-target_link_libraries(covmat_rescale_test nlsar_opencl_wrapper) 
+target_link_libraries(covmat_rescale_test nlsar_cl_wrappers)
 
 add_executable(covmat_spatial_avg_test covmat_spatial_avg_test.cpp)
-target_link_libraries(covmat_spatial_avg_test nlsar_opencl_wrapper) 
+target_link_libraries(covmat_spatial_avg_test nlsar_cl_wrappers)
 
 add_executable(covmat_create_test covmat_create_test.cpp)
-target_link_libraries(covmat_create_test nlsar_opencl_wrapper) 
+target_link_libraries(covmat_create_test nlsar_cl_wrappers)
 
 add_executable(compute_pixel_similarities_2x2_test compute_pixel_similarities_2x2_test.cpp)
-target_link_libraries(compute_pixel_similarities_2x2_test nlsar_opencl_wrapper) 
+target_link_libraries(compute_pixel_similarities_2x2_test nlsar_cl_wrappers)
 
 add_executable(compute_patch_similarities_test compute_patch_similarities_test.cpp)
-target_link_libraries(compute_patch_similarities_test nlsar_opencl_wrapper) 
+target_link_libraries(compute_patch_similarities_test nlsar_cl_wrappers)
 
 add_executable(compute_nl_statistics_test compute_nl_statistics_test.cpp)
-target_link_libraries(compute_nl_statistics_test nlsar_opencl_wrapper) 
+target_link_libraries(compute_nl_statistics_test nlsar_cl_wrappers)
 
 add_executable(compute_alphas_test compute_alphas_test.cpp)
-target_link_libraries(compute_alphas_test nlsar_opencl_wrapper) 
+target_link_libraries(compute_alphas_test nlsar_cl_wrappers)
 
 add_executable(compute_enls_nobias_test compute_enls_nobias_test.cpp)
-target_link_libraries(compute_enls_nobias_test nlsar_opencl_wrapper) 
+target_link_libraries(compute_enls_nobias_test nlsar_cl_wrappers)
 
 add_executable(covmat_decompose_test covmat_decompose_test.cpp)
-target_link_libraries(covmat_decompose_test nlsar_opencl_wrapper) 
+target_link_libraries(covmat_decompose_test nlsar_cl_wrappers)
 
 add_executable(weighted_means_test weighted_means_test.cpp)
-target_link_libraries(weighted_means_test nlsar_opencl_wrapper) 
+target_link_libraries(weighted_means_test nlsar_cl_wrappers)
 
 
 add_test(NAME NLSAR_covmat_rescale
