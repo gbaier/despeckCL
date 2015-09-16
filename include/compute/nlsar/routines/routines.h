@@ -17,6 +17,7 @@ namespace nlsar {
                                            const int width_overlap,
                                            const int dimension,
                                            const int search_window_size,
+                                           const int scale_size,
                                            const int scale_size_max,
                                            cl_wrappers& nl_routines);
 

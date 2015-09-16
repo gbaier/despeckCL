@@ -140,6 +140,7 @@ int nlsar::filter_sub_image(cl::Context context,
                                                                                 width_overlap,
                                                                                 dimension,
                                                                                 search_window_size,
+                                                                                scale_size,
                                                                                 scale_size_max,
                                                                                 nl_routines);
 

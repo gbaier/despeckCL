@@ -105,6 +105,7 @@ std::vector<float> nlsar::get_dissims(const insar_data& sub_insar_data,
                                          dimension,
                                          height_overlap,
                                          width_overlap,
+                                         window_width,
                                          window_width);
 
     compute_pixel_similarities_2x2_routine.timed_run(cmd_queue,

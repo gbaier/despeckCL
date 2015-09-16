@@ -6,6 +6,7 @@ cl::Buffer nlsar::routines::get_pixel_similarities (cl::Context context,
                                                     const int width_overlap,
                                                     const int dimension,
                                                     const int search_window_size,
+                                                    const int scale_size,
                                                     const int scale_size_max,
                                                     cl_wrappers& nl_routines)
 {
@@ -30,6 +31,7 @@ cl::Buffer nlsar::routines::get_pixel_similarities (cl::Context context,
                                                      dimension,
                                                      height_overlap,
                                                      width_overlap,
+                                                     scale_size,
                                                      scale_size_max);
 
     LOG(DEBUG) << "covmat_pixel_similarities";

@@ -24,7 +24,8 @@ namespace nlsar {
                      const int dimension,
                      const int height_overlap,
                      const int width_overlap,
-                     const int scale_size);
+                     const int scale_size,
+                     const int scale_size_max);
     };
 }
 

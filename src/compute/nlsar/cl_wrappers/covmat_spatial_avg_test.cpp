@@ -20,12 +20,13 @@ TEST_CASE( "covmat_spatial_avg", "[cl_kernels]" ) {
         const int height = 30;
         const int width = 20;
 
-        const int window_width = 5;
+        const int scale_size = 5;
+        const int scale_size_max = scale_size;
         const int dimension = 2;
 
         std::vector<float> input          (2*dimension*dimension*height*width, 1.0);
-        std::vector<float> output         (2*dimension*dimension*(height-window_width+1)*(width-window_width+1), 0.0);
-        std::vector<float> desired_output (2*dimension*dimension*(height-window_width+1)*(width-window_width+1), 1.0);
+        std::vector<float> output         (2*dimension*dimension*(height-scale_size+1)*(width-scale_size+1), 0.0);
+        std::vector<float> desired_output (2*dimension*dimension*(height-scale_size+1)*(width-scale_size+1), 1.0);
 
         // opencl setup
         cl::Context context = opencl_setup();
@@ -41,17 +42,18 @@ TEST_CASE( "covmat_spatial_avg", "[cl_kernels]" ) {
 
         // allocate memory
         cl::Buffer device_input  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR,            2*dimension*dimension*height*width*sizeof(float), input.data(), NULL};
-        cl::Buffer device_output {context, CL_MEM_READ_WRITE, 2*dimension*dimension*(height-window_width+1)*(width-window_width+1)*sizeof(float), NULL,         NULL};
+        cl::Buffer device_output {context, CL_MEM_READ_WRITE, 2*dimension*dimension*(height-scale_size+1)*(width-scale_size+1)*sizeof(float), NULL,         NULL};
 
         KUT.run(cmd_queue, 
                 device_input,
                 device_output,
                 dimension,
-                height-window_width+1,
-                width-window_width+1,
-                window_width);
+                height-scale_size+1,
+                width-scale_size+1,
+                scale_size,
+                scale_size_max);
 
-        cmd_queue.enqueueReadBuffer(device_output, CL_TRUE, 0, 2*dimension*dimension*(height-window_width+1)*(width-window_width+1)*sizeof(float), output.data(), NULL, NULL);
+        cmd_queue.enqueueReadBuffer(device_output, CL_TRUE, 0, 2*dimension*dimension*(height-scale_size+1)*(width-scale_size+1)*sizeof(float), output.data(), NULL, NULL);
 
         REQUIRE( ( output == desired_output ) );
 }

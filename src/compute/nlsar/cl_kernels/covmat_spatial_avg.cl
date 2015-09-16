@@ -4,8 +4,11 @@ __kernel void covmat_spatial_avg (__global float * covmat_in,
                                   const int height_overlap,
                                   const int width_overlap,
                                   const int scale_size,
+                                  const int scale_size_max,
                                   __local float * local_data)
 {
+    const int delta_scale = (scale_size_max -  scale_size)/2;
+
     const int block_size = get_local_size(0);
     const int output_block_size = get_local_size(0) - scale_size + 1;
 
@@ -15,12 +18,12 @@ __kernel void covmat_spatial_avg (__global float * covmat_in,
     const int in_x = get_group_id(0) * output_block_size + tx;
     const int in_y = get_group_id(1) * output_block_size + ty;
 
-    const int height_overlap_avg = height_overlap + scale_size - 1;
-    const int width_overlap_avg  = width_overlap  + scale_size - 1;
+    const int height_overlap_avg = height_overlap + scale_size_max - 1;
+    const int width_overlap_avg  = width_overlap  + scale_size_max - 1;
 
     for(int i = 0; i < 2*dimension*dimension; i++) {
         if ( (in_x < height_overlap_avg) && (in_y < width_overlap_avg) ) {
-            local_data [tx*block_size + ty] = covmat_in [i*height_overlap_avg*width_overlap_avg + in_x*width_overlap_avg + in_y];
+            local_data [tx*block_size + ty] = covmat_in [i*height_overlap_avg*width_overlap_avg + (delta_scale + in_x) *width_overlap_avg + delta_scale + in_y];
         }
 
         barrier(CLK_LOCAL_MEM_FENCE);
