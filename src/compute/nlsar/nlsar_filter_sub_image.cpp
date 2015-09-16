@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+#include "routines.h"
+
 int nlsar::filter_sub_image(cl::Context context,
                             cl_wrappers nl_routines,
                             insar_data& sub_insar_data,
@@ -75,8 +77,6 @@ int nlsar::filter_sub_image(cl::Context context,
 
 
     cl::Buffer device_pixel_similarities  {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_sim * sizeof(float), NULL, NULL};
-    std::map<params, cl::Buffer> device_patch_similarities;
-    std::map<params, cl::Buffer> device_weights;
     std::map<params, cl::Buffer> device_enl; // equivalent number of looks
     std::map<params, cl::Buffer> device_enls_nobias;
     std::map<params, cl::Buffer> device_intensities_nl;
@@ -90,8 +90,6 @@ int nlsar::filter_sub_image(cl::Context context,
     std::map<params, std::vector<float>> enls_nobias;
 
     for(params parameter : parameters) {
-        device_patch_similarities [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
-        device_weights            [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
         device_enl                [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
         device_enls_nobias        [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
         device_intensities_nl     [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
@@ -169,49 +167,30 @@ int nlsar::filter_sub_image(cl::Context context,
 
     LOG(DEBUG) << "covmat_patch_similarities";
     for(auto parameter : parameters) {
-        nl_routines.compute_patch_similarities_routine.timed_run(cmd_queue,
-                                                                 device_pixel_similarities,
-                                                                 device_patch_similarities[parameter],
-                                                                 height_sim,
-                                                                 width_sim,
-                                                                 search_window_size,
-                                                                 parameter.patch_size,
-                                                                 patch_size_max);
+        cl::Buffer device_weights = routines::get_weights(device_pixel_similarities,
+                                                          context,
+                                                          height_sim,
+                                                          width_sim,
+                                                          search_window_size,
+                                                          parameter.patch_size,
+                                                          patch_size_max,
+                                                          dissim_stats.find(parameter)->second,
+                                                          device_lut_dissims2relidx[parameter],
+                                                          device_lut_chi2cdf_inv[parameter],
+                                                          nl_routines);
 
-        const stats* para_stats = &dissim_stats.find(parameter)->second;
-        nl_routines.compute_weights_routine.timed_run(cmd_queue,
-                                                      device_patch_similarities[parameter],
-                                                      device_weights[parameter],
-                                                      height_ori,
-                                                      width_ori,
-                                                      search_window_size,
-                                                      parameter.patch_size,
-                                                      device_lut_dissims2relidx[parameter],
-                                                      device_lut_chi2cdf_inv[parameter],
-                                                      para_stats->lut_size,
-                                                      para_stats->dissims_min,
-                                                      para_stats->dissims_max);
+        cmd_queue.enqueueReadBuffer(device_weights, CL_TRUE, 0, n_elem_ori*search_window_size*search_window_size*sizeof(float), weights[parameter].data(), NULL, NULL);
 
-        // set weight for self similarity
-        const cl_int self_weight = 1;
-        cmd_queue.enqueueFillBuffer(device_weights[parameter],
-                                    self_weight,
-                                    height_ori * width_ori * (search_window_size * wsh + wsh) * sizeof(float), //offset
-                                    height_ori * width_ori * sizeof(float),
-                                    NULL, NULL);
-
-        cmd_queue.enqueueReadBuffer(device_weights[parameter], CL_TRUE, 0,
-                                    n_elem_ori * search_window_size * search_window_size * sizeof(float), weights[parameter].data(), NULL, NULL);
 
         nl_routines.compute_number_of_looks_routine.timed_run(cmd_queue,
-                                                              device_weights[parameter],
+                                                              device_weights,
                                                               device_enl[parameter],
                                                               height_ori,
                                                               width_ori,
                                                               search_window_size);
         nl_routines.compute_nl_statistics_routine.run(cmd_queue, 
                                                       covmat_ori,
-                                                      device_weights[parameter],
+                                                      device_weights,
                                                       device_intensities_nl[parameter],
                                                       device_weighted_variances[parameter],
                                                       device_wsums[parameter],

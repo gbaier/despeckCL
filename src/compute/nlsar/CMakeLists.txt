@@ -1,5 +1,6 @@
 add_subdirectory(cl_kernels)
 add_subdirectory(cl_wrappers)
+add_subdirectory(routines)
 
 include_directories(${despeckCL_SOURCE_DIR}/include)
 include_directories(${despeckCL_SOURCE_DIR}/include/data)
@@ -8,6 +9,7 @@ include_directories(${despeckCL_SOURCE_DIR}/include/utils)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar/cl_wrappers)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/common/cl_wrappers)
+include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar/routines)
 
 add_library(nlsar_lib nlsar.cpp
                       nlsar_filter_sub_image.cpp
@@ -21,6 +23,7 @@ endif()
 
 target_link_libraries(nlsar_lib nlsar_cl_wrappers
                                 common_opencl_wrappers
+                                nlsar_routines
                                 insar_data
                                 clcfg
                                 logging
