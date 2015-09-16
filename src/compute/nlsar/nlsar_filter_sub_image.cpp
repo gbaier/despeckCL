@@ -133,45 +133,49 @@ int nlsar::filter_sub_image(cl::Context context,
                                                   height_overlap_avg,
                                                   width_overlap_avg);
 
-    cl::Buffer device_pixel_similarities = routines::get_pixel_similarities(context,
-                                                                            covmat_rescaled,
-                                                                            height_overlap,
-                                                                            width_overlap,
-                                                                            dimension,
-                                                                            search_window_size,
-                                                                            scale_size_max,
-                                                                            nl_routines);
+    for(int scale_size : scale_sizes) {
+        cl::Buffer device_pixel_similarities = routines::get_pixel_similarities(context,
+                                                                                covmat_rescaled,
+                                                                                height_overlap,
+                                                                                width_overlap,
+                                                                                dimension,
+                                                                                search_window_size,
+                                                                                scale_size_max,
+                                                                                nl_routines);
 
-    LOG(DEBUG) << "covmat_patch_similarities";
-    for(auto parameter : parameters) {
-        cl::Buffer device_weights = routines::get_weights(device_pixel_similarities,
-                                                          context,
-                                                          height_sim,
-                                                          width_sim,
-                                                          search_window_size,
-                                                          parameter.patch_size,
-                                                          patch_size_max,
-                                                          dissim_stats.find(parameter)->second,
-                                                          device_lut_dissims2relidx[parameter],
-                                                          device_lut_chi2cdf_inv[parameter],
-                                                          nl_routines);
+        LOG(DEBUG) << "covmat_patch_similarities";
+        for(int patch_size : patch_sizes) {
+            params parameter{patch_size, scale_size};
 
-        cmd_queue.enqueueReadBuffer(device_weights, CL_TRUE, 0, n_elem_ori*search_window_size*search_window_size*sizeof(float), weights[parameter].data(), NULL, NULL);
+            cl::Buffer device_weights = routines::get_weights(device_pixel_similarities,
+                                                              context,
+                                                              height_sim,
+                                                              width_sim,
+                                                              search_window_size,
+                                                              patch_size,
+                                                              patch_size_max,
+                                                              dissim_stats.find(parameter)->second,
+                                                              device_lut_dissims2relidx[parameter],
+                                                              device_lut_chi2cdf_inv[parameter],
+                                                              nl_routines);
 
-        cl::Buffer device_enls_nobias = routines::get_enls_nobias(context,
-                                                                  device_weights,
-                                                                  covmat_ori,
-                                                                  height_ori,
-                                                                  width_ori,
-                                                                  search_window_size,
-                                                                  parameter.patch_size,
-                                                                  scale_size_max,
-                                                                  nlooks,
-                                                                  dimension,
-                                                                  nl_routines);
+            cmd_queue.enqueueReadBuffer(device_weights, CL_TRUE, 0, n_elem_ori*search_window_size*search_window_size*sizeof(float), weights[parameter].data(), NULL, NULL);
 
-        cmd_queue.enqueueReadBuffer(device_enls_nobias, CL_TRUE, 0,
-                                    n_elem_ori * sizeof(float), enls_nobias[parameter].data(), NULL, NULL);
+            cl::Buffer device_enls_nobias = routines::get_enls_nobias(context,
+                                                                      device_weights,
+                                                                      covmat_ori,
+                                                                      height_ori,
+                                                                      width_ori,
+                                                                      search_window_size,
+                                                                      parameter.patch_size,
+                                                                      scale_size_max,
+                                                                      nlooks,
+                                                                      dimension,
+                                                                      nl_routines);
+
+            cmd_queue.enqueueReadBuffer(device_enls_nobias, CL_TRUE, 0,
+                                        n_elem_ori * sizeof(float), enls_nobias[parameter].data(), NULL, NULL);
+        }
     }
 
     std::vector<params> best_parameters = best_params(enls_nobias, height_ori, width_ori);
