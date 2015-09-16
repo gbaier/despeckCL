@@ -11,8 +11,8 @@ TEST_CASE( "covmat_create", "[cl_kernels]" ) {
     const int height = 10;
     const int width = 10;
 
-    const params p1 {1,1,1};
-    const params p2 {2,1,1};
+    const params p1 {1,1};
+    const params p2 {2,1};
 
     std::vector<float> enl1 (height*width);
     std::vector<float> enl2 (height*width);

@@ -13,9 +13,9 @@ TEST_CASE( "beist_weights_copy", "[routines]" ) {
     const int search_window_size = 21;
 
     const std::vector<params> ps {
-                                  {1,1,1},
-                                  {2,1,1},
-                                  {3,1,1}
+                                  {1,1},
+                                  {2,1},
+                                  {3,1}
                                  };
     const int size = ps.size();
     // simulate coherence value

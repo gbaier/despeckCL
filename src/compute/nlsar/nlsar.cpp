@@ -12,6 +12,7 @@
 #include "get_dissims.h"
 #include "clcfg.h"
 #include "logging.h"
+#include "best_params.h"
 
 int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
                  float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered,
@@ -22,13 +23,14 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
 {
     const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
     // FIXME
-    const int window_width = 3;
+    const std::vector<int> scale_sizes = {3};
+    const int scale_size_max = *std::max_element(scale_sizes.begin(), scale_sizes.end());
     const int dimension = 2;
     const int lut_size = 256;
     // overlap consists of:
     // - (patch_size_max - 1)/2 + (search_window_size - 1)/2 for similarities
     // - (window_width - 1)/2 for spatial averaging of covariance matrices
-    const int overlap = (patch_size_max - 1)/2 + (search_window_size - 1)/2 + (window_width - 1)/2;
+    const int overlap = (patch_size_max - 1)/2 + (search_window_size - 1)/2 + (scale_size_max - 1)/2;
 
     // the sub image size needs to be picked so that all buffers fit in the GPUs memory
     // Use the following formula to get a rough estimate of the memory consumption
@@ -46,6 +48,7 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     LOG(INFO) << "filter parameters";
     LOG(INFO) << "search window size: " << search_window_size;
     LOG(INFO) << "patch_size_max: " << patch_size_max;
+    LOG(INFO) << "scale_size_max: " << scale_size_max;
     LOG(INFO) << "overlap: " << overlap;
 
     LOG(INFO) << "data dimensions";
@@ -60,7 +63,7 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     std::chrono::duration<double> elapsed_seconds = end-start;
     start = std::chrono::system_clock::now();
     VLOG(0) << "Building kernels";
-    routines nl_routines (context, search_window_size, window_width, dimension);
+    routines nl_routines (context, search_window_size, dimension);
     end = std::chrono::system_clock::now();
     elapsed_seconds = end-start;
     VLOG(0) << "Time it took to build all kernels: " << elapsed_seconds.count() << "secs";
@@ -69,9 +72,12 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     insar_data total_image{master_amplitude, slave_amplitude, dphase,
                            amplitude_filtered, dphase_filtered, coherence_filtered,
                            height, width};
-    std::map<int, stats> nlsar_stats;
+    std::map<params, stats> nlsar_stats;
     for(int patch_size : patch_sizes) {
-        nlsar_stats.emplace(patch_size, stats(get_dissims(total_image.get_sub_insar_data(bbox{0,15,0,15}), patch_size, window_width), patch_size, lut_size));
+        for(int scale_size : scale_sizes) {
+            nlsar_stats.emplace(params{patch_size, scale_size},
+                                stats(get_dissims(total_image.get_sub_insar_data(bbox{0,15,0,15}), patch_size, scale_size), patch_size, lut_size));
+        }
     }
     total_image.pad(overlap);
     insar_data total_image_temp = total_image;

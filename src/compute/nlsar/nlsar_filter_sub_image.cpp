@@ -13,7 +13,7 @@ int nlsar::filter_sub_image(cl::Context context,
                             const int search_window_size,
                             const std::vector<int> patch_sizes,
                             const int dimension,
-                            std::map<int, stats> &dissim_stats)
+                            std::map<params, stats> &dissim_stats)
 {
     const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
     const int psh = (patch_size_max - 1)/2;
@@ -25,8 +25,8 @@ int nlsar::filter_sub_image(cl::Context context,
     
     std::vector<params> parameters;
 
-    for(auto patch_size : patch_sizes) {
-        parameters.push_back({search_window_size, patch_size, window_width});
+    for(auto keyval : dissim_stats) {
+        parameters.push_back(keyval.first);
     }
 
     // overlapped dimension, large enough to include the complete padded data to compute the similarities;
@@ -90,7 +90,7 @@ int nlsar::filter_sub_image(cl::Context context,
         device_weighted_variances [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
         device_wsums              [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
         device_alphas             [parameter] = cl::Buffer {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
-        const stats* para_stats = &dissim_stats.find(parameter.patch_size)->second;
+        const stats* para_stats = &dissim_stats.find(parameter)->second;
         const int lut_size = para_stats->lut_size;
         device_lut_dissims2relidx [parameter] = cl::Buffer {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                                                             lut_size * sizeof(float), (void*) para_stats->dissims2relidx.data(), NULL};
@@ -170,7 +170,7 @@ int nlsar::filter_sub_image(cl::Context context,
                                                                  parameter.patch_size,
                                                                  patch_size_max);
 
-        const stats* para_stats = &dissim_stats.find(parameter.patch_size)->second;
+        const stats* para_stats = &dissim_stats.find(parameter)->second;
         nl_routines.compute_weights_routine.timed_run(cmd_queue,
                                                       device_patch_similarities[parameter],
                                                       device_weights[parameter],

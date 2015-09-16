@@ -17,8 +17,8 @@ namespace nlsar {
 using nlsar::params;
 
 std::vector<params> nlsar::best_params(std::map<params, std::vector<float>> &enl,
-                                const int height,
-                                const int width)
+                                       const int height,
+                                       const int width)
 {
     std::vector<params> best_ps;
     for(int h = 0; h < height; h++) {
