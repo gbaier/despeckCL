@@ -71,6 +71,7 @@ cl::Buffer nlsar::routines::get_weights (cl::Buffer& pixel_similarities,
     cl::Buffer patch_similarities {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
     cl::Buffer weights            {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
 
+    LOG(DEBUG) << "covmat_patch_similarities";
     nl_routines.compute_patch_similarities_routine.timed_run(cmd_queue,
                                                              pixel_similarities,
                                                              patch_similarities,
@@ -80,6 +81,7 @@ cl::Buffer nlsar::routines::get_weights (cl::Buffer& pixel_similarities,
                                                              patch_size,
                                                              patch_size_max);
 
+    LOG(DEBUG) << "compute_weights";
     nl_routines.compute_weights_routine.timed_run(cmd_queue,
                                                   patch_similarities,
                                                   weights,
@@ -129,6 +131,7 @@ cl::Buffer nlsar::routines::get_enls_nobias (cl::Context context,
     cl::Buffer device_alphas             {context, CL_MEM_READ_WRITE, n_elem_ori * sizeof(float), NULL, NULL};
     cl::Buffer device_enls_nobias        {context, CL_MEM_READ_WRITE, n_elem_ori * sizeof(float), NULL, NULL};
 
+    LOG(DEBUG) << "compute_number_of_looks";
     nl_routines.compute_number_of_looks_routine.timed_run(cmd_queue,
                                                           device_weights,
                                                           device_enl,
@@ -136,6 +139,7 @@ cl::Buffer nlsar::routines::get_enls_nobias (cl::Context context,
                                                           width_ori,
                                                           search_window_size);
 
+    LOG(DEBUG) << "compute_nl_statistics";
     nl_routines.compute_nl_statistics_routine.run(cmd_queue, 
                                                   covmat_ori,
                                                   device_weights,
@@ -148,6 +152,7 @@ cl::Buffer nlsar::routines::get_enls_nobias (cl::Context context,
                                                   patch_size,
                                                   scale_size_max);
 
+    LOG(DEBUG) << "compute_alphas";
     nl_routines.compute_alphas_routine.run(cmd_queue, 
                                            device_intensities_nl,
                                            device_weighted_variances,
@@ -157,6 +162,7 @@ cl::Buffer nlsar::routines::get_enls_nobias (cl::Context context,
                                            dimension,
                                            nlooks);
 
+    LOG(DEBUG) << "compute_enls_nobias";
     nl_routines.compute_enls_nobias_routine.run(cmd_queue, 
                                                 device_enl,
                                                 device_alphas,

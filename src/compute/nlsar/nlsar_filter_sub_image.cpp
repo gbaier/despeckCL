@@ -144,7 +144,6 @@ int nlsar::filter_sub_image(cl::Context context,
                                                                                 scale_size_max,
                                                                                 nl_routines);
 
-        LOG(DEBUG) << "covmat_patch_similarities";
         for(int patch_size : patch_sizes) {
             params parameter{patch_size, scale_size};
 
@@ -159,6 +158,7 @@ int nlsar::filter_sub_image(cl::Context context,
                                                               device_lut_dissims2relidx[parameter],
                                                               device_lut_chi2cdf_inv[parameter],
                                                               nl_routines);
+
 
             cmd_queue.enqueueReadBuffer(device_weights, CL_TRUE, 0, n_elem_ori*search_window_size*search_window_size*sizeof(float), weights[parameter].data(), NULL, NULL);
 
