@@ -19,12 +19,13 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
                  const int height, const int width,
                  const int search_window_size,
                  const std::vector<int> patch_sizes,
+                 const std::vector<int> scale_sizes,
                  std::vector<std::string> enabled_log_levels)
 {
     const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
-    // FIXME
-    const std::vector<int> scale_sizes = {3};
     const int scale_size_max = *std::max_element(scale_sizes.begin(), scale_sizes.end());
+
+    // FIXME
     const int dimension = 2;
     const int lut_size = 256;
     // overlap consists of:

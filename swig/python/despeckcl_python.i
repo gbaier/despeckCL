@@ -148,6 +148,7 @@ void _nlsar_c_wrap(float* master_amplitude,   int h1, int w1,
                    float* coherence_filtered, int h6, int w6,
                    const int search_window_size,
                    const std::vector<int> patch_sizes,
+                   const std::vector<int> scale_sizes,
                    const std::vector<std::string> enabled_log_levels)
 {
     nlsar::nlsar(master_amplitude, slave_amplitude, dphase,
@@ -156,6 +157,7 @@ void _nlsar_c_wrap(float* master_amplitude,   int h1, int w1,
                  w1,
                  search_window_size,
                  patch_sizes,
+                 scale_sizes,
                  enabled_log_levels);
     return;
 }
@@ -169,7 +171,9 @@ def nlsar(master_amplitude,
           dphase,
           search_window_size,
           patch_sizes,
-          enabled_log_levels = ['warning', 'fatal']):
+          scale_sizes,
+          enabled_log_levels = ['debug', 'error', 'warning', 'fatal']):
+
     amplitude_filtered = np.zeros_like(master_amplitude)
     dphase_filtered    = np.zeros_like(master_amplitude)
     coherence_filtered = np.zeros_like(master_amplitude)
@@ -177,6 +181,7 @@ def nlsar(master_amplitude,
                              amplitude_filtered, dphase_filtered, coherence_filtered,
                              search_window_size,
                              patch_sizes,
+                             scale_sizes,
                              enabled_log_levels)
     return (amplitude_filtered, dphase_filtered, coherence_filtered)
 }

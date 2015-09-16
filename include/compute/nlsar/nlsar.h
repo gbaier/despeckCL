@@ -10,6 +10,7 @@ namespace nlsar {
               const int height, const int width,
               const int search_window_size,
               const std::vector<int> patch_sizes,
+              const std::vector<int> scale_sizes,
               std::vector<std::string> enabled_log_levels);
 }
 
