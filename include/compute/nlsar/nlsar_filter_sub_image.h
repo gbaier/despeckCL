@@ -11,7 +11,6 @@ namespace nlsar {
                          routines nl_routines,
                          insar_data& sub_insar_data,
                          const int search_window_size,
-                         const std::vector<int> patch_sizes,
                          const int dimension,
                          std::map<params, stats> &dissim_stats);
 }

@@ -11,23 +11,32 @@ int nlsar::filter_sub_image(cl::Context context,
                             routines nl_routines,
                             insar_data& sub_insar_data,
                             const int search_window_size,
-                            const std::vector<int> patch_sizes,
                             const int dimension,
                             std::map<params, stats> &dissim_stats)
 {
+    std::vector<params> parameters;
+    for(auto keyval : dissim_stats) {
+        parameters.push_back(keyval.first);
+    }
+
+    std::vector<int> patch_sizes;
+    for(auto param : parameters) {
+        patch_sizes.push_back(param.patch_size);
+    }
     const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
+
+    std::vector<int> scale_sizes;
+    for(auto param : parameters) {
+        scale_sizes.push_back(param.scale_size);
+    }
+    const int scale_size_max = *std::max_element(scale_sizes.begin(), scale_sizes.end());
+
     const int psh = (patch_size_max - 1)/2;
     const int wsh = (search_window_size - 1)/2;
     const int overlap = wsh+psh;
 
-    const int window_width = 3;
     const int nlooks = 1;
     
-    std::vector<params> parameters;
-
-    for(auto keyval : dissim_stats) {
-        parameters.push_back(keyval.first);
-    }
 
     // overlapped dimension, large enough to include the complete padded data to compute the similarities;
     // also includes overlap for spatial averaging
@@ -36,8 +45,8 @@ int nlsar::filter_sub_image(cl::Context context,
     const int n_elem_overlap_avg = height_overlap_avg * width_overlap_avg;
 
     // overlapped dimension, large enough to include the complete padded data to compute the similarities;
-    const int height_overlap = height_overlap_avg - window_width + 1;
-    const int width_overlap  = width_overlap_avg  - window_width + 1;
+    const int height_overlap = height_overlap_avg - scale_size_max + 1;
+    const int width_overlap  = width_overlap_avg  - scale_size_max + 1;
     const int n_elem_overlap = height_overlap * width_overlap;
 
     // dimension of the precomputed patch similarity values
@@ -149,7 +158,7 @@ int nlsar::filter_sub_image(cl::Context context,
                                                       dimension,
                                                       height_overlap,
                                                       width_overlap,
-                                                      window_width);
+                                                      scale_size_max);
 
     LOG(DEBUG) << "covmat_pixel_similarities";
     nl_routines.compute_pixel_similarities_2x2_routine.timed_run(cmd_queue,
@@ -211,7 +220,7 @@ int nlsar::filter_sub_image(cl::Context context,
                                                       width_ori,
                                                       search_window_size,
                                                       parameter.patch_size,
-                                                      window_width);
+                                                      scale_size_max);
 
         nl_routines.compute_alphas_routine.run(cmd_queue, 
                                                device_intensities_nl[parameter],
@@ -249,7 +258,7 @@ int nlsar::filter_sub_image(cl::Context context,
                                                   width_ori,
                                                   search_window_size,
                                                   patch_size_max,
-                                                  window_width);
+                                                  scale_size_max);
 
     nl_routines.covmat_decompose_routine.timed_run(cmd_queue,
                                                     covmat_filt,
