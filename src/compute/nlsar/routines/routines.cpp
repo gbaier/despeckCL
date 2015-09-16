@@ -1,5 +1,48 @@
 #include "routines.h"
 
+cl::Buffer nlsar::routines::get_pixel_similarities (cl::Context context,
+                                                    cl::Buffer covmat_rescaled,
+                                                    const int height_overlap,
+                                                    const int width_overlap,
+                                                    const int dimension,
+                                                    const int search_window_size,
+                                                    const int scale_size_max,
+                                                    cl_wrappers& nl_routines)
+{
+    // dimension of the precomputed patch similarity values
+    const int height_sim = height_overlap - search_window_size + 1;
+    const int width_sim  = width_overlap  - search_window_size + 1;
+    const int n_elem_sim = height_sim * width_sim;
+
+    std::vector<cl::Device> devices;
+    context.getInfo(CL_CONTEXT_DEVICES, &devices);
+    cl::CommandQueue cmd_queue{context, devices[0]};
+
+    const int n_elem_overlap = height_overlap * width_overlap;
+
+    cl::Buffer covmat_spatial_avg        {context, CL_MEM_READ_WRITE, 2*dimension * dimension * n_elem_overlap             * sizeof(float), NULL, NULL};
+    cl::Buffer device_pixel_similarities {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_sim * sizeof(float), NULL, NULL};
+
+    LOG(DEBUG) << "covmat_spatial_avg";
+    nl_routines.covmat_spatial_avg_routine.timed_run(cmd_queue,
+                                                     covmat_rescaled,
+                                                     covmat_spatial_avg,
+                                                     dimension,
+                                                     height_overlap,
+                                                     width_overlap,
+                                                     scale_size_max);
+
+    LOG(DEBUG) << "covmat_pixel_similarities";
+    nl_routines.compute_pixel_similarities_2x2_routine.timed_run(cmd_queue,
+                                                                 covmat_spatial_avg,
+                                                                 device_pixel_similarities,
+                                                                 height_overlap,
+                                                                 width_overlap,
+                                                                 search_window_size);
+
+    return device_pixel_similarities;
+}
+
 cl::Buffer nlsar::routines::get_weights (cl::Buffer& pixel_similarities,
                                          cl::Context context,
                                          const int height_sim,

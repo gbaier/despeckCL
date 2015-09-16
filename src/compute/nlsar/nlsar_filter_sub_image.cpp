@@ -73,9 +73,6 @@ int nlsar::filter_sub_image(cl::Context context,
 
     cl::Buffer covmat_ori                 {context, CL_MEM_READ_WRITE, 2*dimension * dimension * n_elem_overlap_avg * sizeof(float), NULL, NULL};
     cl::Buffer covmat_rescaled            {context, CL_MEM_READ_WRITE, 2*dimension * dimension * n_elem_overlap_avg * sizeof(float), NULL, NULL};
-    cl::Buffer covmat_spatial_avg         {context, CL_MEM_READ_WRITE, 2*dimension * dimension * n_elem_overlap     * sizeof(float), NULL, NULL};
-
-    cl::Buffer device_pixel_similarities  {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_sim * sizeof(float), NULL, NULL};
 
     std::map<params, cl::Buffer> device_lut_dissims2relidx;
     std::map<params, cl::Buffer> device_lut_chi2cdf_inv;
@@ -136,22 +133,14 @@ int nlsar::filter_sub_image(cl::Context context,
                                                   height_overlap_avg,
                                                   width_overlap_avg);
 
-    LOG(DEBUG) << "covmat_spatial_avg";
-    nl_routines.covmat_spatial_avg_routine.timed_run(cmd_queue,
-                                                      covmat_rescaled,
-                                                      covmat_spatial_avg,
-                                                      dimension,
-                                                      height_overlap,
-                                                      width_overlap,
-                                                      scale_size_max);
-
-    LOG(DEBUG) << "covmat_pixel_similarities";
-    nl_routines.compute_pixel_similarities_2x2_routine.timed_run(cmd_queue,
-                                                                  covmat_spatial_avg,
-                                                                  device_pixel_similarities,
-                                                                  height_overlap,
-                                                                  width_overlap,
-                                                                  search_window_size);
+    cl::Buffer device_pixel_similarities = routines::get_pixel_similarities(context,
+                                                                            covmat_rescaled,
+                                                                            height_overlap,
+                                                                            width_overlap,
+                                                                            dimension,
+                                                                            search_window_size,
+                                                                            scale_size_max,
+                                                                            nl_routines);
 
     LOG(DEBUG) << "covmat_patch_similarities";
     for(auto parameter : parameters) {

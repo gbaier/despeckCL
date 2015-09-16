@@ -11,6 +11,15 @@ using nlsar::cl_wrappers;
 
 namespace nlsar {
     namespace routines {
+        cl::Buffer get_pixel_similarities (cl::Context context,
+                                           cl::Buffer covmat_rescaled,
+                                           const int height_overlap,
+                                           const int width_overlap,
+                                           const int dimension,
+                                           const int search_window_size,
+                                           const int scale_size_max,
+                                           cl_wrappers& nl_routines);
+
         cl::Buffer get_weights (cl::Buffer& pixel_similarities,
                                 cl::Context context,
                                 const int height_sim,
