@@ -29,6 +29,7 @@ namespace nlsar {
                      cl::Buffer covmat_in,
                      cl::Buffer covmat_out,
                      cl::Buffer weights,
+                     cl::Buffer alphas,
                      const int height_ori,
                      const int width_ori,
                      const int search_window_size,

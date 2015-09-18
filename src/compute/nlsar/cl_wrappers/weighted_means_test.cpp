@@ -31,9 +31,10 @@ TEST_CASE( "weighted_means", "[cl_kernels]" ) {
         const int covmat_out_nelem = (height_ori + 2*overlap_avg) * (width_ori + 2*overlap_avg) * dimension * dimension * 2;
         const int weights_nelem    =  height_ori                  *  width_ori * search_window_size * search_window_size;
 
-        std::vector<float> covmat_in          (covmat_in_nelem,    1.0);
-        std::vector<float> covmat_out         (covmat_out_nelem,   0.0);
-        std::vector<float> desired_covmat_out (covmat_out_nelem,   0.0);
+        std::vector<float> covmat_in          (covmat_in_nelem,      1.0);
+        std::vector<float> covmat_out         (covmat_out_nelem,     0.0);
+        std::vector<float> desired_covmat_out (covmat_out_nelem,     0.0);
+        std::vector<float> alphas             (height_ori*width_ori, 0.0);
         for(int h = overlap_avg; h < height_ori + overlap_avg; h++) {
             for(int w = overlap_avg; w < width_ori + overlap_avg; w++) {
                 for(int d = 0; d < 2*dimension*dimension; d++) {
@@ -56,14 +57,16 @@ TEST_CASE( "weighted_means", "[cl_kernels]" ) {
         weighted_means KUT{block_size, context, search_window_size, dimension};
 
         // allocate memory
-        cl::Buffer device_covmat_in  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, covmat_in_nelem  * sizeof(float), covmat_in.data(), NULL};
-        cl::Buffer device_weights    {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, weights_nelem    * sizeof(float), weights.data(),   NULL};
-        cl::Buffer device_covmat_out {context, CL_MEM_READ_WRITE,                        covmat_out_nelem * sizeof(float), NULL,             NULL};
+        cl::Buffer device_covmat_in  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, covmat_in_nelem        * sizeof(float), covmat_in.data(), NULL};
+        cl::Buffer device_weights    {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, weights_nelem          * sizeof(float), weights.data(),   NULL};
+        cl::Buffer device_alphas     {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, height_ori * width_ori * sizeof(float), alphas.data(),   NULL};
+        cl::Buffer device_covmat_out {context, CL_MEM_READ_WRITE,                        covmat_out_nelem       * sizeof(float), NULL,             NULL};
 
         KUT.run(cmd_queue, 
                 device_covmat_in,
                 device_covmat_out,
                 device_weights,
+                device_alphas,
                 height_ori,
                 width_ori,
                 search_window_size,

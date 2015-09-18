@@ -1,6 +1,7 @@
 __kernel void weighted_means (__global float * covmat_in,
                               __global float * covmat_out,
                               __global float * weights,
+                              __global float * alphas,
                               const int height_ori,
                               const int width_ori,
                               const int search_window_size,
@@ -44,6 +45,7 @@ __kernel void weighted_means (__global float * covmat_in,
     if (out_x < height_ori && out_y < width_ori) {
         float covmat_new[2*DIMENSION*DIMENSION] = {0};
         float weight_sum = 0.0f;
+        const float alpha = alphas[out_x * width_ori + out_y];
         for(int x = 0; x<SEARCH_WINDOW_SIZE; x++ ) {
             for(int y = 0; y<SEARCH_WINDOW_SIZE; y++ ) {
                 const float weight = weights[x * SEARCH_WINDOW_SIZE * height_ori * width_ori \
@@ -58,9 +60,10 @@ __kernel void weighted_means (__global float * covmat_in,
             }
         }
         for(int d = 0; d<2*DIMENSION*DIMENSION; d++) {
-            covmat_out[d*height_overlap_avg*width_overlap_avg \
-                      + (wsh+psh+wwh+out_x)*width_overlap_avg \
-                                         + (wsh+psh+wwh+out_y)] = covmat_new[d]/weight_sum;
+            const int out_idx = d*height_overlap_avg*width_overlap_avg \
+                               + (wsh+psh+wwh+out_x)*width_overlap_avg \
+                                                  + (wsh+psh+wwh+out_y);
+            covmat_out[out_idx] = (1-alpha)*covmat_new[d]/weight_sum + alpha*covmat_local[d][tx+wsh][ty+wsh];
         }
     }
 }
