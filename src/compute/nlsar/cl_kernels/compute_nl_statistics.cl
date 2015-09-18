@@ -26,7 +26,7 @@ __kernel void compute_nl_statistics (__global float * covmat_ori,
     const int out_x = get_group_id(0) * get_local_size(0) + tx;
     const int out_y = get_group_id(1) * get_local_size(1) + ty;
 
-    // step to always land at the real part of an element
+    // step to always land at the real part of a diagonal element
     const int step_diag = DIMENSION*2 + 2;
 
     __local float intensities_local         [DIMENSION] [BLOCK_SIZE+SEARCH_WINDOW_SIZE] [BLOCK_SIZE+SEARCH_WINDOW_SIZE];

@@ -50,8 +50,8 @@ __kernel void weighted_means (__global float * covmat_in,
             for(int y = 0; y<SEARCH_WINDOW_SIZE; y++ ) {
                 const float weight = weights[x * SEARCH_WINDOW_SIZE * height_ori * width_ori \
                                                                 + y * height_ori * width_ori \
-                                                                        + out_x * width_ori \
-                                                                                    + out_y];
+                                                                         + out_x * width_ori \
+                                                                                     + out_y];
                 weight_sum += weight;
                 for(int d = 0; d<2*DIMENSION*DIMENSION; d++) {
                     covmat_new[d] += weight * covmat_local[d][tx+x][ty+y];
