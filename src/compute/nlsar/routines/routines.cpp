@@ -106,17 +106,17 @@ cl::Buffer nlsar::routines::get_weights (cl::Buffer& pixel_similarities,
     return weights;
 }
 
-cl::Buffer nlsar::routines::get_enls_nobias (cl::Context context,
-                                             cl::Buffer& device_weights,
-                                             cl::Buffer& covmat_ori,
-                                             const int height_ori,
-                                             const int width_ori,
-                                             const int search_window_size,
-                                             const int patch_size,
-                                             const int scale_size_max,
-                                             const int nlooks,
-                                             const int dimension,
-                                             cl_wrappers& nl_routines)
+std::pair<cl::Buffer, cl::Buffer> nlsar::routines::get_enls_nobias_and_alphas (cl::Context context,
+                                                                               cl::Buffer& device_weights,
+                                                                               cl::Buffer& covmat_ori,
+                                                                               const int height_ori,
+                                                                               const int width_ori,
+                                                                               const int search_window_size,
+                                                                               const int patch_size,
+                                                                               const int scale_size_max,
+                                                                               const int nlooks,
+                                                                               const int dimension,
+                                                                               cl_wrappers& nl_routines)
 {
     std::vector<cl::Device> devices;
     context.getInfo(CL_CONTEXT_DEVICES, &devices);
@@ -171,5 +171,5 @@ cl::Buffer nlsar::routines::get_enls_nobias (cl::Context context,
                                                 height_ori,
                                                 width_ori);
 
-    return device_enls_nobias;
+    return std::make_pair(device_enls_nobias, device_alphas);
 }

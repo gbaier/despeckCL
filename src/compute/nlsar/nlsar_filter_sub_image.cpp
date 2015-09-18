@@ -162,19 +162,21 @@ int nlsar::filter_sub_image(cl::Context context,
 
             cmd_queue.enqueueReadBuffer(device_weights, CL_TRUE, 0, n_elem_ori*search_window_size*search_window_size*sizeof(float), weights[parameter].data(), NULL, NULL);
 
-            cl::Buffer device_enls_nobias = routines::get_enls_nobias(context,
-                                                                      device_weights,
-                                                                      covmat_ori,
-                                                                      height_ori,
-                                                                      width_ori,
-                                                                      search_window_size,
-                                                                      parameter.patch_size,
-                                                                      scale_size_max,
-                                                                      nlooks,
-                                                                      dimension,
-                                                                      nl_routines);
+            cl::Buffer device_enls_nobias;
+            cl::Buffer device_alphas;
+            std::pair<cl::Buffer, cl::Buffer> device_enls_alphas = routines::get_enls_nobias_and_alphas (context,
+                                                                                                         device_weights,
+                                                                                                         covmat_ori,
+                                                                                                         height_ori,
+                                                                                                         width_ori,
+                                                                                                         search_window_size,
+                                                                                                         parameter.patch_size,
+                                                                                                         scale_size_max,
+                                                                                                         nlooks,
+                                                                                                         dimension,
+                                                                                                         nl_routines);
 
-            cmd_queue.enqueueReadBuffer(device_enls_nobias, CL_TRUE, 0,
+            cmd_queue.enqueueReadBuffer(device_enls_alphas.first, CL_TRUE, 0,
                                         n_elem_ori * sizeof(float), enls_nobias[parameter].data(), NULL, NULL);
         }
     }
