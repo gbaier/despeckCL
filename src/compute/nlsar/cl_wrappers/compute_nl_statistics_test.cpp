@@ -16,12 +16,12 @@ using namespace nlsar;
 TEST_CASE( "compute_nl_statistics", "[cl_kernels]" ) {
 
         // data setup
-        const int height_ori = 10;
-        const int width_ori = 10;
+        const int height_ori = 40;
+        const int width_ori = 50;
 
-        const int search_window_size = 11;
-        const int patch_size = 3;
-        const int scale_width = 3;
+        const int search_window_size = 21;
+        const int patch_size = 7;
+        const int scale_width = 1;
         const int overlap_avg = (patch_size-1)/2 + (search_window_size-1)/2 + (scale_width-1)/2;
         const int dimension = 2;
 
@@ -84,5 +84,5 @@ TEST_CASE( "compute_nl_statistics", "[cl_kernels]" ) {
 
         REQUIRE( ( weights_sums       == desired_weights_sums ) );
         REQUIRE( ( intensities_nl     == desired_intensities_nl ) );
-        //REQUIRE( ( weighted_variances == desired_weighted_variances ) );
+        REQUIRE( ( weighted_variances == desired_weighted_variances ) );
 }
