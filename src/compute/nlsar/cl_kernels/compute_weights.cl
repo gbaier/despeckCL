@@ -26,5 +26,5 @@ __kernel void compute_weights (__global float * patch_similarities,
     const float quantile = dissims2relidx[ (unsigned int) mapped_idx];
     const float x        = chi2cdf_inv[(unsigned int) (quantile * lut_size)];
     const float y = sqrt((x-c)*(x-c)); // error: call to 'abs' is ambiguous workaround
-    weights[tx] = exp(-y/h);
+    weights[tx] = max(0.000001f, exp(-y/h));
 }
