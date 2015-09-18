@@ -80,13 +80,13 @@ class kernel_env : public routine_env<Derived>
 
    public:
         template<typename... Args>
-        void timed_run(Args... args)
+        void timed_run(cl::CommandQueue cmd_queue, Args... args)
         {
             std::chrono::time_point<std::chrono::system_clock> start, end;
             start = std::chrono::system_clock::now();
 
             try {
-                static_cast<Derived*>(this)->run(args...);
+                static_cast<Derived*>(this)->run(cmd_queue, args...);
             } catch (cl::Error error) {
                 LOG(ERROR) << error.what() << "(" << error.err() << ")";
                 LOG(ERROR) << "ERR while running kernel: " << this->routine_name;
