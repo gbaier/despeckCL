@@ -101,8 +101,9 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
                                               search_window_size,
                                               dimension,
                                               nlsar_stats);
-        tm = timings::join(tm, tm_sub);
         total_image_temp.write_sub_insar_data(sub_image, overlap, boundaries);
+#pragma critical
+        tm = timings::join(tm, tm_sub);
         }
     }
 #pragma omp taskwait

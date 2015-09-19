@@ -138,15 +138,19 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                                                         width_overlap_avg);
 
     for(int scale_size : scale_sizes) {
-        cl::Buffer device_pixel_similarities = routines::get_pixel_similarities(context,
-                                                                                covmat_rescaled,
-                                                                                height_overlap,
-                                                                                width_overlap,
-                                                                                dimension,
-                                                                                search_window_size,
-                                                                                scale_size,
-                                                                                scale_size_max,
-                                                                                nl_routines);
+        cl::Buffer device_pixel_similarities {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_sim * sizeof(float), NULL, NULL};
+        timings::map tm_pixel_similarities = routines::get_pixel_similarities(context,
+                                                                              covmat_rescaled,
+                                                                              device_pixel_similarities,
+                                                                              height_overlap,
+                                                                              width_overlap,
+                                                                              dimension,
+                                                                              search_window_size,
+                                                                              scale_size,
+                                                                              scale_size_max,
+                                                                              nl_routines);
+
+        tm = timings::join(tm, tm_pixel_similarities);
 
         for(int patch_size : patch_sizes) {
             params parameter{patch_size, scale_size};
