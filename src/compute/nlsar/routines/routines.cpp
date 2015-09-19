@@ -46,18 +46,21 @@ timings::map nlsar::routines::get_pixel_similarities (cl::Context context,
     return tm;
 }
 
-cl::Buffer nlsar::routines::get_weights (cl::Buffer& pixel_similarities,
-                                         cl::Context context,
-                                         const int height_sim,
-                                         const int width_sim,
-                                         const int search_window_size,
-                                         const int patch_size,
-                                         const int patch_size_max,
-                                         stats& parameter_stats,
-                                         cl::Buffer& lut_dissims2relidx,
-                                         cl::Buffer& lut_chi2cdf_inv,
-                                         cl_wrappers& nl_routines)
+timings::map nlsar::routines::get_weights (cl::Context context,
+                                           cl::Buffer& pixel_similarities,
+                                           cl::Buffer& weights,
+                                           const int height_sim,
+                                           const int width_sim,
+                                           const int search_window_size,
+                                           const int patch_size,
+                                           const int patch_size_max,
+                                           stats& parameter_stats,
+                                           cl::Buffer& lut_dissims2relidx,
+                                           cl::Buffer& lut_chi2cdf_inv,
+                                           cl_wrappers& nl_routines)
 {
+    timings::map tm;
+
     std::vector<cl::Device> devices;
     context.getInfo(CL_CONTEXT_DEVICES, &devices);
     cl::CommandQueue cmd_queue{context, devices[0]};
@@ -70,31 +73,30 @@ cl::Buffer nlsar::routines::get_weights (cl::Buffer& pixel_similarities,
     const int n_elem_ori = height_ori * width_ori;
 
     cl::Buffer patch_similarities {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
-    cl::Buffer weights            {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
 
     LOG(DEBUG) << "covmat_patch_similarities";
-    nl_routines.compute_patch_similarities_routine.timed_run(cmd_queue,
-                                                             pixel_similarities,
-                                                             patch_similarities,
-                                                             height_sim,
-                                                             width_sim,
-                                                             search_window_size,
-                                                             patch_size,
-                                                             patch_size_max);
+    tm["covmat_patch_similarities"] = nl_routines.compute_patch_similarities_routine.timed_run(cmd_queue,
+                                                                                               pixel_similarities,
+                                                                                               patch_similarities,
+                                                                                               height_sim,
+                                                                                               width_sim,
+                                                                                               search_window_size,
+                                                                                               patch_size,
+                                                                                               patch_size_max);
 
     LOG(DEBUG) << "compute_weights";
-    nl_routines.compute_weights_routine.timed_run(cmd_queue,
-                                                  patch_similarities,
-                                                  weights,
-                                                  height_ori,
-                                                  width_ori,
-                                                  search_window_size,
-                                                  patch_size,
-                                                  lut_dissims2relidx,
-                                                  lut_chi2cdf_inv,
-                                                  parameter_stats.lut_size,
-                                                  parameter_stats.dissims_min,
-                                                  parameter_stats.dissims_max);
+    tm["compute_weights"] = nl_routines.compute_weights_routine.timed_run(cmd_queue,
+                                                                          patch_similarities,
+                                                                          weights,
+                                                                          height_ori,
+                                                                          width_ori,
+                                                                          search_window_size,
+                                                                          patch_size,
+                                                                          lut_dissims2relidx,
+                                                                          lut_chi2cdf_inv,
+                                                                          parameter_stats.lut_size,
+                                                                          parameter_stats.dissims_min,
+                                                                          parameter_stats.dissims_max);
 
     // set weight for self similarity
     const cl_int self_weight = 1;
@@ -104,7 +106,7 @@ cl::Buffer nlsar::routines::get_weights (cl::Buffer& pixel_similarities,
                                 height_ori * width_ori * sizeof(float),
                                 NULL, NULL);
 
-    return weights;
+    return tm;
 }
 
 std::pair<cl::Buffer, cl::Buffer> nlsar::routines::get_enls_nobias_and_alphas (cl::Context context,

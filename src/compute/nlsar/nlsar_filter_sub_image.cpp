@@ -155,17 +155,20 @@ timings::map nlsar::filter_sub_image(cl::Context context,
         for(int patch_size : patch_sizes) {
             params parameter{patch_size, scale_size};
 
-            cl::Buffer device_weights = routines::get_weights(device_pixel_similarities,
-                                                              context,
-                                                              height_sim,
-                                                              width_sim,
-                                                              search_window_size,
-                                                              patch_size,
-                                                              patch_size_max,
-                                                              dissim_stats.find(parameter)->second,
-                                                              device_lut_dissims2relidx[parameter],
-                                                              device_lut_chi2cdf_inv[parameter],
-                                                              nl_routines);
+            cl::Buffer device_weights {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
+            timings::map tm_weights = routines::get_weights(context,
+                                                            device_pixel_similarities,
+                                                            device_weights,
+                                                            height_sim,
+                                                            width_sim,
+                                                            search_window_size,
+                                                            patch_size,
+                                                            patch_size_max,
+                                                            dissim_stats.find(parameter)->second,
+                                                            device_lut_dissims2relidx[parameter],
+                                                            device_lut_chi2cdf_inv[parameter],
+                                                            nl_routines);
+            tm = timings::join(tm, tm_weights);
 
 
             cmd_queue.enqueueReadBuffer(device_weights, CL_TRUE, 0, n_elem_ori*search_window_size*search_window_size*sizeof(float), weights[parameter].data(), NULL, NULL);
