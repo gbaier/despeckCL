@@ -27,6 +27,7 @@ target_link_libraries(nlsar_lib nlsar_cl_wrappers
                                 insar_data
                                 clcfg
                                 logging
+                                timings
                                 best_params_lib
                                 best_weights_copy_lib
                                 ${GSL_LIBRARIES})

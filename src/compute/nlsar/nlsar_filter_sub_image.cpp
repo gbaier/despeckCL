@@ -6,15 +6,18 @@
 
 #include <iostream>
 
+#include "timings.h"
 #include "routines.h"
 
-int nlsar::filter_sub_image(cl::Context context,
-                            cl_wrappers nl_routines,
-                            insar_data& sub_insar_data,
-                            const int search_window_size,
-                            const int dimension,
-                            std::map<params, stats> &dissim_stats)
+timings::map nlsar::filter_sub_image(cl::Context context,
+                                     cl_wrappers nl_routines,
+                                     insar_data& sub_insar_data,
+                                     const int search_window_size,
+                                     const int dimension,
+                                     std::map<params, stats> &dissim_stats)
 {
+    timings::map tm;
+
     std::vector<params> parameters;
     for(auto keyval : dissim_stats) {
         parameters.push_back(keyval.first);
@@ -116,23 +119,23 @@ int nlsar::filter_sub_image(cl::Context context,
     //
     //***************************************************************************
     LOG(DEBUG) << "covmat_create";
-    nl_routines.covmat_create_routine.timed_run(cmd_queue,
-                                                 device_ampl_master,
-                                                 device_ampl_slave,
-                                                 device_dphase,
-                                                 covmat_ori,
-                                                 height_overlap_avg,
-                                                 width_overlap_avg);
+    tm["covmat_create"] = nl_routines.covmat_create_routine.timed_run(cmd_queue,
+                                                                      device_ampl_master,
+                                                                      device_ampl_slave,
+                                                                      device_dphase,
+                                                                      covmat_ori,
+                                                                      height_overlap_avg,
+                                                                      width_overlap_avg);
 
     cmd_queue.enqueueCopyBuffer(covmat_ori, covmat_rescaled, 0, 0, 2*dimension * dimension * n_elem_overlap_avg * sizeof(float), NULL, NULL);
 
     LOG(DEBUG) << "covmat_rescale";
-    nl_routines.covmat_rescale_routine.timed_run(cmd_queue,
-                                                  covmat_rescaled,
-                                                  dimension,
-                                                  nlooks,
-                                                  height_overlap_avg,
-                                                  width_overlap_avg);
+    tm["covmat_rescale"] = nl_routines.covmat_rescale_routine.timed_run(cmd_queue,
+                                                                        covmat_rescaled,
+                                                                        dimension,
+                                                                        nlooks,
+                                                                        height_overlap_avg,
+                                                                        width_overlap_avg);
 
     for(int scale_size : scale_sizes) {
         cl::Buffer device_pixel_similarities = routines::get_pixel_similarities(context,
@@ -218,5 +221,5 @@ int nlsar::filter_sub_image(cl::Context context,
     cmd_queue.enqueueReadBuffer(device_dphase_filt, CL_TRUE, 0, n_elem_overlap_avg*sizeof(float), sub_insar_data.phi_filt, NULL, NULL);
     cmd_queue.enqueueReadBuffer(device_coh_filt,    CL_TRUE, 0, n_elem_overlap_avg*sizeof(float), sub_insar_data.coh_filt, NULL, NULL);
 
-    return 0;
+    return tm;
 }

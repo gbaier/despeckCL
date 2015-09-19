@@ -80,7 +80,7 @@ class kernel_env : public routine_env<Derived>
 
    public:
         template<typename... Args>
-        void timed_run(cl::CommandQueue cmd_queue, Args... args)
+        double timed_run(cl::CommandQueue cmd_queue, Args... args)
         {
             std::chrono::time_point<std::chrono::system_clock> start, end;
             start = std::chrono::system_clock::now();
@@ -94,7 +94,9 @@ class kernel_env : public routine_env<Derived>
             }
 
             end = std::chrono::system_clock::now();
-            this->elapsed_seconds += end-start;
+            std::chrono::duration<double> duration = end-start;
+            this->elapsed_seconds += duration;
+            return duration.count();
         }
 };
 

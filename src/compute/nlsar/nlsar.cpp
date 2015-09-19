@@ -13,6 +13,7 @@
 #include "clcfg.h"
 #include "logging.h"
 #include "best_params.h"
+#include "timings.h"
 
 int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
                  float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered,
@@ -22,6 +23,8 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
                  const std::vector<int> scale_sizes,
                  std::vector<std::string> enabled_log_levels)
 {
+    timings::map tm;
+
     const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
     const int scale_size_max = *std::max_element(scale_sizes.begin(), scale_sizes.end());
 
@@ -93,11 +96,12 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
 #pragma omp task firstprivate(boundaries)
         {
         insar_data sub_image = total_image.get_sub_insar_data(boundaries);
-        filter_sub_image(context, nlsar_cl_wrappers, // opencl stuff
-                         sub_image, // data
-                         search_window_size,
-                         dimension,
-                         nlsar_stats);
+        timings::map tm_sub = filter_sub_image(context, nlsar_cl_wrappers, // opencl stuff
+                                              sub_image, // data
+                                              search_window_size,
+                                              dimension,
+                                              nlsar_stats);
+        tm = timings::join(tm, tm_sub);
         total_image_temp.write_sub_insar_data(sub_image, overlap, boundaries);
         }
     }
@@ -107,6 +111,7 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
 }
     total_image.unpad(overlap);
     LOG(INFO) << "filtering done";
+    timings::print(tm);
 
     memcpy(amplitude_filtered, total_image.amp_filt, sizeof(float)*height*width);
     memcpy(dphase_filtered, total_image.phi_filt, sizeof(float)*height*width);
