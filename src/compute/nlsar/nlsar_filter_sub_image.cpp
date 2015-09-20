@@ -204,12 +204,20 @@ timings::map nlsar::filter_sub_image(cl::Context context,
         }
     }
 
+    LOG(DEBUG) << "get best parameters";
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now();
+
     std::vector<params> best_parameters = best_params(enls_nobias, height_ori, width_ori);
     std::vector<float> best_weights = best_weights_copy(weights, best_parameters, height_ori, width_ori, search_window_size);
     std::vector<float> best_alphas  = best_alpha_copy  (alphas,  best_parameters, height_ori, width_ori);
 
     cmd_queue.enqueueWriteBuffer(device_best_weights, CL_TRUE, 0, search_window_size * search_window_size * n_elem_ori * sizeof(float), best_weights.data());
     cmd_queue.enqueueWriteBuffer(device_best_alphas,  CL_TRUE, 0,                                           n_elem_ori * sizeof(float),  best_alphas.data());
+
+    end = std::chrono::system_clock::now();
+    std::chrono::duration<double> duration = end-start;
+    tm["bet_params"] = duration.count();
 
     LOG(DEBUG) << "weighted_means";
     tm["weighted_means"] = nl_routines.weighted_means_routine.timed_run(cmd_queue,
