@@ -11,14 +11,14 @@ __kernel void compute_nl_statistics (__global float * covmat_ori,
                                      const int width_ori,
                                      const int search_window_size,
                                      const int patch_size_max,
-                                     const int scale_width)
+                                     const int scale_size_max)
 {
-    const int height_overlap_avg = height_ori + search_window_size + patch_size_max + scale_width - 3;
-    const int width_overlap_avg  = width_ori  + search_window_size + patch_size_max + scale_width - 3;
+    const int height_overlap_avg = height_ori + search_window_size + patch_size_max + scale_size_max - 3;
+    const int width_overlap_avg  = width_ori  + search_window_size + patch_size_max + scale_size_max - 3;
 
     const int wsh = (search_window_size - 1)/2;
     const int psh = (patch_size_max     - 1)/2;
-    const int swh = (scale_width        - 1)/2;
+    const int swh = (scale_size_max     - 1)/2;
 
     const int tx = get_local_id(0);
     const int ty = get_local_id(1);

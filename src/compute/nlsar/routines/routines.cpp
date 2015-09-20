@@ -115,7 +115,7 @@ std::pair<cl::Buffer, cl::Buffer> nlsar::routines::get_enls_nobias_and_alphas (c
                                                                                const int height_ori,
                                                                                const int width_ori,
                                                                                const int search_window_size,
-                                                                               const int patch_size,
+                                                                               const int patch_size_max,
                                                                                const int scale_size_max,
                                                                                const int nlooks,
                                                                                const int dimension,
@@ -152,7 +152,7 @@ std::pair<cl::Buffer, cl::Buffer> nlsar::routines::get_enls_nobias_and_alphas (c
                                                   height_ori,
                                                   width_ori,
                                                   search_window_size,
-                                                  patch_size,
+                                                  patch_size_max,
                                                   scale_size_max);
 
     LOG(DEBUG) << "compute_alphas";
