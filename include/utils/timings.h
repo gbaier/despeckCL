@@ -10,6 +10,8 @@ namespace timings {
 
     map join(const map& tm1, const map& tm2);
 
+    double total_time(const map &tm);
+
     void print(const map& tm);
 }
 

@@ -16,10 +16,20 @@ timings::map timings::join(const map& tm1, const map& tm2)
     return new_tm;
 }
 
+double timings::total_time(const map &tm)
+{
+    return std::accumulate( tm.begin(), tm.end(), 0.0,
+            []( const double total, const auto& p )
+            {
+            return total + p.second;
+            } );
+}
+
 void timings::print(const map& tm)
 {
     for(auto p : tm) {
         std::cout << "kernel execution time for " << p.first \
                   << " is " << p.second << " secs" << std::endl;
     }
+    std::cout << "total kernel execution time is " << total_time(tm) << " secs" << std::endl;
 }
