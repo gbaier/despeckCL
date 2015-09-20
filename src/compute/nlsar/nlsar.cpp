@@ -44,7 +44,7 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     // similarty, patch_similarity, kullback_leibler, patch_kullback_leibler, weights
     // memory consumption in bytes:
     // sws^2 * sis^2 * n_threads * 4 (float) * 5
-    const int sub_image_size = 200;
+    const int sub_image_size = 100;
 
     logging_setup(enabled_log_levels);
 
