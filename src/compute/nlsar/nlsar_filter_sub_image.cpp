@@ -212,24 +212,25 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     cmd_queue.enqueueWriteBuffer(device_best_alphas,  CL_TRUE, 0,                                           n_elem_ori * sizeof(float),  best_alphas.data());
 
     LOG(DEBUG) << "weighted_means";
-    nl_routines.weighted_means_routine.timed_run(cmd_queue,
-                                                  covmat_ori,
-                                                  covmat_filt,
-                                                  device_best_weights,
-                                                  device_best_alphas,
-                                                  height_ori,
-                                                  width_ori,
-                                                  search_window_size,
-                                                  patch_size_max,
-                                                  scale_size_max);
+    tm["weighted_means"] = nl_routines.weighted_means_routine.timed_run(cmd_queue,
+                                                                        covmat_ori,
+                                                                        covmat_filt,
+                                                                        device_best_weights,
+                                                                        device_best_alphas,
+                                                                        height_ori,
+                                                                        width_ori,
+                                                                        search_window_size,
+                                                                        patch_size_max,
+                                                                        scale_size_max);
 
-    nl_routines.covmat_decompose_routine.timed_run(cmd_queue,
-                                                    covmat_filt,
-                                                    device_ampl_filt,
-                                                    device_dphase_filt,
-                                                    device_coh_filt,
-                                                    height_overlap_avg,
-                                                    width_overlap_avg);
+    LOG(DEBUG) << "covmat_decompose";
+    tm["covmat_decompose"] = nl_routines.covmat_decompose_routine.timed_run(cmd_queue,
+                                                                            covmat_filt,
+                                                                            device_ampl_filt,
+                                                                            device_dphase_filt,
+                                                                            device_coh_filt,
+                                                                            height_overlap_avg,
+                                                                            width_overlap_avg);
     
     //***************************************************************************
     //
