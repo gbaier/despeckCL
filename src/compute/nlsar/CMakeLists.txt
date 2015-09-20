@@ -30,10 +30,12 @@ target_link_libraries(nlsar_lib nlsar_cl_wrappers
                                 timings
                                 best_params_lib
                                 best_weights_copy_lib
+                                best_alphas_copy_lib
                                 ${GSL_LIBRARIES})
 
 add_library(best_params_lib best_params.cpp)
 add_library(best_weights_copy_lib best_weights_copy.cpp)
+add_library(best_alphas_copy_lib best_alpha_copy.cpp)
 
 
 # Testing Code

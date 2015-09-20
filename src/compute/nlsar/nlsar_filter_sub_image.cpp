@@ -3,6 +3,7 @@
 #include "nlsar.h"
 #include "best_params.h"
 #include "best_weights_copy.h"
+#include "best_alpha_copy.h"
 
 #include <iostream>
 
@@ -82,6 +83,7 @@ timings::map nlsar::filter_sub_image(cl::Context context,
 
     std::map<params, std::vector<float>> weights;
     std::map<params, std::vector<float>> enls_nobias;
+    std::map<params, std::vector<float>> alphas;
 
     for(params parameter : parameters) {
         const stats* para_stats = &dissim_stats.find(parameter)->second;
@@ -93,10 +95,11 @@ timings::map nlsar::filter_sub_image(cl::Context context,
 
         weights     [parameter] = std::vector<float> (search_window_size * search_window_size * n_elem_ori);
         enls_nobias [parameter] = std::vector<float> (n_elem_ori);
+        alphas      [parameter] = std::vector<float> (n_elem_ori);
     }
 
     cl::Buffer device_best_weights {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
-    cl::Buffer device_alphas       {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
+    cl::Buffer device_best_alphas  {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
 
     cl::Buffer device_ampl_filt   {context, CL_MEM_READ_WRITE,                             n_elem_overlap_avg * sizeof(float), NULL, NULL};
     cl::Buffer device_dphase_filt {context, CL_MEM_READ_WRITE,                             n_elem_overlap_avg * sizeof(float), NULL, NULL};
@@ -185,25 +188,24 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                                                                                          dimension,
                                                                                                          nl_routines);
 
-            cmd_queue.enqueueReadBuffer(device_enls_alphas.first, CL_TRUE, 0,
-                                        n_elem_ori * sizeof(float), enls_nobias[parameter].data(), NULL, NULL);
-            cmd_queue.enqueueCopyBuffer(device_enls_alphas.second, device_alphas, 0, 0,
-                                        n_elem_ori * sizeof(float), NULL, NULL);
+            cmd_queue.enqueueReadBuffer(device_enls_alphas.first,  CL_TRUE, 0, n_elem_ori * sizeof(float), enls_nobias[parameter].data(), NULL, NULL);
+            cmd_queue.enqueueReadBuffer(device_enls_alphas.second, CL_TRUE, 0, n_elem_ori * sizeof(float),      alphas[parameter].data(), NULL, NULL);
         }
     }
 
     std::vector<params> best_parameters = best_params(enls_nobias, height_ori, width_ori);
     std::vector<float> best_weights = best_weights_copy(weights, best_parameters, height_ori, width_ori, search_window_size);
+    std::vector<float> best_alphas  = best_alpha_copy  (alphas,  best_parameters, height_ori, width_ori);
 
-    cmd_queue.enqueueWriteBuffer(device_best_weights, CL_TRUE, 0,
-                                 n_elem_ori * search_window_size * search_window_size * sizeof(float), best_weights.data());
+    cmd_queue.enqueueWriteBuffer(device_best_weights, CL_TRUE, 0, search_window_size * search_window_size * n_elem_ori * sizeof(float), best_weights.data());
+    cmd_queue.enqueueWriteBuffer(device_best_alphas,  CL_TRUE, 0,                                           n_elem_ori * sizeof(float),  best_alphas.data());
 
     LOG(DEBUG) << "weighted_means";
     nl_routines.weighted_means_routine.timed_run(cmd_queue,
                                                   covmat_ori,
                                                   covmat_filt,
                                                   device_best_weights,
-                                                  device_alphas,
+                                                  device_best_alphas,
                                                   height_ori,
                                                   width_ori,
                                                   search_window_size,
