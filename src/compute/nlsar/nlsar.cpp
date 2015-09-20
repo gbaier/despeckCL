@@ -80,7 +80,7 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     for(int patch_size : patch_sizes) {
         for(int scale_size : scale_sizes) {
             nlsar_stats.emplace(params{patch_size, scale_size},
-                                stats(get_dissims(total_image.get_sub_insar_data(bbox{0,15,0,15}), patch_size, scale_size), patch_size, lut_size));
+                                stats(get_dissims(total_image.get_sub_insar_data(bbox{0,23,0,23}), patch_size, scale_size), patch_size, lut_size));
         }
     }
     total_image.pad(overlap);
