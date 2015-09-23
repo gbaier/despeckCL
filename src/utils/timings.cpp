@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 
 timings::map timings::join(const map& tm1, const map& tm2)
 {
@@ -33,8 +34,8 @@ void timings::print(const map& tm)
     }
     std::sort(timings.begin(), timings.end(), [] (auto el1, auto el2) { return el1.second < el2.second; } );
     for(auto p : timings) {
-        std::cout << "kernel execution time for " << p.first \
-                  << " is " << p.second << " secs" << std::endl;
+        std::cout << "kernel execution time for " << std::left << std::setw(30) << p.first \
+                  << " is " << std::setw(10) << std::fixed << std::setprecision(5) << p.second << " secs" << std::endl;
     }
     std::cout << "total kernel execution time is " << total_time(tm) << " secs" << std::endl;
 }
