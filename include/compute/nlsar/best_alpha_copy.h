@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 
-#include "best_params.h"
+#include "parameters.h"
 
 namespace nlsar {
     std::vector<float> best_alpha_copy(std::map<params, std::vector<float>> &alphas,

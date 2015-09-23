@@ -13,7 +13,7 @@ class routine_env
         std::chrono::duration<double> elapsed_seconds{};
 
         template<typename... Args>
-        void timed_run(Args... args)
+        double timed_run(Args... args)
         {
             std::chrono::time_point<std::chrono::system_clock> start, end;
             start = std::chrono::system_clock::now();
@@ -21,13 +21,11 @@ class routine_env
             static_cast<Derived*>(this)->run(args...);
 
             end = std::chrono::system_clock::now();
-            elapsed_seconds += end-start;
+            std::chrono::duration<double> duration = end-start;
+            this->elapsed_seconds += duration;
+            return duration.count();
         }
 
-        void print_elapsed_time(void)
-        {
-            std::cout << "elapsed time for " << routine_name << ": " << elapsed_seconds.count() << "s\n";
-        }
 };
 
 #endif

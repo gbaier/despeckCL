@@ -33,7 +33,8 @@ TEST_CASE( "covmat_create", "[cl_kernels]" ) {
     enl[p1] = enl1;
     enl[p2] = enl2;
 
-    std::vector<params> best_ps = best_params(enl, height, width);
+    std::vector<params> best_ps;
+    get_best_params{}.run(enl, &best_ps, height, width);
     std::vector<params> desired_best_ps(height*width, p2);
 
     REQUIRE( ( best_ps == desired_best_ps ) );

@@ -1,6 +1,7 @@
 #include "nlsar_filter_sub_image.h"
 
 #include "nlsar.h"
+#include "parameters.h"
 #include "best_params.h"
 #include "best_weights_copy.h"
 #include "best_alpha_copy.h"
@@ -204,11 +205,16 @@ timings::map nlsar::filter_sub_image(cl::Context context,
         }
     }
 
-    LOG(DEBUG) << "get best parameters";
+    LOG(DEBUG) << "get best params";
+    std::vector<params> best_parameters;
+    tm["get_best_params"] = get_best_params{}.timed_run(enls_nobias,
+                                                        &best_parameters,
+                                                        height_ori,
+                                                        width_ori);
+
+    LOG(DEBUG) << "copy best weights";
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
-
-    std::vector<params> best_parameters = best_params(enls_nobias, height_ori, width_ori);
     std::vector<float> best_weights = best_weights_copy(weights, best_parameters, height_ori, width_ori, search_window_size);
     std::vector<float> best_alphas  = best_alpha_copy  (alphas,  best_parameters, height_ori, width_ori);
 

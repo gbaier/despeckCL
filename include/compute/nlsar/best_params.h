@@ -3,28 +3,25 @@
 
 #include <vector>
 #include <map>
+#include <utility>
 
+#include "parameters.h"
+#include "../compute_env.h"
 
 namespace nlsar {
-    struct params {
-        const int patch_size;
-        const int scale_size;
 
-        bool operator== (const params& other) const {
-            return (patch_size == other.patch_size) && \
-                   (scale_size == other.scale_size);
-        };
+    class get_best_params : public routine_env<get_best_params>
+    {
+        public:
+            std::string routine_name{"get_best_params"};
 
-        // needed if params is to be used as a key for a map
-        bool operator< (const params& other) const {
-            return  (patch_size < other.patch_size) || \
-                   ((patch_size == other.patch_size) && (scale_size < other.scale_size));
-        };
-    };
-
-    std::vector<params> best_params(std::map<params, std::vector<float>> &enl,
-                                    const int height,
-                                    const int width);
-}
+            void run(std::map<params, std::vector<float>> &enl,
+                     std::vector<params>* best_parameters,
+                     const int height,
+                     const int width);
+        private:
+            params get_best_pixel_params(std::vector<std::pair<params, float>> params_enl);
+     };
+};
 
 #endif
