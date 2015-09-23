@@ -27,7 +27,12 @@ double timings::total_time(const map &tm)
 
 void timings::print(const map& tm)
 {
-    for(auto p : tm) {
+    std::vector<std::pair<std::string, double>> timings;
+    for(auto tel : tm) {
+        timings.push_back(tel);
+    }
+    std::sort(timings.begin(), timings.end(), [] (auto el1, auto el2) { return el1.second < el2.second; } );
+    for(auto p : timings) {
         std::cout << "kernel execution time for " << p.first \
                   << " is " << p.second << " secs" << std::endl;
     }
