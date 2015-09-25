@@ -1,15 +1,15 @@
 #include "precompute_filter_values.h"
 
-void precompute_filter_values::run(cl::CommandQueue cmd_queue,
-                                   cl::Buffer device_a1,
-                                   cl::Buffer device_a2,
-                                   cl::Buffer device_dp,
-                                   cl::Buffer device_filter_values_a,
-                                   cl::Buffer device_filter_values_x_real,
-                                   cl::Buffer device_filter_values_x_imag,
-                                   const int height_overlap,
-                                   const int width_overlap,
-                                   const int patch_size)
+void nlinsar::precompute_filter_values::run(cl::CommandQueue cmd_queue,
+                                            cl::Buffer device_a1,
+                                            cl::Buffer device_a2,
+                                            cl::Buffer device_dp,
+                                            cl::Buffer device_filter_values_a,
+                                            cl::Buffer device_filter_values_x_real,
+                                            cl::Buffer device_filter_values_x_imag,
+                                            const int height_overlap,
+                                            const int width_overlap,
+                                            const int patch_size)
 {
     const int height_sws = height_overlap - patch_size + 1;
     const int width_sws  = width_overlap  - patch_size + 1;

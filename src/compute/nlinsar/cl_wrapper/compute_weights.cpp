@@ -4,13 +4,13 @@
 
 #include "compute_weights.h"
 
-void compute_weights::run(cl::CommandQueue cmd_queue,
-                          cl::Buffer patch_similarities,
-                          cl::Buffer patch_kullback_leiblers,
-                          cl::Buffer weights,
-                          const int n_elems,
-                          const float h,
-                          const float T)
+void nlinsar::compute_weights::run(cl::CommandQueue cmd_queue,
+                                   cl::Buffer patch_similarities,
+                                   cl::Buffer patch_kullback_leiblers,
+                                   cl::Buffer weights,
+                                   const int n_elems,
+                                   const float h,
+                                   const float T)
 {
     kernel.setArg(0, patch_similarities);
     kernel.setArg(1, patch_kullback_leiblers);
@@ -24,5 +24,4 @@ void compute_weights::run(cl::CommandQueue cmd_queue,
 
     cmd_queue.enqueueNDRangeKernel(kernel, cl::NullRange, global_size, local_size, NULL, NULL);
 
-    cmd_queue.finish();
 }

@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <sstream>
 
-compute_insar::compute_insar(const size_t block_size,
-                             cl::Context context,
-                             const int search_window_size) : search_window_size(search_window_size)
+nlinsar::compute_insar::compute_insar(const size_t block_size,
+                                      cl::Context context,
+                                      const int search_window_size) : search_window_size(search_window_size)
 {
     kernel_env::block_size = block_size;
     kernel_env::context = context;
@@ -13,7 +13,7 @@ compute_insar::compute_insar(const size_t block_size,
     build_kernel();
 }
 
-compute_insar::compute_insar(const compute_insar& other) : search_window_size(other.search_window_size)
+nlinsar::compute_insar::compute_insar(const compute_insar& other) : search_window_size(other.search_window_size)
 {
     kernel_env::block_size = other.block_size;
     kernel_env::context = other.context;
@@ -21,25 +21,25 @@ compute_insar::compute_insar(const compute_insar& other) : search_window_size(ot
     build_kernel();
 }
 
-std::string compute_insar::return_build_options(void)
+std::string nlinsar::compute_insar::return_build_options(void)
 {
     std::ostringstream out;
     out << " -D BLOCK_SIZE=" << block_size << " -D SEARCH_WINDOW_SIZE=" << search_window_size;
     return kernel_env::return_build_options() + out.str();
 }
 
-void compute_insar::run(cl::CommandQueue cmd_queue,
-                        cl::Buffer device_filter_values_a,
-                        cl::Buffer device_filter_values_x_real,
-                        cl::Buffer device_filter_values_x_imag,
-                        cl::Buffer device_amp_filt,
-                        cl::Buffer device_phi_filt,
-                        cl::Buffer device_coh_filt,
-                        const int height_overlap,
-                        const int width_overlap,
-                        cl::Buffer device_weights,
-                        const int search_window_size,
-                        const int patch_size)
+void nlinsar::compute_insar::run(cl::CommandQueue cmd_queue,
+                                 cl::Buffer device_filter_values_a,
+                                 cl::Buffer device_filter_values_x_real,
+                                 cl::Buffer device_filter_values_x_imag,
+                                 cl::Buffer device_amp_filt,
+                                 cl::Buffer device_phi_filt,
+                                 cl::Buffer device_coh_filt,
+                                 const int height_overlap,
+                                 const int width_overlap,
+                                 cl::Buffer device_weights,
+                                 const int search_window_size,
+                                 const int patch_size)
 {
     const int height_ori = height_overlap - search_window_size - patch_size + 2;
     const int width_ori  = width_overlap  - search_window_size - patch_size + 2;

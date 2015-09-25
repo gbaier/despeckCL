@@ -1,9 +1,8 @@
 #include "transpose.h"
 
-#include <stdio.h>
 #include <sstream>
 
-transpose::transpose(const size_t block_size,
+nlinsar::transpose::transpose(const size_t block_size,
                      cl::Context context,
                      const size_t thread_size_row,
                      const size_t thread_size_col) : thread_size_row(thread_size_row),
@@ -15,7 +14,7 @@ transpose::transpose(const size_t block_size,
     build_kernel();
 }
 
-transpose::transpose(const transpose& other) : thread_size_row(other.thread_size_row),
+nlinsar::transpose::transpose(const transpose& other) : thread_size_row(other.thread_size_row),
                                                thread_size_col(other.thread_size_col)
 {
     kernel_env::block_size = other.block_size;
@@ -24,17 +23,17 @@ transpose::transpose(const transpose& other) : thread_size_row(other.thread_size
     build_kernel();
 }
 
-std::string transpose::return_build_options(void)
+std::string nlinsar::transpose::return_build_options(void)
 {
     std::ostringstream out;
     out << " -D THREAD_SIZE_ROW=" << thread_size_row << " -D THREAD_SIZE_COL=" << thread_size_col;
     return kernel_env::return_build_options() + out.str();
 }
 
-void transpose::run(cl::CommandQueue cmd_queue,
-                    cl::Buffer matrix,
-                    const int height,
-                    const int width)
+void nlinsar::transpose::run(cl::CommandQueue cmd_queue,
+                             cl::Buffer matrix,
+                             const int height,
+                             const int width)
 {
     cl::Buffer matrix_trans{context, CL_MEM_READ_WRITE, height * width * sizeof(float), NULL, NULL};
     
@@ -51,5 +50,4 @@ void transpose::run(cl::CommandQueue cmd_queue,
                                 0, 0,
                                 height*width*sizeof(float),
                                 NULL, NULL);
-    cmd_queue.finish();
 }

@@ -5,25 +5,28 @@
 
 #include "clcfg.h"
 
-class compute_weights : public kernel_env<compute_weights>
-{
-    public:
-        using kernel_env::kernel_env;
+namespace nlinsar {
 
-        static constexpr const char* routine_name {"compute_weights"};
+    class compute_weights : public kernel_env<compute_weights>
+    {
+        public:
+            using kernel_env::kernel_env;
 
-        static constexpr const char* kernel_source =
-"@CMAKE_KERNEL_SOURCE@"
-;
+            static constexpr const char* routine_name {"compute_weights"};
+
+            static constexpr const char* kernel_source =
+    "@CMAKE_KERNEL_SOURCE@"
+    ;
 
 
-        void run(cl::CommandQueue cmd_queue,
-                 cl::Buffer patch_similarities,
-                 cl::Buffer patch_kullback_leiblers,
-                 cl::Buffer weights,
-                 const int n_elems,
-                 const float h,
-                 const float T);
-};
+            void run(cl::CommandQueue cmd_queue,
+                     cl::Buffer patch_similarities,
+                     cl::Buffer patch_kullback_leiblers,
+                     cl::Buffer weights,
+                     const int n_elems,
+                     const float h,
+                     const float T);
+    };
 
+}
 #endif

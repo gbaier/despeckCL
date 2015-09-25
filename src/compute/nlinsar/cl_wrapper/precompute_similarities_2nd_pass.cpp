@@ -1,13 +1,11 @@
 #include "precompute_similarities_2nd_pass.h"
-#include <stdio.h>
-#include <iostream>
 
-void precompute_similarities_2nd_pass::run(cl::CommandQueue cmd_queue,
-                                           const int height_overlap,
-                                           const int width_overlap,
-                                           const int search_window_size,
-                                           cl::Buffer device_similarities,
-                                           cl::Buffer device_kullback_leiblers)
+void nlinsar::precompute_similarities_2nd_pass::run(cl::CommandQueue cmd_queue,
+                                                    const int height_overlap,
+                                                    const int width_overlap,
+                                                    const int search_window_size,
+                                                    cl::Buffer device_similarities,
+                                                    cl::Buffer device_kullback_leiblers)
 {
     const int height_sim = height_overlap - search_window_size + 1;
     const int width_sim  = width_overlap  - search_window_size + 1;
@@ -31,6 +29,5 @@ void precompute_similarities_2nd_pass::run(cl::CommandQueue cmd_queue,
         kernel.setArg( 5, search_window_size);
 
         cmd_queue.enqueueNDRangeKernel(kernel, global_offset, global_size, local_size, NULL, NULL);
-        cmd_queue.finish();
     }
 }

@@ -3,30 +3,33 @@
 
 #include "clcfg.h"
 
-class transpose : public kernel_env<transpose>
-{
-    public:
-        static constexpr const char* kernel_source =
-"@CMAKE_KERNEL_SOURCE@"
-;
-        static constexpr const char* routine_name {"transpose"};
+namespace nlinsar {
 
-        const size_t thread_size_row;
-        const size_t thread_size_col;
+    class transpose : public kernel_env<transpose>
+    {
+        public:
+            static constexpr const char* kernel_source =
+                "@CMAKE_KERNEL_SOURCE@"
+                ;
+            static constexpr const char* routine_name {"transpose"};
 
-        transpose(const size_t block_size,
-                  cl::Context context,
-                  const size_t thread_size_row,
-                  const size_t thread_size_col);
+            const size_t thread_size_row;
+            const size_t thread_size_col;
 
-        transpose(const transpose& other);
+            transpose(const size_t block_size,
+                    cl::Context context,
+                    const size_t thread_size_row,
+                    const size_t thread_size_col);
 
-        std::string return_build_options(void);
+            transpose(const transpose& other);
 
-        void run(cl::CommandQueue cmd_queue,
-                 cl::Buffer matrix,
-                 const int height,
-                 const int width);
-};
+            std::string return_build_options(void);
 
+            void run(cl::CommandQueue cmd_queue,
+                    cl::Buffer matrix,
+                    const int height,
+                    const int width);
+    };
+
+}
 #endif
