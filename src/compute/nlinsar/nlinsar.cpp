@@ -24,16 +24,16 @@
 // cpu routine
 #include "smoothing.h"
 
-nlinsar_routines nl_routines;
+nlinsar::routines nl_routines;
 
-int nlinsar(float* master_amplitude, float* slave_amplitude, float* dphase,
-            float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered,
-            const int height, const int width,
-            const int search_window_size,
-            const int patch_size,
-            const int niter,
-            const int lmin,
-            std::vector<el::Level> enabled_log_levels)
+int nlinsar::nlinsar(float* master_amplitude, float* slave_amplitude, float* dphase,
+                     float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered,
+                     const int height, const int width,
+                     const int search_window_size,
+                     const int patch_size,
+                     const int niter,
+                     const int lmin,
+                     std::vector<el::Level> enabled_log_levels)
 {
     el::Configurations log_config;
     log_config.setToDefault();
@@ -106,7 +106,7 @@ int nlinsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     std::chrono::time_point<std::chrono::system_clock> start, end;
     std::chrono::duration<double> elapsed_seconds = end-start;
     start = std::chrono::system_clock::now();
-    nlinsar_routines nl_routines_base;
+    nlinsar::routines nl_routines_base;
     VLOG(0) << "Building kernels";
     nl_routines_base.precompute_patch_similarities_routine    = new precompute_patch_similarities   (14, context, patch_size);
     nl_routines_base.precompute_similarities_1st_pass_routine = new precompute_similarities_1st_pass(16, context);

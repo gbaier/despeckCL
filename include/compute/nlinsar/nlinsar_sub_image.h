@@ -7,7 +7,7 @@
 #include <CL/cl.hpp>
 
 int nlinsar_sub_image(cl::Context context,
-                      nlinsar_routines nl_routines,
+                      nlinsar::routines nl_routines,
                       insar_data& sub_insar_data,
                       const int search_window_size,
                       const int patch_size,

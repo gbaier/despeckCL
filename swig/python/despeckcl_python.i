@@ -104,15 +104,15 @@ void _nlinsar_c_wrap(float* master_amplitude,   int h1, int w1,
                                                el::Level::Fatal,
                                                };
 
-    nlinsar(master_amplitude, slave_amplitude, dphase,
-            amplitude_filtered, dphase_filtered, coherence_filtered,
-            h1,
-            w1,
-            search_window_size,
-            patch_size,
-            niter,
-            lmin,
-            enabled_log_levels);
+    nlinsar::nlinsar(master_amplitude, slave_amplitude, dphase,
+                     amplitude_filtered, dphase_filtered, coherence_filtered,
+                     h1,
+                     w1,
+                     search_window_size,
+                     patch_size,
+                     niter,
+                     lmin,
+                     enabled_log_levels);
     return;
 }
 %}

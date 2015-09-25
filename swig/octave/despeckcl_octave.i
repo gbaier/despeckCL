@@ -95,48 +95,50 @@ void boxcar(float* master_amplitude,   int h1, int w1,
 %}
 
 %inline %{
-void nlinsar(float* master_amplitude,   int h1, int w1,
-             float* slave_amplitude,    int h2, int w2,
-             float* dphase,             int h3, int w3,
-             float** amplitude_filtered, int* h4, int* w4,
-             float** dphase_filtered,    int* h5, int* w5,
-             float** coherence_filtered, int* h6, int* w6,
-             const int search_window_size,
-             const int patch_size,
-             const int niter,
-             const int lmin)
-{
-    std::vector<el::Level> enabled_log_levels {
-                   //                            el::Level::Info,
-                   //                            el::Level::Verbose,
-                                               el::Level::Warning,
-                                               el::Level::Error,
-                                               el::Level::Fatal,
-                                               };
-    const int height = h1;
-    const int width = w1;
+namespace nlinsar {
+    void nlinsar(float* master_amplitude,   int h1, int w1,
+                 float* slave_amplitude,    int h2, int w2,
+                 float* dphase,             int h3, int w3,
+                 float** amplitude_filtered, int* h4, int* w4,
+                 float** dphase_filtered,    int* h5, int* w5,
+                 float** coherence_filtered, int* h6, int* w6,
+                 const int search_window_size,
+                 const int patch_size,
+                 const int niter,
+                 const int lmin)
+    {
+        std::vector<el::Level> enabled_log_levels {
+                       //                            el::Level::Info,
+                       //                            el::Level::Verbose,
+                                                   el::Level::Warning,
+                                                   el::Level::Error,
+                                                   el::Level::Fatal,
+                                                   };
+        const int height = h1;
+        const int width = w1;
 
-    *h4 = height;
-    *h5 = height;
-    *h6 = height;
-    
-    *w4 = width;
-    *w5 = width;
-    *w6 = width;
+        *h4 = height;
+        *h5 = height;
+        *h6 = height;
+        
+        *w4 = width;
+        *w5 = width;
+        *w6 = width;
 
-    *amplitude_filtered = (float*) malloc(height * width * sizeof(float));
-    *dphase_filtered    = (float*) malloc(height * width * sizeof(float));
-    *coherence_filtered = (float*) malloc(height * width * sizeof(float));
+        *amplitude_filtered = (float*) malloc(height * width * sizeof(float));
+        *dphase_filtered    = (float*) malloc(height * width * sizeof(float));
+        *coherence_filtered = (float*) malloc(height * width * sizeof(float));
 
-    nlinsar(master_amplitude, slave_amplitude, dphase,
-            *amplitude_filtered, *dphase_filtered, *coherence_filtered,
-            h1, w1,
-            search_window_size,
-            patch_size,
-            niter,
-            lmin,
-            enabled_log_levels);
-    return;
+        nlinsar::nlinsar(master_amplitude, slave_amplitude, dphase,
+                         *amplitude_filtered, *dphase_filtered, *coherence_filtered,
+                         h1, w1,
+                         search_window_size,
+                         patch_size,
+                         niter,
+                         lmin,
+                         enabled_log_levels);
+        return;
+    }
 }
 %}
 

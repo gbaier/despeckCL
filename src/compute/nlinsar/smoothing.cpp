@@ -5,26 +5,28 @@
 #include <numeric>
 #include <queue>
 
-struct weight_el {
-    float weight;
-    int idx;
+namespace nlinsar {
+    struct weight_el {
+        float weight;
+        int idx;
 
-    // lowest weights get in front of the priority queue
-    bool operator<(const weight_el& other) const
-    {
-        return weight > other.weight;
-    }
-};
+        // lowest weights get in front of the priority queue
+        bool operator<(const weight_el& other) const
+        {
+            return weight > other.weight;
+        }
+    };
+}
 
-void smoothing::run(cl::CommandQueue cmd_queue,
-                    cl::Buffer device_weights,
-                    cl::Buffer device_nols,
-                    float * ampl_master,
-                    const int height_ori,
-                    const int width_ori,
-                    const int search_window_size,
-                    const int patch_size,
-                    const int lmin)
+void nlinsar::smoothing::run(cl::CommandQueue cmd_queue,
+                             cl::Buffer device_weights,
+                             cl::Buffer device_nols,
+                             float * ampl_master,
+                             const int height_ori,
+                             const int width_ori,
+                             const int search_window_size,
+                             const int patch_size,
+                             const int lmin)
 {
     const int n_elem_ori = search_window_size * search_window_size * height_ori * width_ori;
     const int wsh = (search_window_size-1)/2;
@@ -55,14 +57,14 @@ void smoothing::run(cl::CommandQueue cmd_queue,
     free(weights);
 }
 
-void search_window_smoothing(const float * amplitude_master,
-                             float * weights,
-                             const int h,
-                             const int w,
-                             const int width_overlap,
-                             const int patch_size,
-                             const int search_window_size,
-                             const int lmin)
+void nlinsar::search_window_smoothing(const float * amplitude_master,
+                                      float * weights,
+                                      const int h,
+                                      const int w,
+                                      const int width_overlap,
+                                      const int patch_size,
+                                      const int search_window_size,
+                                      const int lmin)
 {
     const int psh = (patch_size - 1)/2;
     const int wsh = (search_window_size - 1)/2;
