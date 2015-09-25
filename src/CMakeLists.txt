@@ -7,10 +7,23 @@ include_directories(${despeckCL_SOURCE_DIR}/include/compute/boxcar)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlinsar)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar)
 
-add_library(despeckcl STATIC)
-target_link_libraries(despeckcl boxcar_lib
-                                nlinsar_lib
-                                nlsar_lib)
+find_package(GSL REQUIRED)
+if(GSL_FOUND)
+    include_directories(${GSL_INCLUDE_DIRS})
+endif()
+
+add_library(despeckcl STATIC 
+            $<TARGET_OBJECTS:nlsar_lib>
+            $<TARGET_OBJECTS:nlsar_cl_wrappers>
+           )
+
+target_link_libraries(despeckcl common_opencl_wrappers
+                                insar_data
+                                clcfg
+                                logging
+                                timings
+                                ${OpenCL_LIBRARIES}
+                                ${GSL_LIBRARIES})
 
 INSTALL(TARGETS despeckcl
         DESTINATION "lib"

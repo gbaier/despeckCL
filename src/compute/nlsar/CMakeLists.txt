@@ -11,41 +11,21 @@ include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar/cl_wrappers)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/common/cl_wrappers)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar/routines)
 
-add_library(nlsar_lib nlsar.cpp
-                      nlsar_filter_sub_image.cpp
-                      stats.cpp
-                      get_dissims.cpp)
-
-find_package(GSL REQUIRED)
-if(GSL_FOUND)
-    include_directories(${GSL_INCLUDE_DIRS})
-endif()
-
-target_link_libraries(nlsar_lib nlsar_cl_wrappers
-                                common_opencl_wrappers
-                                nlsar_routines
-                                insar_data
-                                clcfg
-                                logging
-                                timings
-                                best_params_lib
-                                best_weights_copy_lib
-                                best_alphas_copy_lib
-                                ${GSL_LIBRARIES})
-
-add_library(best_params_lib best_params.cpp)
-add_library(best_weights_copy_lib best_weights_copy.cpp)
-add_library(best_alphas_copy_lib best_alpha_copy.cpp)
-
+add_library(nlsar_lib OBJECT
+            nlsar.cpp
+            nlsar_filter_sub_image.cpp
+            stats.cpp
+            get_dissims.cpp
+            best_params.cpp
+            best_weights_copy.cpp
+            best_alpha_copy.cpp
+            routines/routines.cpp
+           )
 
 # Testing Code
 add_executable(sim_measures_test sim_measures_test.cpp)
-
-add_executable(best_params_test best_params_test.cpp)
-target_link_libraries(best_params_test best_params_lib) 
-
-add_executable(best_weights_copy_test best_weights_copy_test.cpp)
-target_link_libraries(best_weights_copy_test best_weights_copy_lib) 
+add_executable(best_params_test best_params_test.cpp best_params.cpp)
+add_executable(best_weights_copy_test best_weights_copy_test.cpp best_weights_copy.cpp)
 
 add_test(NAME NLSAR_sim_measures
          COMMAND sim_measures_test)
