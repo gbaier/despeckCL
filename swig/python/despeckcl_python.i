@@ -37,7 +37,7 @@ namespace std {
 
 
 %inline %{
-void _boxcar_c_wrap(float* master_amplitude,   int h1, int w1,
+void _boxcar_c_wrap(float* master_amplitude,  int h1, int w1,
                    float* slave_amplitude,    int h2, int w2,
                    float* dphase,             int h3, int w3,
                    float* amplitude_filtered, int h4, int w4,
@@ -45,14 +45,8 @@ void _boxcar_c_wrap(float* master_amplitude,   int h1, int w1,
                    float* coherence_filtered, int h6, int w6,
                    const int window_width)
 {
-    std::vector<el::Level> enabled_log_levels {
-                                               el::Level::Info,
-                                               el::Level::Verbose,
-                                               el::Level::Debug,
-                                               el::Level::Warning,
-                                               el::Level::Error,
-                                               el::Level::Fatal,
-                                               };
+    std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
+
     boxcar(master_amplitude, slave_amplitude, dphase,
             amplitude_filtered, dphase_filtered, coherence_filtered,
             h1,
@@ -95,14 +89,7 @@ void _nlinsar_c_wrap(float* master_amplitude,   int h1, int w1,
                      const int niter,
                      const int lmin)
 {
-    std::vector<el::Level> enabled_log_levels {
-                                               el::Level::Info,
-                                               el::Level::Verbose,
-                                               el::Level::Debug,
-                                               el::Level::Warning,
-                                               el::Level::Error,
-                                               el::Level::Fatal,
-                                               };
+    std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
 
     nlinsar::nlinsar(master_amplitude, slave_amplitude, dphase,
                      amplitude_filtered, dphase_filtered, coherence_filtered,
@@ -113,7 +100,6 @@ void _nlinsar_c_wrap(float* master_amplitude,   int h1, int w1,
                      niter,
                      lmin,
                      enabled_log_levels);
-    return;
 }
 %}
 
@@ -172,7 +158,7 @@ def nlsar(master_amplitude,
           search_window_size,
           patch_sizes,
           scale_sizes,
-          enabled_log_levels = ['debug', 'error', 'warning', 'fatal']):
+          enabled_log_levels = ['error', 'warning', 'fatal']):
 
     amplitude_filtered = np.zeros_like(master_amplitude)
     dphase_filtered    = np.zeros_like(master_amplitude)

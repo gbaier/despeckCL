@@ -12,5 +12,5 @@ void boxcar(float* master_amplitude,
             const int height,
             const int width,
             const int window_width,
-            std::vector<el::Level> enabled_log_levels);
+            std::vector<std::string> enabled_log_levels);
 #endif

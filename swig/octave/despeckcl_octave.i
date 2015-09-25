@@ -62,13 +62,8 @@ void boxcar(float* master_amplitude,   int h1, int w1,
             float** coherence_filtered, int* h6, int* w6,
             const int window_width)
 {
-    std::vector<el::Level> enabled_log_levels {
-                   //                            el::Level::Info,
-                   //                            el::Level::Verbose,
-                                               el::Level::Warning,
-                                               el::Level::Error,
-                                               el::Level::Fatal,
-                                               };
+    std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
+
     const int height = h1;
     const int width = w1;
 
@@ -107,13 +102,8 @@ namespace nlinsar {
                  const int niter,
                  const int lmin)
     {
-        std::vector<el::Level> enabled_log_levels {
-                       //                            el::Level::Info,
-                       //                            el::Level::Verbose,
-                                                   el::Level::Warning,
-                                                   el::Level::Error,
-                                                   el::Level::Fatal,
-                                                   };
+        std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
+
         const int height = h1;
         const int width = w1;
 
@@ -137,7 +127,6 @@ namespace nlinsar {
                          niter,
                          lmin,
                          enabled_log_levels);
-        return;
     }
 }
 %}

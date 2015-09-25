@@ -34,7 +34,7 @@ namespace nlinsar {
                 const int patch_size,
                 const int niter,
                 const int lmin,
-                std::vector<el::Level> enabled_log_levels);
+                std::vector<std::string> enabled_log_levels);
 }
 
 #endif
