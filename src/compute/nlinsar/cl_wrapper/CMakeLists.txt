@@ -15,11 +15,12 @@ foreach(infile ${infiles})
     configure_file(${infile} ${outfile})
 endforeach()
 
-add_library(nlinsar_opencl_wrapper precompute_similarities_1st_pass.cpp 
-                                   precompute_similarities_2nd_pass.cpp 
-                                   precompute_patch_similarities.cpp
-                                   compute_weights.cpp
-                                   transpose.cpp
-                                   precompute_filter_values.cpp
-                                   compute_insar.cpp
-                                   )
+add_library(nlinsar_opencl_wrapper OBJECT
+            precompute_similarities_1st_pass.cpp 
+            precompute_similarities_2nd_pass.cpp 
+            precompute_patch_similarities.cpp
+            compute_weights.cpp
+            transpose.cpp
+            precompute_filter_values.cpp
+            compute_insar.cpp
+           )

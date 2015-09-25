@@ -6,6 +6,8 @@ add_subdirectory(utils)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/boxcar)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlinsar)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar)
+include_directories(${despeckCL_SOURCE_DIR}/include/utils)
+include_directories(${despeckCL_SOURCE_DIR}/include/clcfg)
 
 find_package(GSL REQUIRED)
 if(GSL_FOUND)
@@ -15,14 +17,18 @@ endif()
 add_library(despeckcl STATIC 
             $<TARGET_OBJECTS:nlsar_lib>
             $<TARGET_OBJECTS:nlsar_cl_wrappers>
+            $<TARGET_OBJECTS:boxcar_lib>
+            $<TARGET_OBJECTS:boxcar_opencl_wrapper>
+            $<TARGET_OBJECTS:nlinsar_lib>
+            $<TARGET_OBJECTS:nlinsar_opencl_wrapper>
+            ${despeckCL_SOURCE_DIR}/src/utils/logging.cpp
+            ${despeckCL_SOURCE_DIR}/src/utils/timings.cpp
+            ${despeckCL_SOURCE_DIR}/src/clcfg/clcfg.cpp
+            $<TARGET_OBJECTS:insar_data>
+            $<TARGET_OBJECTS:common_opencl_wrappers>
            )
 
-target_link_libraries(despeckcl common_opencl_wrappers
-                                insar_data
-                                clcfg
-                                logging
-                                timings
-                                ${OpenCL_LIBRARIES}
+target_link_libraries(despeckcl ${OpenCL_LIBRARIES}
                                 ${GSL_LIBRARIES})
 
 INSTALL(TARGETS despeckcl

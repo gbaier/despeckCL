@@ -10,7 +10,6 @@
 #include "boxcar_sub_image.h"
 #include "insar_data.h"
 
-INITIALIZE_EASYLOGGINGPP
 
 void boxcar(float* master_amplitude,
             float* slave_amplitude,

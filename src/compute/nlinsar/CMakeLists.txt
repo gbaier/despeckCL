@@ -9,12 +9,9 @@ include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlinsar)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlinsar/cl_wrapper)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/common/cl_wrappers)
 
-add_library(nlinsar_lib nlinsar.cpp
-                        insarsim_simu.cpp
-                        nlinsar_sub_image.cpp
-                        smoothing)
-
-target_link_libraries(nlinsar_lib nlinsar_opencl_wrapper
-                                  common_opencl_wrappers
-                                  insar_data
-                                  clcfg)
+add_library(nlinsar_lib OBJECT
+            nlinsar.cpp
+            insarsim_simu.cpp
+            nlinsar_sub_image.cpp
+            ${despeckCL_SOURCE_DIR}/src/clcfg/clcfg.cpp
+            smoothing)

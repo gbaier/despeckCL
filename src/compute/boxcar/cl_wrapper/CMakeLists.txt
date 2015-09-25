@@ -9,5 +9,5 @@ STRING(REPLACE "\n" " \\n\"\n\"" KERNEL_SOURCE_EDIT "${KERNEL_SOURCE}")
 SET(CMAKE_KERNEL_SOURCE "${KERNEL_SOURCE_EDIT}\\n")
 configure_file(${infile} ${outfile})
 
-add_library(boxcar_opencl_wrapper boxcar_wrapper.cpp)
-target_link_libraries(boxcar_opencl_wrapper clcfg ${OpenCL_LIBRARIES})
+add_library(boxcar_opencl_wrapper OBJECT
+            boxcar_wrapper.cpp)

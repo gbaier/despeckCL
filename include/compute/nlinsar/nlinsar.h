@@ -1,8 +1,6 @@
 #ifndef NLINSAR_OPENCL_H
 #define NLINSAR_OPENCL_H
 
-#include "utils/easylogging++.h"
-
 #include "precompute_similarities_1st_pass.h"
 #include "precompute_similarities_2nd_pass.h"
 #include "precompute_patch_similarities.h"

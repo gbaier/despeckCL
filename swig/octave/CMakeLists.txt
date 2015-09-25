@@ -14,7 +14,7 @@ set_source_files_properties(despeckcl_octave.i PROPERTIES SWIG_FLAGS "-includeal
 set_source_files_properties(despeckcl_octave.i PROPERTIES SWIG_FLAGS -DSKIP_INCLUDES)
 
 swig_add_module(despeckcl_octave octave despeckcl_octave.i)
-swig_link_libraries(despeckcl_octave boxcar_lib nlinsar_lib)
+swig_link_libraries(despeckcl_octave despeckcl)
 
 set_target_properties(despeckcl_octave PROPERTIES OUTPUT_NAME despeckcl)
 

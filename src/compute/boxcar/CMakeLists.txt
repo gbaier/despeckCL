@@ -8,5 +8,8 @@ include_directories(${despeckCL_SOURCE_DIR}/include/utils)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/boxcar)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/boxcar/cl_wrapper)
 
-add_library(boxcar_lib boxcar.cpp boxcar_sub_image.cpp)
-target_link_libraries(boxcar_lib boxcar_opencl_wrapper insar_data clcfg)
+add_library(boxcar_lib OBJECT
+            boxcar.cpp
+            boxcar_sub_image.cpp
+            ${despeckCL_SOURCE_DIR}/src/clcfg/clcfg.cpp
+           )

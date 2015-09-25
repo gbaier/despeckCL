@@ -1,5 +1,19 @@
 #include "logging.h"
 
+#include "easylogging++.h"
+INITIALIZE_EASYLOGGINGPP
+
+#include <map>
+
+const std::map<const std::string, const el::Level> loglevel_map {
+                                                                  {"debug",   el::Level::Debug},
+                                                                  {"info",    el::Level::Info},
+                                                                  {"verbose", el::Level::Verbose},
+                                                                  {"warning", el::Level::Warning},
+                                                                  {"fatal",   el::Level::Fatal},
+                                                                  {"error",   el::Level::Error}
+                                                                };
+
 void logging_setup(std::vector<std::string> enabled_log_levels)
 {
     el::Configurations log_config;

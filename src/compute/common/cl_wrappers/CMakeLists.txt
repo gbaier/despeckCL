@@ -15,5 +15,6 @@ foreach(infile ${infiles})
     configure_file(${infile} ${outfile})
 endforeach()
 
-add_library(common_opencl_wrappers compute_number_of_looks.cpp
-                                   )
+add_library(common_opencl_wrappers OBJECT
+            compute_number_of_looks.cpp
+           )

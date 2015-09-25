@@ -1,7 +1,8 @@
 #ifndef BOXCAR_H
 #define BOXCAR_H
 
-#include "utils/easylogging++.h"
+#include <vector>
+#include <string>
 
 void boxcar(float* master_amplitude,
             float* slave_amplitude,
