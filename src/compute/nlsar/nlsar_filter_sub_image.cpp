@@ -18,7 +18,11 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                      const int dimension,
                                      std::map<params, stats> &dissim_stats)
 {
+
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    std::chrono::duration<double> duration;
     timings::map tm;
+    start = std::chrono::system_clock::now();
 
     std::vector<params> parameters;
     for(auto keyval : dissim_stats) {
@@ -122,6 +126,11 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     std::vector<cl::Device> devices;
     context.getInfo(CL_CONTEXT_DEVICES, &devices);
     cl::CommandQueue cmd_queue{context, devices[0]};
+    cl::CommandQueue cmd_copy_queue{context, devices[0]};
+
+    end = std::chrono::system_clock::now();
+    duration = end-start;
+    tm["setup"] = duration.count();
 
     //***************************************************************************
     //
@@ -180,9 +189,6 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                                             nl_routines);
             tm = timings::join(tm, tm_weights);
 
-
-            cmd_queue.enqueueReadBuffer(device_weights, CL_TRUE, 0, n_elem_ori*search_window_size*search_window_size*sizeof(float), weights[parameter].data(), NULL, NULL);
-
             cl::Buffer device_alphas      {context, CL_MEM_READ_WRITE, n_elem_ori * sizeof(float), NULL, NULL};
             cl::Buffer device_enls_nobias {context, CL_MEM_READ_WRITE, n_elem_ori * sizeof(float), NULL, NULL};
             timings::map tm_enls_nobias_and_alphas = routines::get_enls_nobias_and_alphas (context,
@@ -198,12 +204,20 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                                                                            nlooks,
                                                                                            dimension,
                                                                                            nl_routines);
+
             tm = timings::join(tm, tm_enls_nobias_and_alphas);
 
-            cmd_queue.enqueueReadBuffer(device_enls_nobias,  CL_TRUE, 0, n_elem_ori * sizeof(float), enls_nobias[parameter].data(), NULL, NULL);
-            cmd_queue.enqueueReadBuffer(device_alphas,       CL_TRUE, 0, n_elem_ori * sizeof(float),      alphas[parameter].data(), NULL, NULL);
+            start = std::chrono::system_clock::now();
+            cmd_copy_queue.enqueueReadBuffer(device_weights,      CL_FALSE, 0, n_elem_ori*search_window_size*search_window_size*sizeof(float), weights[parameter].data(), NULL, NULL);
+            cmd_copy_queue.enqueueReadBuffer(device_enls_nobias,  CL_FALSE, 0, n_elem_ori * sizeof(float), enls_nobias[parameter].data(), NULL, NULL);
+            cmd_copy_queue.enqueueReadBuffer(device_alphas,       CL_FALSE, 0, n_elem_ori * sizeof(float),      alphas[parameter].data(), NULL, NULL);
+            end = std::chrono::system_clock::now();
+            duration = end-start;
+
+            tm["copy_dev2host"] = duration.count();
         }
     }
+    cmd_copy_queue.finish();
 
     LOG(DEBUG) << "get best params";
     std::vector<params> best_parameters;
@@ -212,8 +226,7 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                                         height_ori,
                                                         width_ori);
 
-    LOG(DEBUG) << "copy best weights";
-    std::chrono::time_point<std::chrono::system_clock> start, end;
+    LOG(DEBUG) << "copy best weights/alphas";
     start = std::chrono::system_clock::now();
     std::vector<float> best_weights = best_weights_copy(weights, best_parameters, height_ori, width_ori, search_window_size);
     std::vector<float> best_alphas  = best_alpha_copy  (alphas,  best_parameters, height_ori, width_ori);
@@ -222,8 +235,8 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     cmd_queue.enqueueWriteBuffer(device_best_alphas,  CL_TRUE, 0,                                           n_elem_ori * sizeof(float),  best_alphas.data());
 
     end = std::chrono::system_clock::now();
-    std::chrono::duration<double> duration = end-start;
-    tm["bet_params"] = duration.count();
+    duration = end-start;
+    tm["copy_best_weights/alphas"] = duration.count();
 
     LOG(DEBUG) << "weighted_means";
     tm["weighted_means"] = nl_routines.weighted_means_routine.timed_run(cmd_queue,
@@ -252,9 +265,14 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     //
     //***************************************************************************
     LOG(DEBUG) << "copying sub result";
+    start = std::chrono::system_clock::now();
     cmd_queue.enqueueReadBuffer(device_ampl_filt,   CL_TRUE, 0, n_elem_overlap_avg*sizeof(float), sub_insar_data.amp_filt, NULL, NULL);
     cmd_queue.enqueueReadBuffer(device_dphase_filt, CL_TRUE, 0, n_elem_overlap_avg*sizeof(float), sub_insar_data.phi_filt, NULL, NULL);
     cmd_queue.enqueueReadBuffer(device_coh_filt,    CL_TRUE, 0, n_elem_overlap_avg*sizeof(float), sub_insar_data.coh_filt, NULL, NULL);
+
+    end = std::chrono::system_clock::now();
+    duration = end-start;
+    tm["copy_sub_result"] = duration.count();
 
     return tm;
 }

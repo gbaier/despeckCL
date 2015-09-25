@@ -87,6 +87,7 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     insar_data total_image_temp = total_image;
 
     // filtering
+    start = std::chrono::system_clock::now();
     LOG(INFO) << "starting filtering";
 #pragma omp parallel shared(total_image, total_image_temp)
 {
@@ -113,6 +114,9 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
     total_image.unpad(overlap);
     LOG(INFO) << "filtering done";
     timings::print(tm);
+    end = std::chrono::system_clock::now();
+    std::chrono::duration<double> duration = end-start;
+    std::cout << "filtering ran for " << duration.count() << " secs" << std::endl;
 
     memcpy(amplitude_filtered, total_image.amp_filt, sizeof(float)*height*width);
     memcpy(dphase_filtered, total_image.phi_filt, sizeof(float)*height*width);
