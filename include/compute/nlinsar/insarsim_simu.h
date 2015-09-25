@@ -4,8 +4,15 @@
 #include <vector>
 #include <tuple>
 
-float quantile(std::vector<float> vector, float alpha);
-std::tuple<float, float, float> insar_gen(void);
-float quantile_insar(int patch_size, float alpha);
+namespace nlinsar {
+    namespace simu {
+
+        float quantile(std::vector<float> vector, float alpha);
+        
+        std::tuple<float, float, float> insar_gen(void);
+
+        float quantile_insar(int patch_size, float alpha);
+    }
+}
 
 #endif

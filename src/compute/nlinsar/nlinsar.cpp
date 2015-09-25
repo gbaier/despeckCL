@@ -65,7 +65,7 @@ int nlinsar::nlinsar(float* master_amplitude, float* slave_amplitude, float* dph
             h_theo = 0.244; // alpha = 0.92
             break;
         default:
-            h_theo = quantile_insar(patch_size, 0.92);
+            h_theo = simu::quantile_insar(patch_size, 0.92);
     }
     const float h_para = h_theo * patch_area;
     const float T_para = 2.0 / h_para * M_PI / 4 * patch_area;

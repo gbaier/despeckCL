@@ -7,13 +7,13 @@
 
 #include "sim_measures.h"
 
-float quantile(std::vector<float> vector, float alpha)
+float nlinsar::simu::quantile(std::vector<float> vector, float alpha)
 {
     std::sort(vector.begin(), vector.end());
     return vector[alpha*vector.size()];
 }
 
-std::tuple<float, float, float> insar_gen(void)
+std::tuple<float, float, float> nlinsar::simu::insar_gen(void)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -41,7 +41,7 @@ std::tuple<float, float, float> insar_gen(void)
     return std::make_tuple(ampl_master, ampl_slave, dphase);
 }
 
-float quantile_insar(int patch_size, float alpha)
+float nlinsar::simu::quantile_insar(int patch_size, float alpha)
 {
     constexpr const int size = 2000;
     std::vector<float> similarities(size);
