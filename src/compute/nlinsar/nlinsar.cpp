@@ -13,19 +13,7 @@
 #include "logging.h"
 
 #include "clcfg.h"
-// opencl kernels
-#include "precompute_similarities_1st_pass.h"
-#include "precompute_similarities_2nd_pass.h"
-#include "precompute_patch_similarities.h"
-#include "compute_weights.h"
-#include "compute_number_of_looks.h"
-#include "transpose.h"
-#include "precompute_filter_values.h"
-#include "compute_insar.h"
-// cpu routine
-#include "smoothing.h"
-
-nlinsar::routines nl_routines;
+#include "cl_wrappers.h"
 
 int nlinsar::nlinsar(float* master_amplitude, float* slave_amplitude, float* dphase,
                      float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered,
@@ -95,16 +83,8 @@ int nlinsar::nlinsar(float* master_amplitude, float* slave_amplitude, float* dph
     std::chrono::time_point<std::chrono::system_clock> start, end;
     std::chrono::duration<double> elapsed_seconds = end-start;
     start = std::chrono::system_clock::now();
-    nlinsar::routines nl_routines_base;
     VLOG(0) << "Building kernels";
-    nl_routines_base.precompute_patch_similarities_routine    = new precompute_patch_similarities   (14, context, patch_size);
-    nl_routines_base.precompute_similarities_1st_pass_routine = new precompute_similarities_1st_pass(16, context);
-    nl_routines_base.precompute_similarities_2nd_pass_routine = new precompute_similarities_2nd_pass(16, context);
-    nl_routines_base.compute_weights_routine                  = new compute_weights                 (64, context);
-    nl_routines_base.compute_number_of_looks_routine          = new compute_number_of_looks         (16, context);
-    nl_routines_base.transpose_routine                        = new transpose                       (32, context, 8, 32);
-    nl_routines_base.precompute_filter_values_routine         = new precompute_filter_values        (16, context);
-    nl_routines_base.compute_insar_routine                    = new compute_insar                   (14, context, search_window_size);
+    nlinsar::cl_wrappers nl_routines_base(context, search_window_size, patch_size, 16);
     end = std::chrono::system_clock::now();
     elapsed_seconds = end-start;
     VLOG(0) << "Time it took to build all kernels: " << elapsed_seconds.count() << "secs";
@@ -118,22 +98,11 @@ int nlinsar::nlinsar(float* master_amplitude, float* slave_amplitude, float* dph
     double precompute_filter_values_timing = 0.0;
     double compute_insar_timing = 0.0;
     double smoothing_timing = 0.0;
-#pragma omp threadprivate(nl_routines)
-
 #pragma omp parallel shared(total_image, total_image_temp)
 {
 // every thread needs its own kernel, in order not to recompile the program again
 // a new kernel is created via the copy constructor
-    nl_routines.precompute_patch_similarities_routine    = new precompute_patch_similarities   (*(nl_routines_base.precompute_patch_similarities_routine));
-    nl_routines.precompute_similarities_1st_pass_routine = new precompute_similarities_1st_pass(*(nl_routines_base.precompute_similarities_1st_pass_routine));
-    nl_routines.precompute_similarities_2nd_pass_routine = new precompute_similarities_2nd_pass(*(nl_routines_base.precompute_similarities_2nd_pass_routine));
-    nl_routines.compute_weights_routine                  = new compute_weights                 (*(nl_routines_base.compute_weights_routine));
-    nl_routines.compute_number_of_looks_routine          = new compute_number_of_looks         (*(nl_routines_base.compute_number_of_looks_routine));
-    nl_routines.transpose_routine                        = new transpose                       (*(nl_routines_base.transpose_routine));
-    nl_routines.precompute_filter_values_routine         = new precompute_filter_values        (*(nl_routines_base.precompute_filter_values_routine));
-    nl_routines.compute_insar_routine                    = new compute_insar                   (*(nl_routines_base.compute_insar_routine));
-    nl_routines.smoothing_routine                        = new smoothing;
-
+    nlinsar::cl_wrappers nl_routines(nl_routines_base);
 #pragma omp master
     for(int n = 0; n<niter; n++) {
         LOG(INFO) << "Iteration " << n + 1 << " of " << niter;
@@ -156,15 +125,15 @@ int nlinsar::nlinsar(float* master_amplitude, float* slave_amplitude, float* dph
     }
 #pragma omp critical
     {
-        precompute_similarities_1st_pass_timing += nl_routines.precompute_similarities_1st_pass_routine->elapsed_seconds.count();
-        precompute_similarities_2nd_pass_timing += nl_routines.precompute_similarities_2nd_pass_routine->elapsed_seconds.count();
-        precompute_patch_similarities_timing    += nl_routines.precompute_patch_similarities_routine->elapsed_seconds.count();
-        compute_weights_timing                  += nl_routines.compute_weights_routine->elapsed_seconds.count();
-        compute_number_of_looks_timing          += nl_routines.compute_number_of_looks_routine->elapsed_seconds.count();
-        transpose_timing                        += nl_routines.transpose_routine->elapsed_seconds.count();
-        precompute_filter_values_timing         += nl_routines.precompute_filter_values_routine->elapsed_seconds.count();
-        compute_insar_timing                    += nl_routines.compute_insar_routine->elapsed_seconds.count();
-        smoothing_timing                        += nl_routines.smoothing_routine->elapsed_seconds.count();
+        precompute_similarities_1st_pass_timing += nl_routines.precompute_similarities_1st_pass_routine.elapsed_seconds.count();
+        precompute_similarities_2nd_pass_timing += nl_routines.precompute_similarities_2nd_pass_routine.elapsed_seconds.count();
+        precompute_patch_similarities_timing    += nl_routines.precompute_patch_similarities_routine.elapsed_seconds.count();
+        compute_weights_timing                  += nl_routines.compute_weights_routine.elapsed_seconds.count();
+        compute_number_of_looks_timing          += nl_routines.compute_number_of_looks_routine.elapsed_seconds.count();
+        transpose_timing                        += nl_routines.transpose_routine.elapsed_seconds.count();
+        precompute_filter_values_timing         += nl_routines.precompute_filter_values_routine.elapsed_seconds.count();
+        compute_insar_timing                    += nl_routines.compute_insar_routine.elapsed_seconds.count();
+        smoothing_timing                        += nl_routines.smoothing_routine.elapsed_seconds.count();
     }
 }
     total_image.unpad(overlap);
