@@ -13,6 +13,7 @@ nlsar::cl_wrappers::cl_wrappers(cl::Context context,
                                                         compute_nl_statistics_routine          (block_size, context, search_window_size, dimension),
                                                         compute_alphas_routine                 (block_size, context),
                                                         compute_enls_nobias_routine            (block_size, context),
+                                                        copy_best_weights_routine              (64, context),
                                                         covmat_decompose_routine               (block_size, context),
                                                         weighted_means_routine                 (block_size, context, search_window_size, dimension)
 {
@@ -28,6 +29,7 @@ nlsar::cl_wrappers::cl_wrappers(const cl_wrappers& other) : covmat_create_routin
                                                             compute_nl_statistics_routine          (other.compute_nl_statistics_routine),
                                                             compute_alphas_routine                 (other.compute_alphas_routine),
                                                             compute_enls_nobias_routine            (other.compute_enls_nobias_routine),
+                                                            copy_best_weights_routine              (other.copy_best_weights_routine),
                                                             covmat_decompose_routine               (other.covmat_decompose_routine),
                                                             weighted_means_routine                 (other.weighted_means_routine)
 {

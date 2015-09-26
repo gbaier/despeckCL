@@ -15,30 +15,18 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                      cl_wrappers nl_routines,
                                      insar_data& sub_insar_data,
                                      const int search_window_size,
+                                     const std::vector<int> patch_sizes,
+                                     const std::vector<int> scale_sizes,
                                      const int dimension,
                                      std::map<params, stats> &dissim_stats)
 {
-
     std::chrono::time_point<std::chrono::system_clock> start, end;
     std::chrono::duration<double> duration;
     timings::map tm;
+    std::map<params, int> params2idx;
     start = std::chrono::system_clock::now();
 
-    std::vector<params> parameters;
-    for(auto keyval : dissim_stats) {
-        parameters.push_back(keyval.first);
-    }
-
-    std::vector<int> patch_sizes;
-    for(auto param : parameters) {
-        patch_sizes.push_back(param.patch_size);
-    }
     const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
-
-    std::vector<int> scale_sizes;
-    for(auto param : parameters) {
-        scale_sizes.push_back(param.scale_size);
-    }
     const int scale_size_max = *std::max_element(scale_sizes.begin(), scale_sizes.end());
 
     const int psh = (patch_size_max - 1)/2;
@@ -46,7 +34,6 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     const int overlap = wsh+psh;
 
     const int nlooks = 1;
-    
 
     // overlapped dimension, large enough to include the complete padded data to compute the similarities;
     // also includes overlap for spatial averaging
@@ -86,11 +73,14 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     std::map<params, cl::Buffer> device_lut_dissims2relidx;
     std::map<params, cl::Buffer> device_lut_chi2cdf_inv;
 
-    std::map<params, std::vector<float>> weights;
     std::map<params, std::vector<float>> enls_nobias;
     std::map<params, std::vector<float>> alphas;
 
-    for(params parameter : parameters) {
+    cl::Buffer device_best_idxs   {context, CL_MEM_READ_WRITE,                                                               n_elem_ori * sizeof(float), NULL, NULL};
+    cl::Buffer device_all_weights {context, CL_MEM_READ_WRITE, dissim_stats.size() * search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
+
+    for(auto& paramsstats : dissim_stats) {
+        params parameter = paramsstats.first;
         const stats* para_stats = &dissim_stats.find(parameter)->second;
         const int lut_size = para_stats->lut_size;
         try {
@@ -103,8 +93,6 @@ timings::map nlsar::filter_sub_image(cl::Context context,
             LOG(ERROR) << error.what() << "(" << error.err() << ")";
             std::terminate();
         }
-
-        weights     [parameter] = std::vector<float> (search_window_size * search_window_size * n_elem_ori);
         enls_nobias [parameter] = std::vector<float> (n_elem_ori);
         alphas      [parameter] = std::vector<float> (n_elem_ori);
     }
@@ -156,6 +144,7 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                                                         height_overlap_avg,
                                                                         width_overlap_avg);
 
+    int idx = 0;
     for(int scale_size : scale_sizes) {
         cl::Buffer device_pixel_similarities {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_sim * sizeof(float), NULL, NULL};
         timings::map tm_pixel_similarities = routines::get_pixel_similarities(context,
@@ -173,8 +162,11 @@ timings::map nlsar::filter_sub_image(cl::Context context,
 
         for(int patch_size : patch_sizes) {
             params parameter{patch_size, scale_size};
+            params2idx[parameter] = idx;
+            idx++;
 
             cl::Buffer device_weights {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
+
             timings::map tm_weights = routines::get_weights(context,
                                                             device_pixel_similarities,
                                                             device_weights,
@@ -188,6 +180,10 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                                             device_lut_chi2cdf_inv[parameter],
                                                             nl_routines);
             tm = timings::join(tm, tm_weights);
+            cmd_queue.enqueueCopyBuffer(device_weights, device_all_weights,
+                                        0, (idx-1)*n_elem_ori*search_window_size*search_window_size*sizeof(float),
+                                        n_elem_ori*search_window_size*search_window_size*sizeof(float),
+                                        NULL, NULL);
 
             cl::Buffer device_alphas      {context, CL_MEM_READ_WRITE, n_elem_ori * sizeof(float), NULL, NULL};
             cl::Buffer device_enls_nobias {context, CL_MEM_READ_WRITE, n_elem_ori * sizeof(float), NULL, NULL};
@@ -208,7 +204,6 @@ timings::map nlsar::filter_sub_image(cl::Context context,
             tm = timings::join(tm, tm_enls_nobias_and_alphas);
 
             start = std::chrono::system_clock::now();
-            cmd_copy_queue.enqueueReadBuffer(device_weights,      CL_FALSE, 0, n_elem_ori*search_window_size*search_window_size*sizeof(float), weights[parameter].data(), NULL, NULL);
             cmd_copy_queue.enqueueReadBuffer(device_enls_nobias,  CL_FALSE, 0, n_elem_ori * sizeof(float), enls_nobias[parameter].data(), NULL, NULL);
             cmd_copy_queue.enqueueReadBuffer(device_alphas,       CL_FALSE, 0, n_elem_ori * sizeof(float),      alphas[parameter].data(), NULL, NULL);
             end = std::chrono::system_clock::now();
@@ -226,17 +221,29 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                                         height_ori,
                                                         width_ori);
 
+    std::vector<int> best_idxs (best_parameters.size());
+
+    std::transform(best_parameters.begin(), best_parameters.end(), best_idxs.begin(), [&params2idx] (params p) { return params2idx[p]; });
+
     LOG(DEBUG) << "copy best weights/alphas";
     start = std::chrono::system_clock::now();
-    std::vector<float> best_weights = best_weights_copy(weights, best_parameters, height_ori, width_ori, search_window_size);
     std::vector<float> best_alphas  = best_alpha_copy  (alphas,  best_parameters, height_ori, width_ori);
 
-    cmd_queue.enqueueWriteBuffer(device_best_weights, CL_TRUE, 0, search_window_size * search_window_size * n_elem_ori * sizeof(float), best_weights.data());
-    cmd_queue.enqueueWriteBuffer(device_best_alphas,  CL_TRUE, 0,                                           n_elem_ori * sizeof(float),  best_alphas.data());
+    cmd_queue.enqueueWriteBuffer(device_best_idxs,    CL_TRUE, 0, n_elem_ori * sizeof(int),   best_idxs.data());
+    cmd_queue.enqueueWriteBuffer(device_best_alphas,  CL_TRUE, 0, n_elem_ori * sizeof(float), best_alphas.data());
 
     end = std::chrono::system_clock::now();
     duration = end-start;
     tm["copy_best_weights/alphas"] = duration.count();
+
+    LOG(DEBUG) << "copy_best_weights";
+    tm["copy_best_weights"] = nl_routines.copy_best_weights_routine.timed_run(cmd_queue,
+                                                                              device_all_weights,
+                                                                              device_best_idxs,
+                                                                              device_best_weights,
+                                                                              height_ori,
+                                                                              width_ori,
+                                                                              search_window_size);
 
     LOG(DEBUG) << "weighted_means";
     tm["weighted_means"] = nl_routines.weighted_means_routine.timed_run(cmd_queue,
