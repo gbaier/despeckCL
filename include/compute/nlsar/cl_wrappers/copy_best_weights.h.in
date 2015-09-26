@@ -1,0 +1,30 @@
+#ifndef COPY_BEST_WEIGHTS_H
+#define COPY_BEST_WEIGHTS_H
+
+#include "clcfg.h"
+
+namespace nlsar
+    {
+    class copy_best_weights : public kernel_env<copy_best_weights>
+    {
+        public:
+            using kernel_env::kernel_env;
+
+            static constexpr const char* kernel_source =
+    "@CMAKE_KERNEL_SOURCE@"
+    ;
+
+            static constexpr const char* routine_name {"copy_best_weights"};
+
+            const int get_output_block_size(const int patch_size);
+
+            void run(cl::CommandQueue cmd_queue,
+                     cl::Buffer all_weights,
+                     cl::Buffer best_params,
+                     cl::Buffer best_weights,
+                     const int height_ori,
+                     const int width_ori,
+                     const int search_window_size);
+    };
+}
+#endif

@@ -28,6 +28,7 @@ add_library(nlsar_cl_wrappers OBJECT
             compute_nl_statistics.cpp
             compute_alphas.cpp
             compute_enls_nobias.cpp
+            copy_best_weights.cpp
             covmat_decompose.cpp
             weighted_means.cpp
                              )
@@ -55,6 +56,9 @@ target_link_libraries(compute_alphas_test despeckcl)
 
 add_executable(compute_enls_nobias_test compute_enls_nobias_test.cpp compute_enls_nobias.cpp)
 target_link_libraries(compute_enls_nobias_test despeckcl)
+
+add_executable(copy_best_weights_test copy_best_weights_test.cpp copy_best_weights.cpp)
+target_link_libraries(copy_best_weights_test despeckcl)
 
 add_executable(covmat_decompose_test covmat_decompose_test.cpp covmat_decompose.cpp)
 target_link_libraries(covmat_decompose_test despeckcl)
