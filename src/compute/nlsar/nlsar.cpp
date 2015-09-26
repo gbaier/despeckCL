@@ -97,14 +97,22 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
 #pragma omp task firstprivate(boundaries)
         {
         insar_data sub_image = total_image.get_sub_insar_data(boundaries);
-        timings::map tm_sub = filter_sub_image(context, nlsar_cl_wrappers, // opencl stuff
-                                              sub_image, // data
-                                              search_window_size,
-                                              dimension,
-                                              nlsar_stats);
-        total_image_temp.write_sub_insar_data(sub_image, overlap, boundaries);
+        try {
+            timings::map tm_sub = filter_sub_image(context, nlsar_cl_wrappers, // opencl stuff
+                                                  sub_image, // data
+                                                  search_window_size,
+                                                  patch_sizes,
+                                                  scale_sizes,
+                                                  dimension,
+                                                  nlsar_stats);
 #pragma critical
-        tm = timings::join(tm, tm_sub);
+            tm = timings::join(tm, tm_sub);
+        } catch (cl::Error error) {
+            LOG(ERROR) << error.what() << "(" << error.err() << ")";
+            LOG(ERROR) << "ERR while filtering sub image";
+            std::terminate();
+        }
+        total_image_temp.write_sub_insar_data(sub_image, overlap, boundaries);
         }
     }
 #pragma omp taskwait
