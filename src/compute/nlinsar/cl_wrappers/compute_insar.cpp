@@ -5,19 +5,16 @@
 
 nlinsar::compute_insar::compute_insar(const size_t block_size,
                                       cl::Context context,
-                                      const int search_window_size) : search_window_size(search_window_size)
+                                      const int search_window_size) : kernel_env<compute_insar>(block_size, context),
+                                                                      search_window_size(search_window_size)
 {
-    kernel_env::block_size = block_size;
-    kernel_env::context = context;
     build_program(return_build_options());
     build_kernel();
 }
 
-nlinsar::compute_insar::compute_insar(const compute_insar& other) : search_window_size(other.search_window_size)
+nlinsar::compute_insar::compute_insar(const compute_insar& other) : kernel_env<compute_insar>(other),
+                                                                    search_window_size(other.search_window_size)
 {
-    kernel_env::block_size = other.block_size;
-    kernel_env::context = other.context;
-    program = other.program;
     build_kernel();
 }
 

@@ -5,21 +5,18 @@
 nlinsar::transpose::transpose(const size_t block_size,
                      cl::Context context,
                      const size_t thread_size_row,
-                     const size_t thread_size_col) : thread_size_row(thread_size_row),
+                     const size_t thread_size_col) : kernel_env<transpose>(block_size, context),
+                                                     thread_size_row(thread_size_row),
                                                      thread_size_col(thread_size_col)
 {
-    kernel_env::block_size = block_size;
-    kernel_env::context = context;
     build_program(return_build_options());
     build_kernel();
 }
 
-nlinsar::transpose::transpose(const transpose& other) : thread_size_row(other.thread_size_row),
-                                               thread_size_col(other.thread_size_col)
+nlinsar::transpose::transpose(const transpose& other) : kernel_env<transpose>(other),
+                                                        thread_size_row(other.thread_size_row),
+                                                        thread_size_col(other.thread_size_col)
 {
-    kernel_env::block_size = other.block_size;
-    kernel_env::context = other.context;
-    program = other.program;
     build_kernel();
 }
 

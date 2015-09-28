@@ -8,20 +8,18 @@
 
 nlinsar::precompute_patch_similarities::precompute_patch_similarities(const size_t block_size,
                                                                       cl::Context context,
-                                                                      const int window_width) : window_width(window_width),
+                                                                      const int window_width) : kernel_env<precompute_patch_similarities>(block_size, context),
+                                                                                                window_width(window_width),
                                                                                                 output_block_size(block_size - window_width + 1)
 {
-    kernel_env::block_size = block_size;
-    kernel_env::context = context;
     build_program(return_build_options());
     build_kernel();
 }
 
-nlinsar::precompute_patch_similarities::precompute_patch_similarities(const precompute_patch_similarities& other) : window_width(other.window_width),
+nlinsar::precompute_patch_similarities::precompute_patch_similarities(const precompute_patch_similarities& other) : kernel_env<precompute_patch_similarities>(other),
+                                                                                                                    window_width(other.window_width),
                                                                                                                     output_block_size(other.output_block_size)
 {
-    kernel_env::block_size = other.block_size;
-    kernel_env::context = other.context;
     program = other.program;
     build_kernel();
 }
