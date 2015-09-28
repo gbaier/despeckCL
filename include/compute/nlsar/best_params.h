@@ -22,6 +22,6 @@ namespace nlsar {
         private:
             params get_best_pixel_params(std::vector<std::pair<params, float>> params_enl);
      };
-};
+}
 
 #endif
