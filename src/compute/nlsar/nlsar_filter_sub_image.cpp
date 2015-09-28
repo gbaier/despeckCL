@@ -44,7 +44,6 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     // overlapped dimension, large enough to include the complete padded data to compute the similarities;
     const int height_overlap = height_overlap_avg - scale_size_max + 1;
     const int width_overlap  = width_overlap_avg  - scale_size_max + 1;
-    const int n_elem_overlap = height_overlap * width_overlap;
 
     // dimension of the precomputed patch similarity values
     const int height_sim = height_overlap - search_window_size + 1;

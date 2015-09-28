@@ -85,7 +85,7 @@ TEST_CASE( "covmat_decompose", "[cl_kernels]" ) {
         
         // workaround, since Approx does not work with vectors
         bool flag = true;
-        for(int i = 0; i < ampl_filt.size(); i++) {
+        for(unsigned int i = 0; i < ampl_filt.size(); i++) {
             flag = flag && (ampl_master[i] == Approx(ampl_filt  [i]).epsilon( 0.0001 ));
             flag = flag && (dphase     [i] == Approx(dphase_filt[i]).epsilon( 0.0001 ));
         }

@@ -82,7 +82,7 @@ void nlinsar::search_window_smoothing(const float * amplitude_master,
                 const int   idx    = hh*search_window_size + ww;
                 const float weight = weights[idx];
                 // if statement is for priming the priority queue
-                if (ws.size() < lmin) {
+                if ( ((int) ws.size()) < lmin) {
                     ws.push( weight_el{weight, idx} );
                 // else if inserts the higher weights into the queue
                 } else if (ws.top().weight < weight) {

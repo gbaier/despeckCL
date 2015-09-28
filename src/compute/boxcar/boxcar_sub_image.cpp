@@ -7,8 +7,6 @@ int boxcar_sub_image(cl::Context context,
                      insar_data& sub_insar_data,
                      const int window_width)
 {
-    const int overlap = (window_width - 1)/2;
-
     // overlapped dimension, large enough to include the complete padded data to compute the similarities
     const int height_overlap = sub_insar_data.height;
     const int width_overlap  = sub_insar_data.width;

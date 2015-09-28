@@ -19,8 +19,6 @@ void nlinsar::precompute_similarities_1st_pass::run(cl::CommandQueue cmd_queue,
 
     const int border_max = (search_window_size - 1) / 2;
 
-    cl_int status;
-
     cl::NDRange global_size {(size_t) block_size*((height_sim-1)/block_size+1), (size_t) block_size*((width_sim-1)/block_size+1)};
     cl::NDRange local_size  {block_size, block_size};
 

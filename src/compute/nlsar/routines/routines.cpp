@@ -12,10 +12,6 @@ timings::map nlsar::routines::get_pixel_similarities (cl::Context context,
                                                       cl_wrappers& nl_routines)
 {
     timings::map tm;
-    // dimension of the precomputed patch similarity values
-    const int height_sim = height_overlap - search_window_size + 1;
-    const int width_sim  = width_overlap  - search_window_size + 1;
-    const int n_elem_sim = height_sim * width_sim;
 
     std::vector<cl::Device> devices;
     context.getInfo(CL_CONTEXT_DEVICES, &devices);

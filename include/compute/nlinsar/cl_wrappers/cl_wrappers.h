@@ -21,9 +21,9 @@ namespace nlinsar {
         compute_weights                  compute_weights_routine;
         compute_number_of_looks          compute_number_of_looks_routine;
         transpose                        transpose_routine;
+        smoothing                        smoothing_routine;
         precompute_filter_values         precompute_filter_values_routine;
         compute_insar                    compute_insar_routine;
-        smoothing                        smoothing_routine;
 
         cl_wrappers(cl::Context context,
                     const int search_window_size,
