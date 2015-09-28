@@ -8,21 +8,18 @@
 
 boxcar_wrapper::boxcar_wrapper(const size_t block_size,
                                cl::Context context,
-                               const int window_width) : window_width(window_width),
+                               const int window_width) : kernel_env<boxcar_wrapper>(block_size, context),
+                                                         window_width(window_width),
                                                          output_block_size(block_size - window_width + 1)
 {
-    kernel_env::block_size = block_size;
-    kernel_env::context    = context;
     build_program(return_build_options());
     build_kernel();
 }
 
-boxcar_wrapper::boxcar_wrapper(const boxcar_wrapper& other) : window_width(other.window_width),
+boxcar_wrapper::boxcar_wrapper(const boxcar_wrapper& other) : kernel_env<boxcar_wrapper>(other),
+                                                              window_width(other.window_width),
                                                               output_block_size(other.output_block_size)
 {
-    kernel_env::block_size = other.block_size;
-    kernel_env::context    = other.context;
-    program                = other.program;
     build_kernel();
 }
 
