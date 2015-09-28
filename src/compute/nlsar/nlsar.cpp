@@ -105,7 +105,7 @@ int nlsar::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
                                                   scale_sizes,
                                                   dimension,
                                                   nlsar_stats);
-#pragma critical
+#pragma omp critical
             tm = timings::join(tm, tm_sub);
         } catch (cl::Error error) {
             LOG(ERROR) << error.what() << "(" << error.err() << ")";
