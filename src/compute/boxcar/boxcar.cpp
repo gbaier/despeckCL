@@ -75,8 +75,7 @@ void boxcar(float* master_amplitude,
         {
         insar_data sub_image = total_image.get_sub_insar_data(boundaries);
         boxcar_sub_image(context, boxcar_routine, // opencl stuff
-                         sub_image, // data
-                         window_width); // filter parameters
+                         sub_image); // data
         total_image.write_sub_insar_data(sub_image, overlap, boundaries);
         }
     }

@@ -9,7 +9,6 @@
 
 int boxcar_sub_image(cl::Context context,
                      boxcar_wrapper boxcar_routine,
-                     insar_data& sub_insar_data,
-                     const int window_width);
+                     insar_data& sub_insar_data);
 
 #endif
