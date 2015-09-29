@@ -9,29 +9,21 @@
 nlsar::weighted_means::weighted_means(const size_t block_size,
                                       cl::Context context,
                                       const int search_window_size,
-                                      const int dimension) : search_window_size(search_window_size),
-                                                             dimension(dimension)
-{
-    kernel_env::block_size = block_size;
-    kernel_env::context = context;
-    build_program(return_build_options());
-    build_kernel();
-}
+                                      const int dimension) : kernel_env<weighted_means>(block_size,
+                                                                                        context,
+                                                                                        this->return_build_options(search_window_size, block_size, dimension)),
+                                                             search_window_size(search_window_size),
+                                                             dimension(dimension) {}
 
-nlsar::weighted_means::weighted_means(const weighted_means& other) : search_window_size(other.search_window_size),
-                                                                     dimension(other.dimension)
-{
-    kernel_env::block_size = other.block_size;
-    kernel_env::context = other.context;
-    program = other.program;
-    build_kernel();
-}
+nlsar::weighted_means::weighted_means(const weighted_means& other) : kernel_env<weighted_means>(other),
+                                                                     search_window_size(other.search_window_size),
+                                                                     dimension(other.dimension) {}
 
-std::string nlsar::weighted_means::return_build_options(void)
+std::string nlsar::weighted_means::return_build_options(const int search_window_size, const int block_size, const int dimension)
 {
     std::ostringstream out;
     out << " -D SEARCH_WINDOW_SIZE=" << search_window_size << " -D BLOCK_SIZE=" << block_size << " -D DIMENSION=" << dimension;
-    return kernel_env::return_build_options() + out.str();
+    return return_default_build_opts() + out.str();
 }
 
 void nlsar::weighted_means::run(cl::CommandQueue cmd_queue,

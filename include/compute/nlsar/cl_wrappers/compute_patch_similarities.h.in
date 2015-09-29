@@ -15,7 +15,7 @@ namespace nlsar {
 
             static constexpr const char* routine_name {"compute_patch_similarities"};
 
-            const int get_output_block_size(const int patch_size);
+            int get_output_block_size(const int patch_size);
 
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer pixel_similarities,

@@ -3,6 +3,8 @@
 
 #include "clcfg.h"
 
+#include <string>
+
 namespace nlsar
     {
     class compute_weights : public kernel_env<compute_weights>
@@ -15,8 +17,6 @@ namespace nlsar
     ;
 
             static constexpr const char* routine_name {"compute_weights"};
-
-            const int get_output_block_size(const int patch_size);
 
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer patch_similarities,

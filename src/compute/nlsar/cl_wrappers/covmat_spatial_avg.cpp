@@ -1,6 +1,6 @@
 #include "covmat_spatial_avg.h"
 
-const int nlsar::covmat_spatial_avg::get_output_block_size(const int scale_size)
+int nlsar::covmat_spatial_avg::get_output_block_size(const int scale_size)
 {
     return block_size - scale_size + 1;
 }

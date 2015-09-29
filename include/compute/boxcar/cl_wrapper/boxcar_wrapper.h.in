@@ -23,7 +23,7 @@ class boxcar_wrapper : public kernel_env<boxcar_wrapper>
 
         boxcar_wrapper(const boxcar_wrapper& precompiled);
 
-        std::string return_build_options(void);
+        std::string return_build_options(const int window_width, const int block_size, const int output_block_size);
 
         void run(cl::CommandQueue cmd_queue,
                  cl::Buffer ampl_master,

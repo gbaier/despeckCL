@@ -24,9 +24,11 @@ class kernel_env : public routine_env<Derived>
         cl::Kernel kernel;
         kernel_env() {}
 
-        kernel_env(size_t block_size, cl::Context context) : block_size(block_size), context(context)
+        kernel_env(size_t block_size,
+                   cl::Context context,
+                   std::string build_opts = "-Werror -cl-std=CL1.2") : block_size(block_size), context(context)
         {
-            build_program(return_build_options());
+            build_program(build_opts);
             build_kernel();
         }
 
@@ -36,13 +38,13 @@ class kernel_env : public routine_env<Derived>
             build_kernel();
         }
 
-        std::string return_build_options(void)
+        std::string return_default_build_opts(void)
         {
             return std::string{"-Werror -cl-std=CL1.2"};
         }
 
    protected:
-        void build_program(std::string build_options)
+        void build_program(std::string build_opts)
         {
             std::vector<cl::Device> devices;
             context.getInfo(CL_CONTEXT_DEVICES, &devices);
@@ -52,7 +54,7 @@ class kernel_env : public routine_env<Derived>
             VLOG(0) << "Building program for: " << routine_name.c_str();
             cl::Program program{context, static_cast<Derived*>(this)->kernel_source};
             try {
-                program.build(devices, build_options.c_str());
+                program.build(devices, build_opts.c_str());
             } catch (cl::Error error) {
                 LOG(ERROR) << error.what() << "(" << error.err() << ")";
                 std::string build_log;

@@ -8,27 +8,23 @@
 
 nlinsar::precompute_patch_similarities::precompute_patch_similarities(const size_t block_size,
                                                                       cl::Context context,
-                                                                      const int window_width) : kernel_env<precompute_patch_similarities>(block_size, context),
+                                                                      const int window_width) : kernel_env<precompute_patch_similarities>(block_size,
+                                                                                                                                          context,
+                                                                                                               return_build_options(window_width,
+                                                                                                                                    block_size,
+                                                                                                                                    block_size - window_width + 1)),
                                                                                                 window_width(window_width),
-                                                                                                output_block_size(block_size - window_width + 1)
-{
-    build_program(return_build_options());
-    build_kernel();
-}
+                                                                                                output_block_size(block_size - window_width + 1) {}
 
 nlinsar::precompute_patch_similarities::precompute_patch_similarities(const precompute_patch_similarities& other) : kernel_env<precompute_patch_similarities>(other),
                                                                                                                     window_width(other.window_width),
-                                                                                                                    output_block_size(other.output_block_size)
-{
-    program = other.program;
-    build_kernel();
-}
+                                                                                                                    output_block_size(other.output_block_size) {}
 
-std::string nlinsar::precompute_patch_similarities::return_build_options(void)
+std::string nlinsar::precompute_patch_similarities::return_build_options(const int window_width, const int block_size, const int output_block_size)
 {
     std::ostringstream out;
     out << " -D WINDOW_WIDTH=" << window_width << " -D BLOCK_SIZE=" << block_size << " -D OUTPUT_BLOCK_SIZE=" << output_block_size;
-    return kernel_env::return_build_options() + out.str();
+    return return_default_build_opts() + out.str();
 }
 
 void nlinsar::precompute_patch_similarities::run(cl::CommandQueue cmd_queue,
