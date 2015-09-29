@@ -73,11 +73,3 @@ cl::Context opencl_setup(void)
                          
     return context;
 }
-
-std::string read_cl_file(std::string kernel_path)
-{
-   std::ifstream t(kernel_path.c_str());
-   std::stringstream buffer;
-   buffer << t.rdbuf();
-   return buffer.str();
-}

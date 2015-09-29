@@ -102,10 +102,4 @@ class kernel_env : public routine_env<Derived>
         }
 };
 
-
-cl_kernel build_kernel_from_source( cl_context context,
-                                    cl_device_id *devices,
-                                    cl_uint num_devices,
-                                    std::string cl_file,
-                                    std::string kernel_name);
 #endif

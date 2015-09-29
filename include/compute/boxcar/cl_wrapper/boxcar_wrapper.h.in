@@ -11,7 +11,7 @@ class boxcar_wrapper : public kernel_env<boxcar_wrapper>
         const int window_width;
         const int output_block_size;
 
-        const char* kernel_source =
+        static constexpr const char* kernel_source =
 "@CMAKE_KERNEL_SOURCE@"
 ;
 
