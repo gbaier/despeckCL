@@ -16,6 +16,7 @@ set_source_files_properties(despeckcl_octave.i PROPERTIES SWIG_FLAGS -DSKIP_INCL
 swig_add_module(despeckcl_octave octave despeckcl_octave.i)
 swig_link_libraries(despeckcl_octave despeckcl)
 
+set_source_files_properties(${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "-w")
 set_target_properties(despeckcl_octave PROPERTIES OUTPUT_NAME despeckcl)
 
 INSTALL(TARGETS despeckcl_octave DESTINATION bindings)

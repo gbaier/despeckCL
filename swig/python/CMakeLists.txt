@@ -30,6 +30,8 @@ swig_add_module(despeckcl_python python despeckcl_python.i)
 swig_link_libraries(despeckcl_python ${PYTHON_LIBRARIES}
                                      despeckcl)
 
+set_source_files_properties(${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "-w")
+
 set_target_properties(_despeckcl_python PROPERTIES OUTPUT_NAME _despeckcl)
 
 INSTALL(TARGETS _despeckcl_python DESTINATION bindings)
