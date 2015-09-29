@@ -1,4 +1,5 @@
 #include "sub_images.h"
+#include <iostream>
 
 #include <stdlib.h>
 
@@ -9,7 +10,7 @@ void valid_bbox(bbox boundaries,
     if ( boundaries.h_up > height ||
          boundaries.w_up > width  ||
          boundaries.h_low < 0     ||
-         boundaries.w_low > 0 ) {
+         boundaries.w_low < 0 ) {
         throw std::logic_error("bounding box dimensions too big for image");
     }
 }
