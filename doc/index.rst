@@ -23,6 +23,7 @@ API documentation
 .. toctree::
    :maxdepth: 2
 
+   cpp_api.rst
    python_api.rst
 
 Indices and tables
