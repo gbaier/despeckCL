@@ -17,6 +17,4 @@ void compute_number_of_looks::run(cl::CommandQueue cmd_queue,
     cl::NDRange local_size  {block_size, block_size};
 
     cmd_queue.enqueueNDRangeKernel(kernel, cl::NullRange, global_size, local_size, NULL, NULL);
-
-    cmd_queue.finish();
 }
