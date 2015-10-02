@@ -3,6 +3,14 @@
     #include "despeckcl.h"
 %}
 
+%include "std_vector.i"
+%include "std_string.i"
+
+namespace std {
+   %template(IntVector) vector<int>;
+   %template(StringVector) vector<string>;
+}
+
 %typemap(in) (float* in_array, int dim_h, int dim_w) (Matrix mat) {
   mat = $input.matrix_value();
   $2 = $input.dims()(0);
@@ -126,6 +134,46 @@ namespace nlinsar {
                            lmin,
                            enabled_log_levels);
     }
+}
+%}
+
+%inline %{
+void nlsar(float* master_amplitude,   int h1, int w1,
+           float* slave_amplitude,    int h2, int w2,
+           float* dphase,             int h3, int w3,
+           float** amplitude_filtered, int* h4, int* w4,
+           float** dphase_filtered,    int* h5, int* w5,
+           float** coherence_filtered, int* h6, int* w6,
+           const int search_window_size,
+           const std::vector<int> patch_sizes,
+           const std::vector<int> scale_sizes)
+{
+    std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
+
+    const int height = h1;
+    const int width = w1;
+
+    *h4 = height;
+    *h5 = height;
+    *h6 = height;
+    
+    *w4 = width;
+    *w5 = width;
+    *w6 = width;
+
+    *amplitude_filtered = (float*) malloc(height * width * sizeof(float));
+    *dphase_filtered    = (float*) malloc(height * width * sizeof(float));
+    *coherence_filtered = (float*) malloc(height * width * sizeof(float));
+
+
+
+    despeckcl::nlsar(master_amplitude, slave_amplitude, dphase,
+                     *amplitude_filtered, *dphase_filtered, *coherence_filtered,
+                     h1, w1,
+                     search_window_size,
+                     patch_sizes,
+                     scale_sizes,
+                     enabled_log_levels);
 }
 %}
 
