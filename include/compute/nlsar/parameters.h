@@ -3,8 +3,8 @@
 
 namespace nlsar {
     struct params {
-        const int patch_size;
-        const int scale_size;
+        int patch_size;
+        int scale_size;
 
         bool operator== (const params& other) const {
             return (patch_size == other.patch_size) && \
@@ -15,6 +15,12 @@ namespace nlsar {
         bool operator< (const params& other) const {
             return  (patch_size < other.patch_size) || \
                    ((patch_size == other.patch_size) && (scale_size < other.scale_size));
+        };
+
+        params& operator= (const params& other) {
+            patch_size = other.patch_size;
+            scale_size = other.scale_size;
+            return *this;
         };
     };
 }

@@ -214,6 +214,7 @@ timings::map nlsar::filter_sub_image(cl::Context context,
 
     LOG(DEBUG) << "get best params";
     std::vector<params> best_parameters;
+    best_parameters.reserve(height_ori*width_ori);
     tm["get_best_params"] = get_best_params{}.timed_run(enls_nobias,
                                                         &best_parameters,
                                                         height_ori,

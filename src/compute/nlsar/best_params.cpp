@@ -11,17 +11,15 @@ void nlsar::get_best_params::run(std::map<params, std::vector<float>> &enl,
 {
     for(int h = 0; h < height; h++) {
         for(int w = 0; w < width; w++) {
-            std::vector<std::pair<params, float>> params_enls;
+            std::pair<params, float> best_param {{0,0}, -1.0f};
             // get best parameter for a single pixel
-            for(auto const& param : enl) {
-                params_enls.push_back({param.first, param.second[h*width + w]});
+            for(auto const& param_and_enl : enl) {
+                if(param_and_enl.second[h*width+w] > best_param.second) {
+                    best_param.first  = param_and_enl.first;
+                    best_param.second = param_and_enl.second[h*width+w];
+                }
             }
-            best_parameters->push_back(get_best_pixel_params(params_enls));
+            best_parameters->push_back(best_param.first);
         }
     }
-}
-
-params nlsar::get_best_params::get_best_pixel_params(std::vector<std::pair<params, float>> params_enls) {
-        auto best = *std::max_element(params_enls.begin(), params_enls.end(), [] (auto e1, auto e2) { return e1.second < e2.second; });
-        return best.first;
 }
