@@ -1,11 +1,5 @@
-#find_package(Octave REQUIRED)
-
 include_directories(${despeckCL_SOURCE_DIR}/include)
-include_directories(${despeckCL_SOURCE_DIR}/include/compute/boxcar)
-include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlinsar)
-include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlinsar/cl_wrapper)
-include_directories(${despeckCL_SOURCE_DIR}/include/compute/common/cl_wrappers)
-include_directories(${despeckCL_SOURCE_DIR}/include/clcfg)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 string(REGEX REPLACE "/octave$" "" OCTAVE_INCLUDE_DIR_PURE ${OCTAVE_INCLUDE_DIRS})
 include_directories(${OCTAVE_INCLUDE_DIR_PURE})

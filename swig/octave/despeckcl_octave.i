@@ -1,7 +1,6 @@
 %module despeckcl
 %{
-    #include "boxcar.h"
-    #include "nlinsar.h"
+    #include "despeckcl.h"
 %}
 
 %typemap(in) (float* in_array, int dim_h, int dim_w) (Matrix mat) {
@@ -79,13 +78,12 @@ void boxcar(float* master_amplitude,   int h1, int w1,
     *dphase_filtered    = (float*) malloc(height * width * sizeof(float));
     *coherence_filtered = (float*) malloc(height * width * sizeof(float));
 
-    boxcar(master_amplitude, slave_amplitude, dphase,
-           *amplitude_filtered, *dphase_filtered, *coherence_filtered,
-           height,
-           width,
-           window_width,
-           enabled_log_levels);
-    return;
+    despeckcl::boxcar(master_amplitude, slave_amplitude, dphase,
+                      *amplitude_filtered, *dphase_filtered, *coherence_filtered,
+                      height,
+                      width,
+                      window_width,
+                      enabled_log_levels);
 }
 %}
 
@@ -119,18 +117,16 @@ namespace nlinsar {
         *dphase_filtered    = (float*) malloc(height * width * sizeof(float));
         *coherence_filtered = (float*) malloc(height * width * sizeof(float));
 
-        nlinsar::nlinsar(master_amplitude, slave_amplitude, dphase,
-                         *amplitude_filtered, *dphase_filtered, *coherence_filtered,
-                         h1, w1,
-                         search_window_size,
-                         patch_size,
-                         niter,
-                         lmin,
-                         enabled_log_levels);
+        despeckcl::nlinsar(master_amplitude, slave_amplitude, dphase,
+                           *amplitude_filtered, *dphase_filtered, *coherence_filtered,
+                           h1, w1,
+                           search_window_size,
+                           patch_size,
+                           niter,
+                           lmin,
+                           enabled_log_levels);
     }
 }
 %}
 
 %ignore nlinsar_routines;
-
-#include "../include/boxcar.h"

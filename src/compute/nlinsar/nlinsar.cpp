@@ -1,11 +1,14 @@
+#include "despeckcl.h"
+
 #include <CL/cl.h>
 #include <chrono>
 #include <iostream>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <string.h> // for memcpy
+#include <vector>
+#include <string>
 
-#include "nlinsar.h"
 #include "insar_data.h"
 #include "nlinsar_sub_image.h"
 #include "sub_images.h"
@@ -15,14 +18,14 @@
 #include "clcfg.h"
 #include "cl_wrappers.h"
 
-int nlinsar::nlinsar(float* master_amplitude, float* slave_amplitude, float* dphase,
-                     float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered,
-                     const int height, const int width,
-                     const int search_window_size,
-                     const int patch_size,
-                     const int niter,
-                     const int lmin,
-                     std::vector<std::string> enabled_log_levels)
+int despeckcl::nlinsar(float* master_amplitude, float* slave_amplitude, float* dphase,
+                       float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered,
+                       const int height, const int width,
+                       const int search_window_size,
+                       const int patch_size,
+                       const int niter,
+                       const int lmin,
+                       std::vector<std::string> enabled_log_levels)
 {
     logging_setup(enabled_log_levels);
 
@@ -42,7 +45,7 @@ int nlinsar::nlinsar(float* master_amplitude, float* slave_amplitude, float* dph
             h_theo = 0.244; // alpha = 0.92
             break;
         default:
-            h_theo = simu::quantile_insar(patch_size, 0.92);
+            h_theo = nlinsar::simu::quantile_insar(patch_size, 0.92);
     }
     const float h_para = h_theo * patch_area;
     const float T_para = 2.0 / h_para * M_PI / 4 * patch_area;

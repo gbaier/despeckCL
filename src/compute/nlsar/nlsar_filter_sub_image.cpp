@@ -1,6 +1,5 @@
 #include "nlsar_filter_sub_image.h"
 
-#include "nlsar.h"
 #include "parameters.h"
 #include "best_params.h"
 #include "best_weights_copy.h"

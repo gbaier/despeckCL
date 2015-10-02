@@ -2,15 +2,14 @@
 
 %{
     #define SWIG_FILE_WITH_INIT
-    #include "boxcar.h"
-    #include "nlinsar.h"
-    #include "nlsar.h"
+    #include "despeckcl.h"
 %}
 
 %include "numpy.i"
 %include "typemaps.i"
 %include "std_string.i"
 %include "std_vector.i"
+%include "despeckcl.h"
 
 namespace std {
    %template(IntVector) vector<int>;
@@ -33,9 +32,6 @@ namespace std {
 
 
 /* Boxcar declarations and definitions */
-%include "boxcar.h"
-
-
 %inline %{
 void _boxcar_c_wrap(float* master_amplitude,  int h1, int w1,
                    float* slave_amplitude,    int h2, int w2,
@@ -47,16 +43,15 @@ void _boxcar_c_wrap(float* master_amplitude,  int h1, int w1,
 {
     std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
 
-    boxcar(master_amplitude, slave_amplitude, dphase,
-            amplitude_filtered, dphase_filtered, coherence_filtered,
-            h1,
-            w1,
-            window_width,
-            enabled_log_levels);
+    despeckcl::boxcar(master_amplitude, slave_amplitude, dphase,
+                      amplitude_filtered, dphase_filtered, coherence_filtered,
+                      h1,
+                      w1,
+                      window_width,
+                      enabled_log_levels);
     return;
 }
 %}
-
 
 %pythoncode{
 import numpy as np
@@ -75,8 +70,6 @@ def boxcar(master_amplitude,
 }
 
 /* NLInSAR declaration and wrap */
-
-%include "nlinsar.h"
 %inline %{
 void _nlinsar_c_wrap(float* master_amplitude,   int h1, int w1,
                      float* slave_amplitude,    int h2, int w2,
@@ -91,15 +84,15 @@ void _nlinsar_c_wrap(float* master_amplitude,   int h1, int w1,
 {
     std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
 
-    nlinsar::nlinsar(master_amplitude, slave_amplitude, dphase,
-                     amplitude_filtered, dphase_filtered, coherence_filtered,
-                     h1,
-                     w1,
-                     search_window_size,
-                     patch_size,
-                     niter,
-                     lmin,
-                     enabled_log_levels);
+    despeckcl::nlinsar(master_amplitude, slave_amplitude, dphase,
+                       amplitude_filtered, dphase_filtered, coherence_filtered,
+                       h1,
+                       w1,
+                       search_window_size,
+                       patch_size,
+                       niter,
+                       lmin,
+                       enabled_log_levels);
 }
 %}
 
@@ -123,8 +116,6 @@ def nlinsar(master_amplitude,
 }
 
 /* NLSAR declaration and wrap */
-
-%include "nlsar.h"
 %inline %{
 void _nlsar_c_wrap(float* master_amplitude,   int h1, int w1,
                    float* slave_amplitude,    int h2, int w2,
@@ -137,15 +128,14 @@ void _nlsar_c_wrap(float* master_amplitude,   int h1, int w1,
                    const std::vector<int> scale_sizes,
                    const std::vector<std::string> enabled_log_levels)
 {
-    nlsar::nlsar(master_amplitude, slave_amplitude, dphase,
-                 amplitude_filtered, dphase_filtered, coherence_filtered,
-                 h1,
-                 w1,
-                 search_window_size,
-                 patch_sizes,
-                 scale_sizes,
-                 enabled_log_levels);
-    return;
+    despeckcl::nlsar(master_amplitude, slave_amplitude, dphase,
+                     amplitude_filtered, dphase_filtered, coherence_filtered,
+                     h1,
+                     w1,
+                     search_window_size,
+                     patch_sizes,
+                     scale_sizes,
+                     enabled_log_levels);
 }
 %}
 
