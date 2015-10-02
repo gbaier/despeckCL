@@ -96,6 +96,14 @@ int nlinsar::nlinsar_sub_image(cl::Context context,
                                                   search_window_size * search_window_size * height_ori * width_ori,
                                                   h_para, T_para);
 
+    // set weight for self similarity
+    const cl_int self_weight = 0;
+    cmd_queue.enqueueFillBuffer(device_weights,
+                                self_weight,
+                                height_ori * width_ori * (search_window_size * wsh + wsh) * sizeof(float), //offset
+                                height_ori * width_ori * sizeof(float),
+                                NULL, NULL);
+
     nl_routines.compute_number_of_looks_routine.timed_run(cmd_queue,
                                                           device_weights,
                                                           device_number_of_looks,
