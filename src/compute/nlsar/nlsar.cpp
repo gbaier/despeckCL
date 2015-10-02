@@ -53,8 +53,12 @@ int despeckcl::nlsar(float* master_amplitude, float* slave_amplitude, float* dph
 
     LOG(INFO) << "filter parameters";
     LOG(INFO) << "search window size: " << search_window_size;
-    LOG(INFO) << "patch_size_max: " << patch_size_max;
-    LOG(INFO) << "scale_size_max: " << scale_size_max;
+    auto intvec2string = [] (std::vector<int> ints) { return std::accumulate(ints.begin(), ints.end(), (std::string)"",
+                                                                             [] (std::string acc, int i) {return acc + std::to_string(i) + ", ";});
+                                                    };
+
+    LOG(INFO) << "patch_sizes: " << intvec2string(patch_sizes);
+    LOG(INFO) << "scale_sizes: " << intvec2string(scale_sizes);
     LOG(INFO) << "overlap: " << overlap;
 
     LOG(INFO) << "data dimensions";
