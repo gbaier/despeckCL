@@ -46,27 +46,23 @@ namespace std {
    free(*$1);
 }
 
-%apply (float* in_array, int dim_h, int dim_w) {(float* master_amplitude, int h1, int w1)}
-%apply (float* in_array, int dim_h, int dim_w) {(float* slave_amplitude,  int h2, int w2)}
-%apply (float* in_array, int dim_h, int dim_w) {(float* dphase,           int h3, int w3)}
+%apply (float* in_array, int dim_h, int dim_w) {(float* ampl_master, int h1, int w1)}
+%apply (float* in_array, int dim_h, int dim_w) {(float* ampl_slave,  int h2, int w2)}
+%apply (float* in_array, int dim_h, int dim_w) {(float* dphase,      int h3, int w3)}
 
-%apply (float** out_array, int* dim_h, int* dim_w) {(float** amplitude_filtered, int* h4, int* w4)}
-%apply (float** out_array, int* dim_h, int* dim_w) {(float** dphase_filtered,    int* h5, int* w5)}
-%apply (float** out_array, int* dim_h, int* dim_w) {(float** coherence_filtered, int* h6, int* w6)}
+%apply (float** out_array, int* dim_h, int* dim_w) {(float** ampl_filt,   int* h4, int* w4)}
+%apply (float** out_array, int* dim_h, int* dim_w) {(float** dphase_filt, int* h5, int* w5)}
+%apply (float** out_array, int* dim_h, int* dim_w) {(float** coh_filt,    int* h6, int* w6)}
 
 %ignore boxcar_routines;
 
-/*
-%rename (boxcar) my_boxcar;
-*/
-
 %inline %{
-void boxcar(float* master_amplitude,   int h1, int w1,
-            float* slave_amplitude,    int h2, int w2,
-            float* dphase,             int h3, int w3,
-            float** amplitude_filtered, int* h4, int* w4,
-            float** dphase_filtered,    int* h5, int* w5,
-            float** coherence_filtered, int* h6, int* w6,
+void boxcar(float* ampl_master,  int h1, int w1,
+            float* ampl_slave,   int h2, int w2,
+            float* dphase,       int h3, int w3,
+            float** ampl_filt,   int* h4, int* w4,
+            float** dphase_filt, int* h5, int* w5,
+            float** coh_filt,    int* h6, int* w6,
             const int window_width)
 {
     std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
@@ -82,12 +78,16 @@ void boxcar(float* master_amplitude,   int h1, int w1,
     *w5 = width;
     *w6 = width;
 
-    *amplitude_filtered = (float*) malloc(height * width * sizeof(float));
-    *dphase_filtered    = (float*) malloc(height * width * sizeof(float));
-    *coherence_filtered = (float*) malloc(height * width * sizeof(float));
+    *ampl_filt   = (float*) malloc(height * width * sizeof(float));
+    *dphase_filt = (float*) malloc(height * width * sizeof(float));
+    *coh_filt    = (float*) malloc(height * width * sizeof(float));
 
-    despeckcl::boxcar(master_amplitude, slave_amplitude, dphase,
-                      *amplitude_filtered, *dphase_filtered, *coherence_filtered,
+    despeckcl::boxcar(ampl_master,
+                      ampl_slave,
+                      dphase,
+                      *ampl_filt,
+                      *dphase_filt,
+                      *coh_filt,
                       height,
                       width,
                       window_width,
@@ -96,54 +96,59 @@ void boxcar(float* master_amplitude,   int h1, int w1,
 %}
 
 %inline %{
-namespace nlinsar {
-    void nlinsar(float* master_amplitude,   int h1, int w1,
-                 float* slave_amplitude,    int h2, int w2,
-                 float* dphase,             int h3, int w3,
-                 float** amplitude_filtered, int* h4, int* w4,
-                 float** dphase_filtered,    int* h5, int* w5,
-                 float** coherence_filtered, int* h6, int* w6,
-                 const int search_window_size,
-                 const int patch_size,
-                 const int niter,
-                 const int lmin)
-    {
-        std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
+void nlinsar(float* ampl_master,  int h1, int w1,
+             float* ampl_slave,   int h2, int w2,
+             float* dphase,       int h3, int w3,
+             float** ampl_filt,   int* h4, int* w4,
+             float** dphase_filt, int* h5, int* w5,
+             float** coh_filt,    int* h6, int* w6,
+             const int search_window_size,
+             const int patch_size,
+             const int niter,
+             const int lmin)
+{
+    std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
 
-        const int height = h1;
-        const int width = w1;
+    const int height = h1;
+    const int width = w1;
 
-        *h4 = height;
-        *h5 = height;
-        *h6 = height;
-        
-        *w4 = width;
-        *w5 = width;
-        *w6 = width;
+    *h4 = height;
+    *h5 = height;
+    *h6 = height;
+    
+    *w4 = width;
+    *w5 = width;
+    *w6 = width;
 
-        *amplitude_filtered = (float*) malloc(height * width * sizeof(float));
-        *dphase_filtered    = (float*) malloc(height * width * sizeof(float));
-        *coherence_filtered = (float*) malloc(height * width * sizeof(float));
+    *ampl_filt   = (float*) malloc(height * width * sizeof(float));
+    *dphase_filt = (float*) malloc(height * width * sizeof(float));
+    *coh_filt    = (float*) malloc(height * width * sizeof(float));
 
-        despeckcl::nlinsar(master_amplitude, slave_amplitude, dphase,
-                           *amplitude_filtered, *dphase_filtered, *coherence_filtered,
-                           h1, w1,
-                           search_window_size,
-                           patch_size,
-                           niter,
-                           lmin,
-                           enabled_log_levels);
-    }
+    despeckcl::nlinsar(ampl_master,
+                       ampl_slave,
+                       dphase,
+                       *ampl_filt,
+                       *dphase_filt,
+                       *coh_filt,
+                       h1,
+                       w1,
+                       search_window_size,
+                       patch_size,
+                       niter,
+                       lmin,
+                       enabled_log_levels);
 }
 %}
 
+%ignore nlinsar_routines;
+
 %inline %{
-void nlsar(float* master_amplitude,   int h1, int w1,
-           float* slave_amplitude,    int h2, int w2,
-           float* dphase,             int h3, int w3,
-           float** amplitude_filtered, int* h4, int* w4,
-           float** dphase_filtered,    int* h5, int* w5,
-           float** coherence_filtered, int* h6, int* w6,
+void nlsar(float* ampl_master,  int h1, int w1,
+           float* ampl_slave,   int h2, int w2,
+           float* dphase,       int h3, int w3,
+           float** ampl_filt,   int* h4, int* w4,
+           float** dphase_filt, int* h5, int* w5,
+           float** coh_filt,    int* h6, int* w6,
            const int search_window_size,
            const std::vector<int> patch_sizes,
            const std::vector<int> scale_sizes)
@@ -161,15 +166,18 @@ void nlsar(float* master_amplitude,   int h1, int w1,
     *w5 = width;
     *w6 = width;
 
-    *amplitude_filtered = (float*) malloc(height * width * sizeof(float));
-    *dphase_filtered    = (float*) malloc(height * width * sizeof(float));
-    *coherence_filtered = (float*) malloc(height * width * sizeof(float));
+    *ampl_filt   = (float*) malloc(height * width * sizeof(float));
+    *dphase_filt = (float*) malloc(height * width * sizeof(float));
+    *coh_filt    = (float*) malloc(height * width * sizeof(float));
 
-
-
-    despeckcl::nlsar(master_amplitude, slave_amplitude, dphase,
-                     *amplitude_filtered, *dphase_filtered, *coherence_filtered,
-                     h1, w1,
+    despeckcl::nlsar(ampl_master,
+                     ampl_slave,
+                     dphase,
+                     *ampl_filt,
+                     *dphase_filt,
+                     *coh_filt,
+                     h1,
+                     w1,
                      search_window_size,
                      patch_sizes,
                      scale_sizes,
@@ -177,4 +185,4 @@ void nlsar(float* master_amplitude,   int h1, int w1,
 }
 %}
 
-%ignore nlinsar_routines;
+%ignore nlsar_routines;

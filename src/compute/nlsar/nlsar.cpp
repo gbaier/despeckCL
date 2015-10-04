@@ -17,9 +17,14 @@
 #include "best_params.h"
 #include "timings.h"
 
-int despeckcl::nlsar(float* master_amplitude, float* slave_amplitude, float* dphase,
-                     float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered,
-                     const int height, const int width,
+int despeckcl::nlsar(float* ampl_master,
+                     float* ampl_slave,
+                     float* dphase,
+                     float* ampl_filt,
+                     float* dphase_filt,
+                     float* coh_filt,
+                     const int height,
+                     const int width,
                      const int search_window_size,
                      const std::vector<int> patch_sizes,
                      const std::vector<int> scale_sizes,
@@ -79,14 +84,14 @@ int despeckcl::nlsar(float* master_amplitude, float* slave_amplitude, float* dph
     VLOG(0) << "Time it took to build all kernels: " << elapsed_seconds.count() << "secs";
 
     // prepare data
-    insar_data total_image{master_amplitude, slave_amplitude, dphase,
-                           amplitude_filtered, dphase_filtered, coherence_filtered,
+    insar_data total_image{ampl_master, ampl_slave, dphase,
+                           ampl_filt, dphase_filt, coh_filt,
                            height, width};
     std::map<nlsar::params, nlsar::stats> nlsar_stats;
     for(int patch_size : patch_sizes) {
         for(int scale_size : scale_sizes) {
             nlsar_stats.emplace(nlsar::params{patch_size, scale_size},
-                                nlsar::stats(nlsar::get_dissims(total_image.get_sub_insar_data(bbox{0,23,0,23}), patch_size, scale_size), patch_size, lut_size));
+                                nlsar::stats(nlsar::get_dissims(total_image.get_sub_insar_data(bbox{75,100,75,100}), patch_size, scale_size), patch_size, lut_size));
         }
     }
     total_image.pad(overlap);
@@ -132,9 +137,9 @@ int despeckcl::nlsar(float* master_amplitude, float* slave_amplitude, float* dph
     std::chrono::duration<double> duration = end-start;
     std::cout << "filtering ran for " << duration.count() << " secs" << std::endl;
 
-    memcpy(amplitude_filtered, total_image.amp_filt, sizeof(float)*height*width);
-    memcpy(dphase_filtered, total_image.phi_filt, sizeof(float)*height*width);
-    memcpy(coherence_filtered, total_image.coh_filt, sizeof(float)*height*width);
+    memcpy(ampl_filt,   total_image.amp_filt, sizeof(float)*height*width);
+    memcpy(dphase_filt, total_image.phi_filt, sizeof(float)*height*width);
+    memcpy(coh_filt,    total_image.coh_filt, sizeof(float)*height*width);
 
     return 0;
 }

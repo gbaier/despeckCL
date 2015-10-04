@@ -12,8 +12,8 @@
 #include "insar_data.h"
 
 
-void despeckcl::boxcar(float* master_amplitude,
-                       float* slave_amplitude,
+void despeckcl::boxcar(float* ampl_master,
+                       float* ampl_slave,
                        float* dphase,
                        float* ampl_filt,
                        float* dphase_filt,
@@ -25,14 +25,9 @@ void despeckcl::boxcar(float* master_amplitude,
 {
     logging_setup(enabled_log_levels);
 
-    insar_data total_image{master_amplitude,
-                           slave_amplitude,
-                           dphase,
-                           ampl_filt,
-                           dphase_filt,
-                           coh_filt,
-                           height,
-                           width};
+    insar_data total_image{ampl_master, ampl_slave, dphase,
+                           ampl_filt, dphase_filt, coh_filt,
+                           height, width};
 
     LOG(INFO) << "filter parameters";
     LOG(INFO) << "window width: " << window_width;

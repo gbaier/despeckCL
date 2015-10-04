@@ -18,9 +18,14 @@
 #include "clcfg.h"
 #include "cl_wrappers.h"
 
-int despeckcl::nlinsar(float* master_amplitude, float* slave_amplitude, float* dphase,
-                       float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered,
-                       const int height, const int width,
+int despeckcl::nlinsar(float* ampl_master,
+                       float* ampl_slave,
+                       float* dphase,
+                       float* ampl_filt,
+                       float* dphase_filt,
+                       float* coh_filt,
+                       const int height,
+                       const int width,
                        const int search_window_size,
                        const int patch_size,
                        const int niter,
@@ -29,8 +34,8 @@ int despeckcl::nlinsar(float* master_amplitude, float* slave_amplitude, float* d
 {
     logging_setup(enabled_log_levels);
 
-    insar_data total_image{master_amplitude, slave_amplitude, dphase,
-                           amplitude_filtered, dphase_filtered, coherence_filtered,
+    insar_data total_image{ampl_master, ampl_slave, dphase,
+                           ampl_filt, dphase_filt, coh_filt,
                            height, width};
 
     const int overlap = (patch_size - 1)/2 + (search_window_size - 1)/2;
@@ -142,9 +147,9 @@ int despeckcl::nlinsar(float* master_amplitude, float* slave_amplitude, float* d
     total_image.unpad(overlap);
     LOG(INFO) << "filtering done";
 
-    memcpy(amplitude_filtered, total_image.amp_filt, sizeof(float)*height*width);
-    memcpy(dphase_filtered, total_image.phi_filt, sizeof(float)*height*width);
-    memcpy(coherence_filtered, total_image.coh_filt, sizeof(float)*height*width);
+    memcpy(ampl_filt,   total_image.amp_filt, sizeof(float)*height*width);
+    memcpy(dphase_filt, total_image.phi_filt, sizeof(float)*height*width);
+    memcpy(coh_filt,    total_image.coh_filt, sizeof(float)*height*width);
 
     VLOG(0) << "elapsed time for precompute_similarities_1st_pass: " << precompute_similarities_1st_pass_timing << " secs";
     VLOG(0) << "elapsed time for precompute_similarities_2nd_pass: " << precompute_similarities_2nd_pass_timing << " secs";

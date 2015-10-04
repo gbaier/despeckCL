@@ -20,12 +20,12 @@ namespace std {
     import_array();
 %}
 
-%apply( float* IN_ARRAY2,     int DIM1, int DIM2) {(float* master_amplitude,   int h1, int w1)}
-%apply( float* IN_ARRAY2,     int DIM1, int DIM2) {(float* slave_amplitude,    int h2, int w2)}
-%apply( float* IN_ARRAY2,     int DIM1, int DIM2) {(float* dphase,             int h3, int w3)}
-%apply( float* INPLACE_ARRAY2, int DIM1, int DIM2) {(float* amplitude_filtered, int h4, int w4)}
-%apply( float* INPLACE_ARRAY2, int DIM1, int DIM2) {(float* dphase_filtered,    int h5, int w5)}
-%apply( float* INPLACE_ARRAY2, int DIM1, int DIM2) {(float* coherence_filtered, int h6, int w6)}
+%apply( float* IN_ARRAY2,     int DIM1, int DIM2)  {(float* ampl_master, int h1, int w1)}
+%apply( float* IN_ARRAY2,     int DIM1, int DIM2)  {(float* ampl_slave,  int h2, int w2)}
+%apply( float* IN_ARRAY2,     int DIM1, int DIM2)  {(float* dphase,      int h3, int w3)}
+%apply( float* INPLACE_ARRAY2, int DIM1, int DIM2) {(float* ampl_filt,   int h4, int w4)}
+%apply( float* INPLACE_ARRAY2, int DIM1, int DIM2) {(float* dphase_filt, int h5, int w5)}
+%apply( float* INPLACE_ARRAY2, int DIM1, int DIM2) {(float* coh_filt,    int h6, int w6)}
 
 %ignore boxcar_routines;
 %feature("autodoc", "2");
@@ -33,18 +33,22 @@ namespace std {
 
 /* Boxcar declarations and definitions */
 %inline %{
-void _boxcar_c_wrap(float* master_amplitude,  int h1, int w1,
-                   float* slave_amplitude,    int h2, int w2,
-                   float* dphase,             int h3, int w3,
-                   float* amplitude_filtered, int h4, int w4,
-                   float* dphase_filtered,    int h5, int w5,
-                   float* coherence_filtered, int h6, int w6,
-                   const int window_width)
+void _boxcar_c_wrap(float* ampl_master, int h1, int w1,
+                    float* ampl_slave,  int h2, int w2,
+                    float* dphase,      int h3, int w3,
+                    float* ampl_filt,   int h4, int w4,
+                    float* dphase_filt, int h5, int w5,
+                    float* coh_filt,    int h6, int w6,
+                    const int window_width)
 {
     std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
 
-    despeckcl::boxcar(master_amplitude, slave_amplitude, dphase,
-                      amplitude_filtered, dphase_filtered, coherence_filtered,
+    despeckcl::boxcar(ampl_master,
+                      ampl_slave,
+                      dphase,
+                      ampl_filt,
+                      dphase_filt,
+                      coh_filt,
                       h1,
                       w1,
                       window_width,
@@ -56,27 +60,31 @@ void _boxcar_c_wrap(float* master_amplitude,  int h1, int w1,
 %pythoncode{
 import numpy as np
 
-def boxcar(master_amplitude,
-           slave_amplitude,
+def boxcar(ampl_master,
+           ampl_slave,
            dphase,
            window_width):
-    amplitude_filtered = np.zeros_like(master_amplitude)
-    dphase_filtered    = np.zeros_like(master_amplitude)
-    coherence_filtered = np.zeros_like(master_amplitude)
-    _despeckcl._boxcar_c_wrap(master_amplitude, slave_amplitude, dphase,
-                          amplitude_filtered, dphase_filtered, coherence_filtered,
-                          window_width);
-    return (amplitude_filtered, dphase_filtered, coherence_filtered)
+    ampl_filt   = np.zeros_like(ampl_master)
+    dphase_filt = np.zeros_like(ampl_master)
+    coh_filt    = np.zeros_like(ampl_master)
+    _despeckcl._boxcar_c_wrap(ampl_master,
+                              ampl_slave,
+                              dphase,
+                              ampl_filt,
+                              dphase_filt,
+                              coh_filt,
+                              window_width);
+    return (ampl_filt, dphase_filt, coh_filt)
 }
 
 /* NLInSAR declaration and wrap */
 %inline %{
-void _nlinsar_c_wrap(float* master_amplitude,   int h1, int w1,
-                     float* slave_amplitude,    int h2, int w2,
-                     float* dphase,             int h3, int w3,
-                     float* amplitude_filtered, int h4, int w4,
-                     float* dphase_filtered,    int h5, int w5,
-                     float* coherence_filtered, int h6, int w6,
+void _nlinsar_c_wrap(float* ampl_master, int h1, int w1,
+                     float* ampl_slave,  int h2, int w2,
+                     float* dphase,      int h3, int w3,
+                     float* ampl_filt,   int h4, int w4,
+                     float* dphase_filt, int h5, int w5,
+                     float* coh_filt,    int h6, int w6,
                      const int search_window_size,
                      const int patch_size,
                      const int niter,
@@ -84,8 +92,12 @@ void _nlinsar_c_wrap(float* master_amplitude,   int h1, int w1,
 {
     std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
 
-    despeckcl::nlinsar(master_amplitude, slave_amplitude, dphase,
-                       amplitude_filtered, dphase_filtered, coherence_filtered,
+    despeckcl::nlinsar(ampl_master,
+                       ampl_slave,
+                       dphase,
+                       ampl_filt,
+                       dphase_filt,
+                       coh_filt,
                        h1,
                        w1,
                        search_window_size,
@@ -99,37 +111,49 @@ void _nlinsar_c_wrap(float* master_amplitude,   int h1, int w1,
 %pythoncode{
 import numpy as np
 
-def nlinsar(master_amplitude,
-            slave_amplitude,
+def nlinsar(ampl_master,
+            ampl_slave,
             dphase,
             search_window_size,
             patch_size,
             niter,
             lmin):
-    amplitude_filtered = np.zeros_like(master_amplitude)
-    dphase_filtered    = np.zeros_like(master_amplitude)
-    coherence_filtered = np.zeros_like(master_amplitude)
-    _despeckcl._nlinsar_c_wrap(master_amplitude, slave_amplitude, dphase,
-                               amplitude_filtered, dphase_filtered, coherence_filtered,
-                               search_window_size, patch_size, niter, lmin)
-    return (amplitude_filtered, dphase_filtered, coherence_filtered)
+    ampl_filt   = np.zeros_like(ampl_master)
+    dphase_filt = np.zeros_like(ampl_master)
+    coh_filt    = np.zeros_like(ampl_master)
+
+    _despeckcl._nlinsar_c_wrap(ampl_master,
+                               ampl_slave,
+                               dphase,
+                               ampl_filt,
+                               dphase_filt,
+                               coh_filt,
+                               search_window_size,
+                               patch_size,
+                               niter,
+                               lmin)
+    return (ampl_filt, dphase_filt, coh_filt)
 }
 
 /* NLSAR declaration and wrap */
 %inline %{
-void _nlsar_c_wrap(float* master_amplitude,   int h1, int w1,
-                   float* slave_amplitude,    int h2, int w2,
-                   float* dphase,             int h3, int w3,
-                   float* amplitude_filtered, int h4, int w4,
-                   float* dphase_filtered,    int h5, int w5,
-                   float* coherence_filtered, int h6, int w6,
+void _nlsar_c_wrap(float* ampl_master, int h1, int w1,
+                   float* ampl_slave,  int h2, int w2,
+                   float* dphase,      int h3, int w3,
+                   float* ampl_filt,   int h4, int w4,
+                   float* dphase_filt, int h5, int w5,
+                   float* coh_filt,    int h6, int w6,
                    const int search_window_size,
                    const std::vector<int> patch_sizes,
                    const std::vector<int> scale_sizes,
                    const std::vector<std::string> enabled_log_levels)
 {
-    despeckcl::nlsar(master_amplitude, slave_amplitude, dphase,
-                     amplitude_filtered, dphase_filtered, coherence_filtered,
+    despeckcl::nlsar(ampl_master,
+                     ampl_slave,
+                     dphase,
+                     ampl_filt,
+                     dphase_filt,
+                     coh_filt,
                      h1,
                      w1,
                      search_window_size,
@@ -142,22 +166,28 @@ void _nlsar_c_wrap(float* master_amplitude,   int h1, int w1,
 %pythoncode{
 import numpy as np
 
-def nlsar(master_amplitude,
-          slave_amplitude,
+def nlsar(ampl_master,
+          ampl_slave,
           dphase,
           search_window_size,
           patch_sizes,
           scale_sizes,
           enabled_log_levels = ['error', 'warning', 'fatal']):
 
-    amplitude_filtered = np.zeros_like(master_amplitude)
-    dphase_filtered    = np.zeros_like(master_amplitude)
-    coherence_filtered = np.zeros_like(master_amplitude)
-    _despeckcl._nlsar_c_wrap(master_amplitude, slave_amplitude, dphase,
-                             amplitude_filtered, dphase_filtered, coherence_filtered,
+    ampl_filt   = np.zeros_like(ampl_master)
+    dphase_filt = np.zeros_like(ampl_master)
+    coh_filt    = np.zeros_like(ampl_master)
+
+    _despeckcl._nlsar_c_wrap(ampl_master,
+                             ampl_slave,
+                             dphase,
+                             ampl_filt,
+                             dphase_filt,
+                             coh_filt,
                              search_window_size,
                              patch_sizes,
                              scale_sizes,
                              enabled_log_levels)
-    return (amplitude_filtered, dphase_filtered, coherence_filtered)
+
+    return (ampl_filt, dphase_filt, coh_filt)
 }
