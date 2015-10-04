@@ -64,8 +64,8 @@ timings::map nlsar::routines::get_weights (cl::Context context,
     const int wsh = (search_window_size - 1)/2;
 
     // original dimension of the unpadded data
-    const int height_ori = height_sim - patch_size + 1;
-    const int width_ori  = width_sim  - patch_size + 1;
+    const int height_ori = height_sim - patch_size_max + 1;
+    const int width_ori  = width_sim  - patch_size_max + 1;
     const int n_elem_ori = height_ori * width_ori;
 
     cl::Buffer patch_similarities {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
@@ -95,7 +95,7 @@ timings::map nlsar::routines::get_weights (cl::Context context,
                                                                           parameter_stats.dissims_max);
 
     // set weight for self similarity
-    const cl_int self_weight = 1;
+    const cl_float self_weight = 1.0f;
     cmd_queue.enqueueFillBuffer(weights,
                                 self_weight,
                                 height_ori * width_ori * (search_window_size * wsh + wsh) * sizeof(float), //offset
