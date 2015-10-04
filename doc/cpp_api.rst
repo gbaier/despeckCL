@@ -1,12 +1,12 @@
 C++ API
 =======
 
-.. cpp:function:: void boxcar(float* master_amplitude, float* slave_amplitude, float* dphase, float* ampl_filt, float* dphase_filt, float* coh_filt, const int height, const int width, int window_width, std::vector<std::string> enabled_log_levels)
+.. cpp:function:: void boxcar(float* ampl_master, float* ampl_slave, float* dphase, float* ampl_filt, float* dphase_filt, float* coh_filt, const int height, const int width, int window_width, std::vector<std::string> enabled_log_levels)
 
    Filters the input with a boxcar filter
 
-   :param master_amplitude: the amplitude of the master image
-   :param slave_amplitude: the amplitude of the slave image
+   :param ampl_master: the amplitude of the master image
+   :param ampl_slave: the amplitude of the slave image
    :param dphase: the interferometric phase of the master and slave images
    :param ampl_filt: the filtered amplitude estimate
    :param dphase_filt: the interferometric phase estimate
@@ -17,12 +17,12 @@ C++ API
    :param enabled_log_levels: enabled log levels, log levels are: error, fatal, warning, debug, info
 
 
-.. cpp:function:: int nlinsar(float* master_amplitude, float* slave_amplitude, float* dphase, float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered, const int height, const int width, const int search_window_size, const int patch_size, const int niter, const int lmin, std::vector<std::string> enabled_log_levels)
+.. cpp:function:: int nlinsar(float* ampl_master, float* ampl_slave, float* dphase, float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered, const int height, const int width, const int search_window_size, const int patch_size, const int niter, const int lmin, std::vector<std::string> enabled_log_levels)
 
    Filters the input with the NLInSAR filter
 
-   :param master_amplitude: the amplitude of the master image
-   :param slave_amplitude: the amplitude of the slave image
+   :param ampl_master: the amplitude of the master image
+   :param ampl_slave: the amplitude of the slave image
    :param dphase: the interferometric phase of the master and slave images
    :param ampl_filt: the filtered amplitude estimate
    :param dphase_filt: the interferometric phase estimate
@@ -35,12 +35,12 @@ C++ API
    :param lmin: minimum number of looks for the smoothing step
    :param enabled_log_levels: enabled log levels, log levels are: error, fatal, warning, debug, info
 
-.. cpp:function:: int nlsar(float* master_amplitude, float* slave_amplitude, float* dphase, float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered, const int height, const int width, const int search_window_size, const std::vector<int> patch_sizes, const std::vector<int> scale_sizes, std::vector<std::string> enabled_log_levels)
+.. cpp:function:: int nlsar(float* ampl_master, float* ampl_slave, float* dphase, float* amplitude_filtered, float* dphase_filtered, float* coherence_filtered, const int height, const int width, const int search_window_size, const std::vector<int> patch_sizes, const std::vector<int> scale_sizes, std::vector<std::string> enabled_log_levels)
 
    Filters the input with the NLSAR filter
 
-   :param master_amplitude: the amplitude of the master image
-   :param slave_amplitude: the amplitude of the slave image
+   :param ampl_master: the amplitude of the master image
+   :param ampl_slave: the amplitude of the slave image
    :param dphase: the interferometric phase of the master and slave images
    :param ampl_filt: the filtered amplitude estimate
    :param dphase_filt: the interferometric phase estimate
