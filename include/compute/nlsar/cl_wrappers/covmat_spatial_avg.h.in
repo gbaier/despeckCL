@@ -11,6 +11,7 @@ namespace nlsar {
 
         public:
             using kernel_env::kernel_env;
+            std::vector<float> gen_gauss(const int scale_size);
 
             static constexpr const char* kernel_source =
     "@CMAKE_KERNEL_SOURCE@"

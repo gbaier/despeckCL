@@ -9,6 +9,7 @@ INITIALIZE_EASYLOGGINGPP
 
 #include <string>
 #include <iostream>
+#include <vector>
 
 #include "covmat_spatial_avg.h"
 
@@ -124,4 +125,21 @@ TEST_CASE( "covmat_spatial_avg no averaging", "[cl_kernels]" ) {
         cmd_queue.enqueueReadBuffer(device_output, CL_TRUE, 0, 2*dimension*dimension*(height-scale_size_max+1)*(width-scale_size_max+1)*sizeof(float), output.data(), NULL, NULL);
 
         REQUIRE( ( output == desired_output ) );
+}
+
+TEST_CASE( "covmat_spatial_avg gauss", "[cl_kernels]" ) {
+
+        const int scale_size = 5;
+        cl::Context context = opencl_setup();
+        const int block_size = 16;
+        covmat_spatial_avg KUT{block_size, context};
+
+        std::vector<float> gauss {KUT.gen_gauss(scale_size)};
+        std::vector<float> gauss_rev = gauss;
+
+        std::reverse(gauss_rev.begin(), gauss_rev.end());
+
+        REQUIRE( gauss == gauss_rev );
+        REQUIRE( gauss.size() == scale_size*scale_size );
+        REQUIRE( Approx(std::accumulate(gauss.begin(), gauss.end(), 0.0f)) == 1.0f );
 }
