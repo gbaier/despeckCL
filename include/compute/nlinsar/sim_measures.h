@@ -13,7 +13,11 @@ float pixel_similarity(float am1, float as1, float dp1,
     const float C = am1*as1*am2*as2;
     const float f_el = pow(C/B, 1.5f) * ( (A+B)/A * sqrt(B/(A-B)) - asin(sqrt(B/A)));
 
-    return log(f_el);
+    if (f_el == 0) {
+        return 0;
+    } else {
+        return log(f_el);
+    }
 }
 
 float pixel_kullback_leibler(float ref1, float dp1, float coh1,
