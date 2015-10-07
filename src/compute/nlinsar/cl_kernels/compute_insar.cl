@@ -89,7 +89,7 @@ __kernel void compute_insar  (__global float * filter_data_a, __global float * f
         // since the weights are zero, due to the Kullback-Leibler-divergence
         // in this case we just keep the previoulsy estimated value
         if (is_valid(reflectivity)) {
-            amp_filt[idx] = reflectivity;
+            amp_filt[idx] = sqrt(reflectivity);
         }
         if (is_valid(interferometric_phase)) {
             phi_filt[idx] = correct_phase_range(interferometric_phase);
