@@ -56,7 +56,12 @@ TEST_CASE( "covmat_spatial_avg", "[cl_kernels]" ) {
 
         cmd_queue.enqueueReadBuffer(device_output, CL_TRUE, 0, 2*dimension*dimension*(height-scale_size+1)*(width-scale_size+1)*sizeof(float), output.data(), NULL, NULL);
 
-        REQUIRE( ( output == desired_output ) );
+        bool flag = true;
+        for(int i = 0; i < (int) output.size(); i++) {
+            flag = flag && (output[i] == Approx(desired_output[i]).epsilon( 0.0001 ));
+        }
+
+        REQUIRE( (flag) );
 }
 
 TEST_CASE( "covmat_spatial_avg no averaging", "[cl_kernels]" ) {

@@ -5,7 +5,8 @@ __kernel void covmat_spatial_avg (__global float * covmat_in,
                                   const int width_overlap,
                                   const int scale_size,
                                   const int scale_size_max,
-                                  __local float * local_data)
+                                  __local float * local_data,
+                                  __constant float * gauss)
 {
     const int delta_scale = (scale_size_max -  scale_size)/2;
 
@@ -33,11 +34,11 @@ __kernel void covmat_spatial_avg (__global float * covmat_in,
         if ((tx < output_block_size) && (ty < output_block_size)) {
             for(int kx = 0; kx < scale_size; kx++) {
                 for(int ky = 0; ky < scale_size; ky++) {
-                    sum += local_data[(tx + kx)*block_size + ty + ky];
+                    sum += gauss[kx*scale_size + ky] * local_data[(tx + kx)*block_size + ty + ky];
                 }
             }
             if (in_x < height_overlap &&  in_y < width_overlap) {
-                covmat_out[i*height_overlap*width_overlap + in_x*width_overlap + in_y] = sum/(scale_size*scale_size);
+                covmat_out[i*height_overlap*width_overlap + in_x*width_overlap + in_y] = sum;
             }
         }
     }

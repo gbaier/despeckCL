@@ -36,6 +36,9 @@ void nlsar::covmat_spatial_avg::run(cl::CommandQueue cmd_queue,
                                     const int scale_size_max)
 {
     const int output_block_size = get_output_block_size(scale_size);
+    std::vector<float> gauss {gen_gauss(scale_size)};
+
+    cl::Buffer dev_gauss {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, scale_size * scale_size * sizeof(float), gauss.data(), NULL};
 
     kernel.setArg(0, covmat_in);
     kernel.setArg(1, covmat_out);
@@ -45,6 +48,7 @@ void nlsar::covmat_spatial_avg::run(cl::CommandQueue cmd_queue,
     kernel.setArg(5, scale_size);
     kernel.setArg(6, scale_size_max);
     kernel.setArg(7, cl::Local(block_size*block_size*sizeof(float)));
+    kernel.setArg(8, dev_gauss);
 
     cl::NDRange global_size {(size_t) block_size*( (height_overlap - 1)/output_block_size + 1), \
                              (size_t) block_size*( (width_overlap  - 1)/output_block_size + 1)};
