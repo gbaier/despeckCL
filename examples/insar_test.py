@@ -10,6 +10,11 @@ ampl_master = np.ascontiguousarray(data['ampl_master'])
 ampl_slave  = np.ascontiguousarray(data['ampl_slave'])
 dphase      = np.ascontiguousarray(data['dphase'])
 
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import ImageGrid
+
+ampl_plotopts = {'cmap':plt.get_cmap('gray'), 'vmin':0, 'vmax':70}
+
 methods = {}
 
 ##################################
@@ -51,8 +56,7 @@ methods[despeckcl.nlinsar] = (search_window_size, patch_size, niter, lmin)
 # Plotting
 #
 #################################
-import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import ImageGrid
+
 
 fig = plt.figure(1, (7., 11.))
 print(len(methods) + 1)
@@ -64,7 +68,7 @@ grid = ImageGrid(fig, 111, # similar to subplot(111)
                  )
 
 # input data
-im = grid[0].imshow(20*np.log10(ampl_master), cmap=plt.get_cmap('gray'))
+im = grid[0].imshow(20*np.log10(ampl_master), **ampl_plotopts)
 grid.cbar_axes[0].colorbar(im) 
 
 im = grid[1].imshow(20*np.log10(ampl_slave), cmap=plt.get_cmap('gray'))
@@ -80,7 +84,7 @@ for idx, (method, args) in enumerate(methods.items()):
                                               dphase,
                                               *args)
 
-    im = grid[3*(idx+1)].imshow(20*np.log10(ampl_filt), cmap=plt.get_cmap('gray'))
+    im = grid[3*(idx+1)].imshow(20*np.log10(ampl_filt), **ampl_plotopts)
     grid.cbar_axes[3*(idx+1)].colorbar(im) 
     im = grid[3*(idx+1) + 1].imshow(coh_filt, cmap=plt.get_cmap('gray'))
     grid.cbar_axes[3*(idx+1) + 1].colorbar(im) 
