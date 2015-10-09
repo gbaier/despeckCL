@@ -51,7 +51,7 @@ class kernel_env : public routine_env<Derived>
 
             std::string routine_name  = static_cast<Derived*>(this)->routine_name;
             std::string kernel_source = static_cast<Derived*>(this)->kernel_source;
-            VLOG(0) << "Building program for: " << routine_name.c_str();
+            VLOG(0) << "Building program for: " << routine_name;
             cl::Program program{context, static_cast<Derived*>(this)->kernel_source};
             try {
                 program.build(devices, build_opts.c_str());
@@ -69,13 +69,14 @@ class kernel_env : public routine_env<Derived>
         void build_kernel(void)
         {
             std::string routine_name = static_cast<Derived*>(this)->routine_name;
-            VLOG(0) << "Building kernel for: " << routine_name.c_str();
+            VLOG(0) << "Building kernel for: " << routine_name;
             try {
                 cl::Kernel kernel{this->program, routine_name.c_str()};
                 this->kernel = kernel;
             } catch (cl::Error error) {
                 LOG(ERROR) << "ERR while building kernel: " << routine_name;
                 LOG(ERROR) << error.what() << "(" << error.err() << ")";
+                std::terminate();
             }
             VLOG(0) << "done";
         }
@@ -84,14 +85,15 @@ class kernel_env : public routine_env<Derived>
         template<typename... Args>
         double timed_run(cl::CommandQueue cmd_queue, Args... args)
         {
+            std::string routine_name = static_cast<Derived*>(this)->routine_name;
             std::chrono::time_point<std::chrono::system_clock> start, end;
             start = std::chrono::system_clock::now();
 
             try {
                 static_cast<Derived*>(this)->run(cmd_queue, args...);
             } catch (cl::Error error) {
+                LOG(ERROR) << "ERR while running kernel: " << routine_name;
                 LOG(ERROR) << error.what() << "(" << error.err() << ")";
-                LOG(ERROR) << "ERR while running kernel: " << this->routine_name;
                 std::terminate();
             }
 
