@@ -28,7 +28,7 @@ enable_testing()
 subdirs(src)
 subdirs(swig)
 
-find_package(Sphinx REQUIRED)
+find_package(Sphinx)
 if(Sphinx_FOUND)
     subdirs(doc)
 endif()
