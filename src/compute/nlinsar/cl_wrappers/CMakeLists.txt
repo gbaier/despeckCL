@@ -1,5 +1,6 @@
 include_directories(${despeckCL_SOURCE_DIR}/include/clcfg)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlinsar/cl_wrappers)
+include_directories(${despeckCL_SOURCE_DIR}/include/compute/common/cl_wrappers)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlinsar)
 
 FILE(GLOB infiles "${despeckCL_SOURCE_DIR}/include/compute/nlinsar/cl_wrappers/*.in")
