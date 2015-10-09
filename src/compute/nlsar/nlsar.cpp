@@ -92,7 +92,7 @@ int despeckcl::nlsar(float* ampl_master,
     for(int patch_size : patch_sizes) {
         for(int scale_size : scale_sizes) {
             nlsar_stats.emplace(nlsar::params{patch_size, scale_size},
-                                nlsar::stats(nlsar::get_dissims(total_image.get_sub_insar_data(training_dims), patch_size, scale_size), patch_size, lut_size));
+                                nlsar::stats(nlsar::get_dissims(context, total_image.get_sub_insar_data(training_dims), patch_size, scale_size), patch_size, lut_size));
         }
     }
     total_image.pad(overlap);
