@@ -33,15 +33,7 @@ TEST_CASE( "weighted_means", "[cl_kernels]" ) {
 
         std::vector<float> covmat_in          (covmat_in_nelem,      1.0);
         std::vector<float> covmat_out         (covmat_out_nelem,     0.0);
-        std::vector<float> desired_covmat_out (covmat_out_nelem,     0.0);
         std::vector<float> alphas             (height_ori*width_ori, 0.0);
-        for(int h = overlap_avg; h < height_ori + overlap_avg; h++) {
-            for(int w = overlap_avg; w < width_ori + overlap_avg; w++) {
-                for(int d = 0; d < 2*dimension*dimension; d++) {
-                    desired_covmat_out[d*(height_ori + 2*overlap_avg)*(width_ori + 2*overlap_avg) + h*(width_ori + 2*overlap_avg) + w] = 1.0;
-                }
-            }
-        }
         std::vector<float> weights            (weights_nelem,      1.0);
 
         // opencl setup
@@ -75,5 +67,15 @@ TEST_CASE( "weighted_means", "[cl_kernels]" ) {
 
         cmd_queue.enqueueReadBuffer(device_covmat_out, CL_TRUE, 0, covmat_out_nelem * sizeof(float), covmat_out.data(), NULL, NULL);
 
-        REQUIRE( ( covmat_out == desired_covmat_out ) );
+        bool flag = true;
+
+        for(int h = overlap_avg; h < height_ori + overlap_avg; h++) {
+            for(int w = overlap_avg; w < width_ori + overlap_avg; w++) {
+                for(int d = 0; d < 2*dimension*dimension; d++) {
+                    flag = flag && (Approx(covmat_out[d*(height_ori + 2*overlap_avg)*(width_ori + 2*overlap_avg) + h*(width_ori + 2*overlap_avg) + w]) == 1.0f);
+                }
+            }
+        }
+
+        REQUIRE( ( flag ) );
 }

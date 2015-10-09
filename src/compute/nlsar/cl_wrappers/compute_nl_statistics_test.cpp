@@ -78,11 +78,22 @@ TEST_CASE( "compute_nl_statistics", "[cl_kernels]" ) {
         cmd_queue.enqueueReadBuffer(device_intensities_nl,     CL_TRUE, 0,        stats_nelem * sizeof(float), intensities_nl.data(),     NULL, NULL);
         cmd_queue.enqueueReadBuffer(device_weighted_variances, CL_TRUE, 0,        stats_nelem * sizeof(float), weighted_variances.data(), NULL, NULL);
 
-        for( auto x :intensities_nl) {
-            std::cout << x << ",";
+        bool weights_sums_flag = true;
+        for(int i = 0; i < (int) weights_sums.size(); i++) {
+            weights_sums_flag = weights_sums_flag && Approx(weights_sums[i]) == desired_weights_sums[i];
+
         }
 
-        REQUIRE( ( weights_sums       == desired_weights_sums ) );
-        REQUIRE( ( intensities_nl     == desired_intensities_nl ) );
-        REQUIRE( ( weighted_variances == desired_weighted_variances ) );
+        bool intensities_nl_flag = true;
+        for(int i = 0; i < (int) intensities_nl.size(); i++) {
+            intensities_nl_flag = intensities_nl_flag && Approx(intensities_nl[i]) == desired_intensities_nl[i];
+        }
+
+        bool weighted_variances_flag = true;
+        for(int i = 0; i < (int) weighted_variances.size(); i++) {
+            weighted_variances_flag = weighted_variances_flag && Approx(weighted_variances[i]) == desired_weighted_variances[i];
+        }
+        REQUIRE( (weights_sums_flag) );
+        REQUIRE( (intensities_nl_flag) );
+        REQUIRE( (weighted_variances_flag) );
 }
