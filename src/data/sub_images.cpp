@@ -3,24 +3,15 @@
 
 #include <stdlib.h>
 
-void valid_bbox(bbox boundaries,
-                const int height,
-                const int width)
-{
-    if ( boundaries.h_up > height ||
-         boundaries.w_up > width  ||
-         boundaries.h_low < 0     ||
-         boundaries.w_low < 0 ) {
-        throw std::logic_error("bounding box dimensions too big for image");
-    }
-}
 
 float* get_sub_image(const float * image,
                      const int height,
                      const int width,
                      bbox boundaries)
 {
-    valid_bbox(boundaries, height, width);
+    if (!boundaries.valid(height, width)) {
+        throw std::logic_error("bounding box dimensions too big for image");
+    }
     const int h_low = boundaries.h_low;
     const int h_up = boundaries.h_up;
     const int w_low = boundaries.w_low;
@@ -44,7 +35,9 @@ void write_sub_image(float * image,
                      const int width,
                      bbox boundaries)
 {
-    valid_bbox(boundaries, height, width);
+    if (!boundaries.valid(height, width)) {
+        throw std::logic_error("bounding box dimensions too big for image");
+    }
     const int h_low = boundaries.h_low;
     const int h_up = boundaries.h_up;
     const int w_low = boundaries.w_low;

@@ -1,5 +1,5 @@
 include_directories(${despeckCL_SOURCE_DIR}/include)
-include_directories(${despeckCL_SOURCE_DIR}/include/clcfg)
+include_directories(${despeckCL_SOURCE_DIR}/include/data)
 
 find_package(PythonLibs REQUIRED)
 if(PYTHONLIBS_FOUND)

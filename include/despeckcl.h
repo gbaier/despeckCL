@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include "bbox.h"
+
 namespace despeckcl {
 
     void boxcar(float* ampl_master,
@@ -28,6 +30,7 @@ namespace despeckcl {
               const int search_window_size,
               const std::vector<int> patch_sizes,
               const std::vector<int> scale_sizes,
+              const bbox training_dims,
               std::vector<std::string> enabled_log_levels);
 
     int nlinsar(float* ampl_master,

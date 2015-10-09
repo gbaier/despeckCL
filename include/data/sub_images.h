@@ -4,13 +4,7 @@
 #include <tuple>
 #include <algorithm>
 
-// bounding box of a sub image
-typedef struct bbox {
-    int h_low;
-    int h_up;
-    int w_low;
-    int w_up;
-} bbox;
+#include "bbox.h"
 
 float* get_sub_image(const float * image,
                      const int height,
@@ -33,26 +27,21 @@ class gen_sub_images
         const int sub_image_size;
         const int overlap;
 
+        const int step_size;
+
         bbox boundaries;
 
-        const int step_size;
 
     public:
         gen_sub_images( const int height,
                         const int width,
                         const int sub_image_size,
-                        const int overlap) :
-                    height(height),
-                    width(width),
-                    sub_image_size(sub_image_size),
-                    overlap(overlap),
-                    step_size(sub_image_size - 2*overlap)
-        {
-            boundaries.h_low = 0;
-            boundaries.w_low = 0;
-            boundaries.h_up = std::min(sub_image_size, height);
-            boundaries.w_up = std::min(sub_image_size, width);
-        }
+                        const int overlap) : height(height),
+                                             width(width),
+                                             sub_image_size(sub_image_size),
+                                             overlap(overlap),
+                                             step_size(sub_image_size - 2*overlap),
+                                             boundaries{0, 0, std::min(sub_image_size, height), std::min(sub_image_size, width)} {}
 
         // Iterator functions
         bool operator!=(const gen_sub_images&) const

@@ -10,6 +10,9 @@
 %include "std_string.i"
 %include "std_vector.i"
 %include "despeckcl.h"
+%include "bbox.h"
+
+%nodefaultctor;
 
 namespace std {
    %template(IntVector) vector<int>;
@@ -146,6 +149,7 @@ void _nlsar_c_wrap(float* ampl_master, int h1, int w1,
                    const int search_window_size,
                    const std::vector<int> patch_sizes,
                    const std::vector<int> scale_sizes,
+                   const bbox training_dims,
                    const std::vector<std::string> enabled_log_levels)
 {
     despeckcl::nlsar(ampl_master,
@@ -159,6 +163,7 @@ void _nlsar_c_wrap(float* ampl_master, int h1, int w1,
                      search_window_size,
                      patch_sizes,
                      scale_sizes,
+                     training_dims,
                      enabled_log_levels);
 }
 %}
@@ -172,6 +177,7 @@ def nlsar(ampl_master,
           search_window_size,
           patch_sizes,
           scale_sizes,
+          training_dims,
           enabled_log_levels = ['error', 'warning', 'fatal']):
 
     ampl_filt   = np.zeros_like(ampl_master)
@@ -187,6 +193,7 @@ def nlsar(ampl_master,
                              search_window_size,
                              patch_sizes,
                              scale_sizes,
+                             training_dims,
                              enabled_log_levels)
 
     return (ampl_filt, dphase_filt, coh_filt)

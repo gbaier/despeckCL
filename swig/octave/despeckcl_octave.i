@@ -5,6 +5,7 @@
 
 %include "std_vector.i"
 %include "std_string.i"
+%include "bbox.h"
 
 namespace std {
    %template(IntVector) vector<int>;
@@ -151,7 +152,8 @@ void nlsar(float* ampl_master,  int h1, int w1,
            float** coh_filt,    int* h6, int* w6,
            const int search_window_size,
            const std::vector<int> patch_sizes,
-           const std::vector<int> scale_sizes)
+           const std::vector<int> scale_sizes,
+           const bbox training_dims)
 {
     std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
 
@@ -181,6 +183,7 @@ void nlsar(float* ampl_master,  int h1, int w1,
                      search_window_size,
                      patch_sizes,
                      scale_sizes,
+                     training_dims,
                      enabled_log_levels);
 }
 %}

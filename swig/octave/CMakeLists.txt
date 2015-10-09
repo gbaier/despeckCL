@@ -1,4 +1,5 @@
 include_directories(${despeckCL_SOURCE_DIR}/include)
+include_directories(${despeckCL_SOURCE_DIR}/include/data)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 string(REGEX REPLACE "/octave$" "" OCTAVE_INCLUDE_DIR_PURE ${OCTAVE_INCLUDE_DIRS})

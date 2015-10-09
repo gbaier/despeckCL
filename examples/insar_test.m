@@ -26,21 +26,24 @@ lmin = 10;
                                                                            lmin);
 % nlsar
 search_window_size = 21;
-patch_sizes = despeckcl.IntVector(4);
+patch_sizes = despeckcl.IntVector(5);
 patch_sizes(0) = 3;
 patch_sizes(1) = 5;
 patch_sizes(2) = 7;
 patch_sizes(3) = 9;
+patch_sizes(4) = 11;
 scale_sizes = despeckcl.IntVector(3);
 scale_sizes(0) = 1;
 scale_sizes(1) = 3;
 scale_sizes(2) = 5;
+training_dims = despeckcl.bbox(0, 0, 25, 25);
 [amp_filt_nlsar, phi_filt_nlsar, coh_filt_nlsar] = despeckcl.nlsar(ampl_master,
                                                                    ampl_slave,
                                                                    dphase,
                                                                    search_window_size,
                                                                    patch_sizes,
-                                                                   scale_sizes);
+                                                                   scale_sizes,
+                                                                   training_dims);
 
 
 figure('Position',[0,0,800,600]);
