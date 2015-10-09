@@ -11,14 +11,13 @@
 
 #include "clcfg.h"
 
-std::vector<float> nlsar::get_dissims(const insar_data& sub_insar_data,
+std::vector<float> nlsar::get_dissims(cl::Context context,
+                                      const insar_data& sub_insar_data,
                                       const int patch_size,
                                       const int window_width = 3)
 {
     const int dimension = 2;
     const int nlooks = 1;
-
-    cl::Context context = opencl_setup();
 
     std::vector<cl::Device> devices;
     context.getInfo(CL_CONTEXT_DEVICES, &devices);
