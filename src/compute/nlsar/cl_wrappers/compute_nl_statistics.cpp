@@ -34,7 +34,7 @@ void nlsar::compute_nl_statistics::run(cl::CommandQueue cmd_queue,
                                        const int width_ori,
                                        const int search_window_size,
                                        const int patch_size_max,
-                                       const int scale_width)
+                                       const int scale_size_max)
 {
     kernel.setArg(0, covmat_ori);
     kernel.setArg(1, weights);
@@ -45,7 +45,7 @@ void nlsar::compute_nl_statistics::run(cl::CommandQueue cmd_queue,
     kernel.setArg(6, width_ori);
     kernel.setArg(7, search_window_size);
     kernel.setArg(8, patch_size_max);
-    kernel.setArg(9, scale_width);
+    kernel.setArg(9, scale_size_max);
 
     cl::NDRange global_size {(size_t) block_size*( (height_ori - 1)/block_size + 1), \
                              (size_t) block_size*( (width_ori  - 1)/block_size + 1)};
