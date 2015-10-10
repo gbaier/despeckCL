@@ -45,8 +45,8 @@ cl::Context opencl_setup(void)
         std::vector<size_t> max_work_item_sizes(3);
         dev.getInfo(CL_DEVICE_MAX_WORK_ITEM_SIZES, &max_work_item_sizes);
         LOG(DEBUG) << "max work item sizes: " << max_work_item_sizes[0] << ", "
-                                             << max_work_item_sizes[1] << ", "
-                                             << max_work_item_sizes[2];
+                                              << max_work_item_sizes[1] << ", "
+                                              << max_work_item_sizes[2];
 
         std::string device_profile;
         dev.getInfo(CL_DEVICE_PROFILE, &device_profile);
@@ -66,7 +66,7 @@ cl::Context opencl_setup(void)
 
         std::string device_extensions;
         dev.getInfo(CL_DEVICE_EXTENSIONS, &device_extensions);
-        LOG(DEBUG) << "device extensions: " << device_extensions;
+        LOG(DEBUG) << "device extensions: " << device_extensions << std::endl;
     }
 
     cl::Context context (devices);
