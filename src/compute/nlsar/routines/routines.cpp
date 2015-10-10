@@ -153,7 +153,6 @@ timings::map nlsar::routines::get_enls_nobias_and_alphas (cl::Context context,
                                                                                       patch_size_max,
                                                                                       scale_size_max);
 
-/*
     LOG(DEBUG) << "compute_alphas";
     tm["compute_alphas"] = nl_routines.compute_alphas_routine.timed_run(cmd_queue, 
                                                                         device_intensities_nl,
@@ -173,6 +172,5 @@ timings::map nlsar::routines::get_enls_nobias_and_alphas (cl::Context context,
                                                                                  height_ori,
                                                                                  width_ori);
 
-*/
     return tm;
 }
