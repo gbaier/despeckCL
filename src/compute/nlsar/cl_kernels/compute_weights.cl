@@ -18,7 +18,7 @@ __kernel void compute_weights (__global float * patch_similarities,
     if( tx < height_ori*width_ori*search_window_size*search_window_size ) {
         float dissim = patch_similarities[tx];
 
-        /*dissim = max(dissim, dissims_min);
+        dissim = max(dissim, dissims_min);
         dissim = min(dissim, dissims_max);
 
         // map dissimilarities to lookup table index
@@ -27,7 +27,7 @@ __kernel void compute_weights (__global float * patch_similarities,
         const float quantile = dissims2relidx[ (unsigned int) mapped_idx];
         const float x        = chi2cdf_inv[(unsigned int) (quantile * lut_size)];
         const float y = sqrt((x-c)*(x-c)); // error: call to 'abs' is ambiguous workaround
-*/
-        weights[tx] = 1.0f;// max(0.000001f, exp(-y/h));
+
+        weights[tx] = max(0.000001f, exp(-y/h));
     }
 }
