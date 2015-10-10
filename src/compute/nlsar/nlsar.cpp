@@ -5,6 +5,7 @@
 #include <string.h> // for memcpy
 #include <vector>
 #include <string>
+#include <omp.h>
 
 #include "cl_wrappers.h"
 #include "insar_data.h"
@@ -16,6 +17,35 @@
 #include "logging.h"
 #include "best_params.h"
 #include "timings.h"
+
+int return_sub_image_size(cl::Context context,
+                          const int search_window_size,
+                          const std::vector<int>& patch_sizes,
+                          const std::vector<int>& scale_sizes)
+{
+    const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
+    const int scale_size_max = *std::max_element(scale_sizes.begin(), scale_sizes.end());
+
+    const int overlap = search_window_size + patch_size_max + scale_size_max - 3;
+
+    const int n_params = patch_sizes.size() * scale_sizes.size();
+    std::vector<cl::Device> devices;
+    context.getInfo(CL_CONTEXT_DEVICES, &devices);
+    cl::Device dev = devices[0];
+
+    int long max_mem_alloc_size;
+    //dev.getInfo(CL_DEVICE_GLOBAL_MEM_SIZE, &global_mem_size);
+    dev.getInfo(CL_DEVICE_MAX_MEM_ALLOC_SIZE, &max_mem_alloc_size);
+    LOG(DEBUG) << "maximum memory allocation size = " << max_mem_alloc_size;
+
+    // Most the most memory is required for storing weights, so only this is taken into account.
+    const float safety_factor = 0.3f;
+    const int sub_image_size = safety_factor*(overlap + std::sqrt( max_mem_alloc_size / ( search_window_size * search_window_size * n_params * omp_get_num_threads() ) ));
+
+    LOG(DEBUG) << "sub_image_size = " << sub_image_size;
+
+    return sub_image_size;
+}
 
 int despeckcl::nlsar(float* ampl_master,
                      float* ampl_slave,
@@ -44,18 +74,7 @@ int despeckcl::nlsar(float* ampl_master,
     // - (window_width - 1)/2 for spatial averaging of covariance matrices
     const int overlap = (patch_size_max - 1)/2 + (search_window_size - 1)/2 + (scale_size_max - 1)/2;
 
-    // the sub image size needs to be picked so that all buffers fit in the GPUs memory
-    // Use the following formula to get a rough estimate of the memory consumption
-    // sws: search window size
-    // sis: sub image size
-    // the factor of 5 is due to the number of large buffers
-    // similarty, patch_similarity, kullback_leibler, patch_kullback_leibler, weights
-    // memory consumption in bytes:
-    // sws^2 * sis^2 * n_threads * 4 (float) * 5
-    const int sub_image_size = 100;
-
     logging_setup(enabled_log_levels);
-
 
     LOG(INFO) << "filter parameters";
     LOG(INFO) << "search window size: " << search_window_size;
@@ -73,6 +92,8 @@ int despeckcl::nlsar(float* ampl_master,
 
     // legacy opencl setup
     cl::Context context = opencl_setup();
+
+    const int sub_image_size = return_sub_image_size(context, search_window_size, patch_sizes, scale_sizes);
 
     // new build kernel interface
     std::chrono::time_point<std::chrono::system_clock> start, end;
