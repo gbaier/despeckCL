@@ -96,6 +96,9 @@ class kernel_env : public routine_env<Derived>
                 LOG(ERROR) << error.what() << "(" << error.err() << ")";
                 std::terminate();
             }
+#ifdef PERF
+            cmd_queue.finish();
+#endif
 
             end = std::chrono::system_clock::now();
             std::chrono::duration<double> duration = end-start;
