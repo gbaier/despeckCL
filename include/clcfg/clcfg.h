@@ -29,13 +29,13 @@ class kernel_env : public routine_env<Derived>
                    std::string build_opts = "-Werror -cl-std=CL1.2") : block_size(block_size), context(context)
         {
             this->program = build_program(build_opts, static_cast<Derived*>(this)->kernel_source);
-            build_kernel(this->program, static_cast<Derived*>(this)->routine_name);
+            this->kernel  = build_kernel(this->program, static_cast<Derived*>(this)->routine_name);
         }
 
         kernel_env(const kernel_env& other) : block_size(other.block_size), context(other.context)
         {
             this->program = other.program;
-            build_kernel(this->program, static_cast<Derived*>(this)->routine_name);
+            this->kernel  = build_kernel(this->program, static_cast<Derived*>(this)->routine_name);
         }
 
         std::string return_default_build_opts(void)
@@ -62,7 +62,6 @@ class kernel_env : public routine_env<Derived>
                 LOG(ERROR) << build_log;
                 std::terminate();
             }
-            VLOG(0) << "done";
             return program;
         }
 
@@ -70,14 +69,11 @@ class kernel_env : public routine_env<Derived>
         {
             VLOG(0) << "Building kernel for: " << routine_name;
             try {
-                cl::Kernel kernel{program, routine_name.c_str()};
-                this->kernel = kernel;
+                return cl::Kernel{program, routine_name.c_str()};
             } catch (cl::Error error) {
                 LOG(ERROR) << error.what() << "(" << error.err() << ")";
                 std::terminate();
             }
-            VLOG(0) << "done";
-            return kernel;
         }
 
    public:
