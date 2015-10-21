@@ -7,7 +7,18 @@ namespace nlsar {
     class compute_patch_similarities : public kernel_env<compute_patch_similarities>
     {
         public:
-            using kernel_env::kernel_env;
+            const size_t block_size_x;
+            const size_t block_size_y;
+            const size_t steps_row;
+            const size_t steps_col;
+
+            compute_patch_similarities (cl::Context context,
+                                        const size_t block_size_x,
+                                        const size_t block_size_y,
+                                        const int steps_row,
+                                        const int steps_col);
+
+            compute_patch_similarities (const compute_patch_similarities& other);
 
             static constexpr const char* kernel_source =
     "@CMAKE_KERNEL_SOURCE@"

@@ -1,8 +1,35 @@
 #include "compute_patch_similarities.h"
 
-int nlsar::compute_patch_similarities::get_output_block_size(const int patch_size)
+nlsar::compute_patch_similarities::compute_patch_similarities(cl::Context context,
+                                                              const size_t block_size_x,
+                                                              const size_t block_size_y,
+                                                              const int steps_row,
+                                                              const int steps_col) : kernel_env<compute_patch_similarities>(block_size_x,
+                                                                                                                            context,
+                                                                                                                            this->return_build_options(block_size_x,
+                                                                                                                                                       block_size_y,
+                                                                                                                                                       steps_row,
+                                                                                                                                                       steps_col)),
+                                                                                     block_size_x(block_size_x),
+                                                                                     block_size_y(block_size_y),
+                                                                                     steps_row(steps_row),
+                                                                                     steps_col(steps_col) {}
+
+
+nlsar::compute_patch_similarities::compute_patch_similarities(const compute_patch_similarities& other) : kernel_env<compute_patch_similarities>(other),
+                                                                                                         block_size_x(block_size_x),
+                                                                                                         block_size_y(block_size_y),
+                                                                                                         steps_row(steps_row),
+                                                                                                         steps_col(steps_col) {}
+
+std::string nlsar::compute_patch_similarities::return_build_options(const int block_size_x,
+                                                                    const int block_size_y,
+                                                                    const int steps_row,
+                                                                    const int steps_col)
 {
-    return block_size - patch_size + 1;
+    std::ostringstream out;
+    out << " -D BLOCK_SIZE_X=" << block_size_x << " -D BLOCK_SIZE_Y=" << block_size_y << " -D STEPS_ROW=" << steps_row << " -D STEPS_COLS" << steps_col;
+    return return_default_build_opts() + out.str();
 }
 
 void nlsar::compute_patch_similarities::run(cl::CommandQueue cmd_queue,
