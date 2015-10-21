@@ -28,14 +28,14 @@ class kernel_env : public routine_env<Derived>
                    cl::Context context,
                    std::string build_opts = "-Werror -cl-std=CL1.2") : block_size(block_size), context(context)
         {
-            build_program(build_opts);
-            build_kernel();
+            this->program = build_program(build_opts, static_cast<Derived*>(this)->kernel_source);
+            this->kernel  = build_kernel(this->program, static_cast<Derived*>(this)->routine_name);
         }
 
         kernel_env(const kernel_env& other) : block_size(other.block_size), context(other.context)
         {
-            program = other.program;
-            build_kernel();
+            this->program = other.program;
+            this->kernel  = build_kernel(this->program, static_cast<Derived*>(this)->routine_name);
         }
 
         std::string return_default_build_opts(void)
@@ -44,15 +44,15 @@ class kernel_env : public routine_env<Derived>
         }
 
    protected:
-        void build_program(std::string build_opts)
+        cl::Program build_program(std::string build_opts, std::string kernel_source)
         {
             std::vector<cl::Device> devices;
             context.getInfo(CL_CONTEXT_DEVICES, &devices);
 
             std::string routine_name  = static_cast<Derived*>(this)->routine_name;
-            std::string kernel_source = static_cast<Derived*>(this)->kernel_source;
             VLOG(0) << "Building program for: " << routine_name;
-            cl::Program program{context, static_cast<Derived*>(this)->kernel_source};
+
+            cl::Program program{context, kernel_source};
             try {
                 program.build(devices, build_opts.c_str());
             } catch (cl::Error error) {
@@ -62,23 +62,18 @@ class kernel_env : public routine_env<Derived>
                 LOG(ERROR) << build_log;
                 std::terminate();
             }
-            VLOG(0) << "done";
-            this->program = program;
+            return program;
         }
 
-        void build_kernel(void)
+        cl::Kernel build_kernel(cl::Program program, std::string routine_name)
         {
-            std::string routine_name = static_cast<Derived*>(this)->routine_name;
             VLOG(0) << "Building kernel for: " << routine_name;
             try {
-                cl::Kernel kernel{this->program, routine_name.c_str()};
-                this->kernel = kernel;
+                return cl::Kernel{program, routine_name.c_str()};
             } catch (cl::Error error) {
-                LOG(ERROR) << "ERR while building kernel: " << routine_name;
                 LOG(ERROR) << error.what() << "(" << error.err() << ")";
                 std::terminate();
             }
-            VLOG(0) << "done";
         }
 
    public:
