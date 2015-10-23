@@ -1,6 +1,7 @@
 #ifndef SMOOTHING_H
 #define SMOOTHING_H
 
+#define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 
 #include "../compute_env.h"

@@ -47,15 +47,16 @@ class kernel_env : public routine_env<Derived>
         cl::Program build_program(std::string build_opts, std::string kernel_source)
         {
             std::vector<cl::Device> devices;
-            context.getInfo(CL_CONTEXT_DEVICES, &devices);
+            static_cast<Derived*>(this)->context.getInfo(CL_CONTEXT_DEVICES, &devices);
 
             std::string routine_name  = static_cast<Derived*>(this)->routine_name;
             VLOG(0) << "Building program for: " << routine_name;
 
-            cl::Program program{context, kernel_source};
+            cl::Program program{static_cast<Derived*>(this)->context, kernel_source};
             try {
                 program.build(devices, build_opts.c_str());
             } catch (cl::Error error) {
+                VLOG(0) << "ERROR";
                 LOG(ERROR) << error.what() << "(" << error.err() << ")";
                 std::string build_log;
                 program.getBuildInfo(devices[0], CL_PROGRAM_BUILD_LOG, &build_log);

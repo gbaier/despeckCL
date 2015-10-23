@@ -1,54 +1,50 @@
-__kernel void compute_patch_similarities (__global float * pixel_similarities,
-                                          __global float * patch_similarities,
-                                          const int height_sim,
-                                          const int width_sim,
-                                          const int patch_size,
-                                          const int patch_size_max,
-                                          __local float * pixel_similarities_local,
-                                          __local float * cache)
+__kernel void patch_similarities_col_pass (__global float * intermed_row_avg,
+                                           __global float * patch_similarities,
+                                           const int height_sim,
+                                           const int width_sim,
+                                           const int patch_size,
+                                           const int patch_size_max,
+                                           __local float * intermed_row_avg_local)
 {
     const int offset = (patch_size_max - patch_size) / 2;
 
     const int height_ori = height_sim - patch_size_max + 1;
     const int width_ori  = width_sim  - patch_size_max + 1;
 
-    const int output_block_size = get_local_size(0) - patch_size + 1;
-
     const int tx = get_local_id(0);
     const int ty = get_local_id(1);
     const int tz = get_global_id(2);
 
-    const int out_x = get_group_id(0) * output_block_size + tx;
-    const int out_y = get_group_id(1) * output_block_size + ty;
+    const int z_idx_c = tz*height_sim*width_sim;
+    const int y_idx_c = offset+get_group_id(1)*BLOCK_SIZE_Y*STEPS_COL;
+    const int x_idx_c = get_global_id(0);
 
-    if ( (out_x < height_sim) && (out_y < width_sim) ) {
-        pixel_similarities_local[tx*get_local_size(1) + ty] = pixel_similarities[tz*height_sim*width_sim + (offset+out_x)*width_sim + offset + out_y];
-    } else {
-        pixel_similarities_local[tx*get_local_size(1) + ty] = 0;
+    // load data into local memory
+    // -2 and +2 are due to halo
+    for(int b = -2; b < STEPS_COL + 2; b++) {
+        const int put_idx = ty*BLOCK_SIZE_X*(b+2) + tx;
+        const int y_idx = y_idx_c + BLOCK_SIZE_Y*b + ty;
+        if(y_idx < 0 || y_idx >= height_sim || x_idx_c >= width_ori) { //halo or indices outside valid data
+            intermed_row_avg_local[put_idx] = 0;
+        } else {
+            intermed_row_avg_local[put_idx] = intermed_row_avg[z_idx_c + y_idx + x_idx_c];
+        }
     }
 
     barrier(CLK_LOCAL_MEM_FENCE);
 
-    float sum = 0;
-
-    // average over 2nd dimension
-    if (ty < output_block_size) {
-        for(int ky = 0; ky < patch_size; ky++) {
-            sum += pixel_similarities_local[tx*get_local_size(1) + ty + ky];
+    const int psh = (patch_size-1)/2;
+    for(int b = 0; b < STEPS_COL; b++) {
+        float sum = 0;
+        for(int k = -psh; k <= psh; k++) {
+            const int idx = (ty+k+b+2)*BLOCK_SIZE_X + tx;
+            sum += intermed_row_avg_local[idx];
         }
-        cache[tx*output_block_size+ty] = sum;
-    }
-    // use the intermediate results for the 2nd dimension to average over the 1st
-    barrier(CLK_LOCAL_MEM_FENCE);
-    if (tx < output_block_size) {
-        for(int kx = 1; kx < patch_size; kx++) {
-            sum += cache[(tx+kx)*output_block_size + ty];
-        }
-    }
-
-    if ((tx < output_block_size) && (ty < output_block_size)) {
-        if (out_x < height_ori && out_y < width_ori) {
-            patch_similarities[tz*height_ori*width_ori + out_x*width_ori + out_y] = sum;
+        if (get_global_id(0) < width_ori && get_group_id(1)*BLOCK_SIZE_Y*STEPS_COL + BLOCK_SIZE_Y*b + ty < height_ori) {
+            const int idx = tz*height_ori*width_ori + \
+                            (get_group_id(1)*BLOCK_SIZE_Y*STEPS_COL + BLOCK_SIZE_Y*b + ty)*width_ori + \
+                            get_global_id(0);
+            patch_similarities[idx] = sum;
         }
     }
 }

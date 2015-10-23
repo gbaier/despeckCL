@@ -81,7 +81,7 @@ std::vector<float> nlsar::get_dissims(cl::Context context,
     covmat_rescale                 covmat_rescale_routine                 (16, context);
     covmat_spatial_avg             covmat_spatial_avg_routine             (16, context);
     compute_pixel_similarities_2x2 compute_pixel_similarities_2x2_routine (16, context);
-    compute_patch_similarities     compute_patch_similarities_routine     (16, context);
+    compute_patch_similarities     compute_patch_similarities_routine     (context, 16, 4, 4, 4);
 
     covmat_create_routine.timed_run(cmd_queue,
                                     device_ampl_master,
