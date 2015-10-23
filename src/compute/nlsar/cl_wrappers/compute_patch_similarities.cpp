@@ -12,21 +12,6 @@ nlsar::compute_patch_similarities::compute_patch_similarities(cl::Context contex
 {
     std::string build_opts = return_build_options(block_size_x, block_size_y, steps_row, steps_col);
 
-    std::vector<cl::Device> devices;
-    context.getInfo(CL_CONTEXT_DEVICES, &devices);
-
-    LOG(ERROR) << "building prog";
-    cl::Program program{context, kernel_source_row_pass};
-    try {
-        program.build(devices, build_opts.c_str());
-    } catch (cl::Error error) {
-        LOG(ERROR) << error.what() << "(" << error.err() << ")";
-        std::string build_log;
-        program.getBuildInfo(devices[0], CL_PROGRAM_BUILD_LOG, &build_log);
-        LOG(ERROR) << build_log;
-        std::terminate();
-    }
-
     this->program_row_pass = build_program(build_opts, kernel_source_row_pass);
     this->kernel_row_pass  = build_kernel(this->program_row_pass, "patch_similarities_row_pass");
 
