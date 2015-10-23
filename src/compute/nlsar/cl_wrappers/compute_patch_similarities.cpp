@@ -28,8 +28,8 @@ nlsar::compute_patch_similarities::compute_patch_similarities(const compute_patc
 {
     this->program_row_pass = other.program_row_pass;
     this->program_col_pass = other.program_col_pass;
-    this->kernel_row_pass  = build_kernel(this->program_row_pass, routine_name);
-    this->kernel_col_pass  = build_kernel(this->program_col_pass, routine_name);
+    this->kernel_row_pass  = build_kernel(this->program_row_pass, "patch_similarities_row_pass");
+    this->kernel_col_pass  = build_kernel(this->program_col_pass, "patch_similarities_col_pass");
 }
 
 std::string nlsar::compute_patch_similarities::return_build_options(const int block_size_x,
