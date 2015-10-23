@@ -4,6 +4,8 @@ ENABLE_LANGUAGE(C)
 
 project(despeckCL CXX)
 
+add_definitions(-DPERF)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC") 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
