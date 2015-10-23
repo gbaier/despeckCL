@@ -52,7 +52,7 @@ void nlsar::compute_patch_similarities::run(cl::CommandQueue cmd_queue,
                                             const int patch_size_max)
 {
     const int width_ori  = width_sim  - patch_size_max + 1;
-    const int height_ori  = height_sim  - patch_size_max + 1;
+    const int height_ori = height_sim - patch_size_max + 1;
     const int offset = (patch_size_max - patch_size) / 2;
 
     cl::NDRange local_size  {block_size_x, block_size_y, 1};
