@@ -14,8 +14,8 @@ using namespace nlsar;
 TEST_CASE( "compute_patch_similarities", "[cl_kernels]" ) {
 
         // data setup
-        const int height_sim = 10;
-        const int width_sim  = 10;
+        const int height_sim = 20;
+        const int width_sim  = 30;
         const int search_window_size = 5;
         const int patch_size         = 3;
         const int patch_size_max     = patch_size;
