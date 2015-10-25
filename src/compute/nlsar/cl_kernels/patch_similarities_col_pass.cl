@@ -6,7 +6,7 @@ __kernel void patch_similarities_col_pass (__global float * intermed_row_avg,
                                            const int patch_size_max,
                                            __local float * intermed_row_avg_local)
 {
-    const int ori_offset = (patch_size_max - 1) / 2;
+    const int ori_offset = (patch_size - 1) / 2;
     const int offset = (patch_size_max - patch_size) / 2;
 
     const int height_ori = height_sim - patch_size_max + 1;
