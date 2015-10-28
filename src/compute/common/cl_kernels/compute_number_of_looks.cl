@@ -4,8 +4,8 @@ __kernel void compute_number_of_looks (__global float * weights,
                                        const int width_ori,
                                        const int search_window_size)
 {
-    const int tx = get_group_id(0) * get_local_size(0) + get_local_id(0);
-    const int ty = get_group_id(1) * get_local_size(1) + get_local_id(1);
+    const int tx = get_global_id(0);
+    const int ty = get_global_id(1);
 
     const int swsh = (search_window_size-1)/2;
 
