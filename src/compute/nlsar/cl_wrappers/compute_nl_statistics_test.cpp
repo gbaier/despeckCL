@@ -36,6 +36,7 @@ TEST_CASE( "compute_nl_statistics", "[cl_kernels]" ) {
 
         //output
         std::vector<float> weights_sums           (weights_sums_nelem, -1.0);
+        std::vector<float> eq_nol                 (weights_sums_nelem, -1.0);
         std::vector<float> desired_weights_sums   (weights_sums_nelem, search_window_size*search_window_size);
         std::vector<float> intensities_nl             (stats_nelem, -1.0);
         std::vector<float> desired_intensities_nl     (stats_nelem,  1.0);
@@ -59,6 +60,7 @@ TEST_CASE( "compute_nl_statistics", "[cl_kernels]" ) {
         cl::Buffer device_weights    {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, weights_nelem   * sizeof(float), weights.data(),   NULL};
 
         cl::Buffer device_weights_sums       {context, CL_MEM_READ_WRITE, weights_sums_nelem * sizeof(float), NULL, NULL};
+        cl::Buffer device_eq_nol             {context, CL_MEM_READ_WRITE, weights_sums_nelem * sizeof(float), NULL, NULL};
         cl::Buffer device_intensities_nl     {context, CL_MEM_READ_WRITE,        stats_nelem * sizeof(float), NULL, NULL};
         cl::Buffer device_weighted_variances {context, CL_MEM_READ_WRITE,        stats_nelem * sizeof(float), NULL, NULL};
 
@@ -68,6 +70,7 @@ TEST_CASE( "compute_nl_statistics", "[cl_kernels]" ) {
                 device_intensities_nl,
                 device_weighted_variances,
                 device_weights_sums,
+                device_eq_nol,
                 height_ori,
                 width_ori,
                 search_window_size,
@@ -75,6 +78,7 @@ TEST_CASE( "compute_nl_statistics", "[cl_kernels]" ) {
                 scale_width);
 
         cmd_queue.enqueueReadBuffer(device_weights_sums,       CL_TRUE, 0, weights_sums_nelem * sizeof(float), weights_sums.data(),       NULL, NULL);
+        cmd_queue.enqueueReadBuffer(device_eq_nol,             CL_TRUE, 0, weights_sums_nelem * sizeof(float), eq_nol.data(),             NULL, NULL);
         cmd_queue.enqueueReadBuffer(device_intensities_nl,     CL_TRUE, 0,        stats_nelem * sizeof(float), intensities_nl.data(),     NULL, NULL);
         cmd_queue.enqueueReadBuffer(device_weighted_variances, CL_TRUE, 0,        stats_nelem * sizeof(float), weighted_variances.data(), NULL, NULL);
 
@@ -82,6 +86,11 @@ TEST_CASE( "compute_nl_statistics", "[cl_kernels]" ) {
         for(int i = 0; i < (int) weights_sums.size(); i++) {
             weights_sums_flag = weights_sums_flag && Approx(weights_sums[i]) == desired_weights_sums[i];
 
+        }
+
+        bool eq_nol_flag = true;
+        for(int i = 0; i < (int) eq_nol.size(); i++) {
+            eq_nol_flag = eq_nol_flag && Approx(eq_nol[i]) == search_window_size*search_window_size;
         }
 
         bool intensities_nl_flag = true;
@@ -93,7 +102,9 @@ TEST_CASE( "compute_nl_statistics", "[cl_kernels]" ) {
         for(int i = 0; i < (int) weighted_variances.size(); i++) {
             weighted_variances_flag = weighted_variances_flag && Approx(weighted_variances[i]) == desired_weighted_variances[i];
         }
+
         REQUIRE( (weights_sums_flag) );
+        REQUIRE( (eq_nol_flag) );
         REQUIRE( (intensities_nl_flag) );
         REQUIRE( (weighted_variances_flag) );
 }

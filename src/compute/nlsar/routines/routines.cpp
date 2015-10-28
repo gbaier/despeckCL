@@ -132,14 +132,6 @@ timings::map nlsar::routines::get_enls_nobias_and_alphas (cl::Context context,
     cl::Buffer device_weighted_variances {context, CL_MEM_READ_WRITE, dimension * n_elem_ori * sizeof(float), NULL, NULL};
     cl::Buffer device_wsums              {context, CL_MEM_READ_WRITE,             n_elem_ori * sizeof(float), NULL, NULL};
 
-    LOG(DEBUG) << "compute_number_of_looks";
-    tm["compute_number_of_looks"] = nl_routines.compute_number_of_looks_routine.timed_run(cmd_queue,
-                                                                                          device_weights,
-                                                                                          device_enl,
-                                                                                          height_ori,
-                                                                                          width_ori,
-                                                                                          search_window_size);
-
     LOG(DEBUG) << "compute_nl_statistics";
     tm["compute_nl_statistics"] = nl_routines.compute_nl_statistics_routine.timed_run(cmd_queue, 
                                                                                       device_covmat_ori,
@@ -147,6 +139,7 @@ timings::map nlsar::routines::get_enls_nobias_and_alphas (cl::Context context,
                                                                                       device_intensities_nl,
                                                                                       device_weighted_variances,
                                                                                       device_wsums,
+                                                                                      device_enl,
                                                                                       height_ori,
                                                                                       width_ori,
                                                                                       search_window_size,

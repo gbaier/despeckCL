@@ -7,6 +7,7 @@ __kernel void compute_nl_statistics (__global float * covmat_ori,
                                      __global float * intensities_nl,
                                      __global float * weighted_variances,
                                      __global float * weights_sums,
+                                     __global float * eq_nols,
                                      const int height_ori,
                                      const int width_ori,
                                      const int search_window_size,
@@ -54,6 +55,7 @@ __kernel void compute_nl_statistics (__global float * covmat_ori,
         __private float weighted_variances_private [DIMENSION] = {0};
         __private float intensities_nl_private     [DIMENSION] = {0};
         __private float weights_sum_private = 0.0f;
+        __private float weights_sum_squared_private = 0.0f;
         for(int x = 0; x<SEARCH_WINDOW_SIZE; x++ ) {
             for(int y = 0; y<SEARCH_WINDOW_SIZE; y++ ) {
                 const float weight = weights[x * SEARCH_WINDOW_SIZE * height_ori * width_ori \
@@ -61,6 +63,7 @@ __kernel void compute_nl_statistics (__global float * covmat_ori,
                                                                          + out_x * width_ori \
                                                                                      + out_y];
                 weights_sum_private += weight;
+                weights_sum_squared_private += weight*weight;
                 for(int d = 0; d<DIMENSION; d++) {
                     intensities_nl_private     [d] += weight * intensities_local         [d][tx+x][ty+y];
                     weighted_variances_private [d] += weight * intensities_local_squared [d][tx+x][ty+y];
@@ -69,6 +72,7 @@ __kernel void compute_nl_statistics (__global float * covmat_ori,
             }
         }
         weights_sums[out_x*width_ori + out_y] = weights_sum_private;
+        eq_nols     [out_x*width_ori + out_y] = weights_sum_private*weights_sum_private/weights_sum_squared_private;
         for(int d = 0; d<DIMENSION; d++) {
             intensities_nl_private     [d] /= weights_sum_private;
             weighted_variances_private [d] /= weights_sum_private;

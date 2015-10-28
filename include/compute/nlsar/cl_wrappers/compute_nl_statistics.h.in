@@ -31,6 +31,7 @@ namespace nlsar {
                      cl::Buffer intensities_nl,
                      cl::Buffer weighted_variances,
                      cl::Buffer weight_sums,
+                     cl::Buffer eq_nols,
                      const int height_ori,
                      const int width_ori,
                      const int search_window_size,
