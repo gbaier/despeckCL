@@ -18,6 +18,13 @@
 #include "best_params.h"
 #include "timings.h"
 
+
+int round_down(const int num, const int multiple)
+{
+     int remainder = num % multiple;
+     return num - remainder;
+}
+
 int return_sub_image_size(cl::Context context,
                           const int search_window_size,
                           const std::vector<int>& patch_sizes,
@@ -33,14 +40,23 @@ int return_sub_image_size(cl::Context context,
     context.getInfo(CL_CONTEXT_DEVICES, &devices);
     cl::Device dev = devices[0];
 
+    int long global_mem_size;
+    dev.getInfo(CL_DEVICE_GLOBAL_MEM_SIZE, &global_mem_size);
+    LOG(DEBUG) << "global memory size = " << global_mem_size;
+
     int long max_mem_alloc_size;
-    //dev.getInfo(CL_DEVICE_GLOBAL_MEM_SIZE, &global_mem_size);
     dev.getInfo(CL_DEVICE_MAX_MEM_ALLOC_SIZE, &max_mem_alloc_size);
     LOG(DEBUG) << "maximum memory allocation size = " << max_mem_alloc_size;
 
     // Most the most memory is required for storing weights, so only this is taken into account.
-    const float safety_factor = 0.3f;
-    const int sub_image_size = safety_factor*(overlap + std::sqrt( max_mem_alloc_size / ( search_window_size * search_window_size * n_params * omp_get_num_threads() ) ));
+    // required bytes per pixel = reg_bpp
+    const int req_bpp = 4 * search_window_size * search_window_size * n_params;
+    const int n_pixels_global = global_mem_size    / (req_bpp * omp_get_num_threads());
+    const int n_pixels_alloc  = max_mem_alloc_size /  req_bpp;
+    const int n_pixels = std::min(n_pixels_global, n_pixels_alloc);
+
+    const float safety_factor = 0.9;
+    const int sub_image_size = overlap + round_down(safety_factor*std::sqrt(n_pixels), 64);
 
     LOG(DEBUG) << "sub_image_size = " << sub_image_size;
 
