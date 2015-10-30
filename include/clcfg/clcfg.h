@@ -50,13 +50,13 @@ class kernel_env : public routine_env<Derived>
             static_cast<Derived*>(this)->context.getInfo(CL_CONTEXT_DEVICES, &devices);
 
             std::string routine_name  = static_cast<Derived*>(this)->routine_name;
-            VLOG(0) << "Building program for: " << routine_name;
+            LOG(DEBUG) << "Building program for: " << routine_name;
 
             cl::Program program{static_cast<Derived*>(this)->context, kernel_source};
             try {
                 program.build(devices, build_opts.c_str());
             } catch (cl::Error error) {
-                VLOG(0) << "ERROR";
+                LOG(ERROR) << "ERROR";
                 LOG(ERROR) << error.what() << "(" << error.err() << ")";
                 std::string build_log;
                 program.getBuildInfo(devices[0], CL_PROGRAM_BUILD_LOG, &build_log);
@@ -68,7 +68,7 @@ class kernel_env : public routine_env<Derived>
 
         cl::Kernel build_kernel(cl::Program program, std::string routine_name)
         {
-            VLOG(0) << "Building kernel for: " << routine_name;
+            LOG(DEBUG) << "Building kernel for: " << routine_name;
             try {
                 return cl::Kernel{program, routine_name.c_str()};
             } catch (cl::Error error) {
