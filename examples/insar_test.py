@@ -10,6 +10,8 @@ ampl_master = np.ascontiguousarray(data['ampl_master'])
 ampl_slave  = np.ascontiguousarray(data['ampl_slave'])
 dphase      = np.ascontiguousarray(data['dphase'])
 
+import matplotlib
+matplotlib.use('Qt4Agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 
