@@ -70,9 +70,10 @@ int return_sub_image_size(cl::Context context,
     } else {
         safe_sub_img_size = sub_img_size_fit_rounded - 64;
     }
+    VLOG(0) << "safe_sub_image_size = " << safe_sub_img_size;
     safe_sub_img_size += overlap;
+    VLOG(0) << "safe_sub_image_size with overlap = " << safe_sub_img_size;
 
-    VLOG(0) << "safe sub_image_size = " << safe_sub_img_size;
 
     return safe_sub_img_size;
 }
