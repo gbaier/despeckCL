@@ -73,6 +73,7 @@ void nlsar::compute_patch_similarities::run(cl::CommandQueue cmd_queue,
                                  (size_t) block_size_y*( (height_sim  - 2*offset - 1)/(block_size_y) + 1), \
                                  (size_t) search_window_size*search_window_size };
 
+    LOG(DEBUG) << "patch similarities kernel row pass";
     cmd_queue.enqueueNDRangeKernel(kernel_row_pass, cl::NullRange, global_size_row, local_size, NULL, NULL);
 
 
@@ -91,5 +92,6 @@ void nlsar::compute_patch_similarities::run(cl::CommandQueue cmd_queue,
                                  (size_t) block_size_y*( (height_ori  - 1)/(block_size_y*steps_col) + 1), \
                                  (size_t) search_window_size*search_window_size };
 
+    LOG(DEBUG) << "patch similarities kernel column pass";
     cmd_queue.enqueueNDRangeKernel(kernel_col_pass, cl::NullRange, global_size_col, local_size, NULL, NULL);
 }
