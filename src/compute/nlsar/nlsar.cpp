@@ -36,17 +36,19 @@ int return_sub_image_size(cl::Context context,
     const int overlap = search_window_size + patch_size_max + scale_size_max - 3;
 
     const int n_params = patch_sizes.size() * scale_sizes.size();
+    VLOG(0) << "number of parameters = " << n_params;
+
     std::vector<cl::Device> devices;
     context.getInfo(CL_CONTEXT_DEVICES, &devices);
     cl::Device dev = devices[0];
 
     int long global_mem_size;
     dev.getInfo(CL_DEVICE_GLOBAL_MEM_SIZE, &global_mem_size);
-    LOG(DEBUG) << "global memory size = " << global_mem_size;
+    VLOG(0) << "global memory size = " << global_mem_size;
 
     int long max_mem_alloc_size;
     dev.getInfo(CL_DEVICE_MAX_MEM_ALLOC_SIZE, &max_mem_alloc_size);
-    LOG(DEBUG) << "maximum memory allocation size = " << max_mem_alloc_size;
+    VLOG(0) << "maximum memory allocation size = " << max_mem_alloc_size;
 
     // Most the most memory is required for storing weights, so only this is taken into account.
     // required bytes per pixel = reg_bpp
@@ -55,12 +57,24 @@ int return_sub_image_size(cl::Context context,
     const int n_pixels_alloc  = max_mem_alloc_size /  req_bpp;
     const int n_pixels = std::min(n_pixels_global, n_pixels_alloc);
 
-    const float safety_factor = 0.9;
-    const int sub_image_size = overlap + round_down(safety_factor*std::sqrt(n_pixels), 64);
+    const int sub_img_size_fit        = std::sqrt(n_pixels);
+    const int sub_img_size_fit_rounded = round_down(sub_img_size_fit, 64);
 
-    LOG(DEBUG) << "sub_image_size = " << sub_image_size;
+    VLOG(0) << "sub_image_size_fit = "         << sub_img_size_fit;
+    VLOG(0) << "sub_image_size_fit_rounded = " << sub_img_size_fit_rounded;
 
-    return sub_image_size;
+    const float safety_factor = 0.75;
+    int safe_sub_img_size = 0;
+    if (float(sub_img_size_fit_rounded)/sub_img_size_fit < safety_factor) {
+        safe_sub_img_size = sub_img_size_fit_rounded;
+    } else {
+        safe_sub_img_size = sub_img_size_fit_rounded - 64;
+    }
+    safe_sub_img_size += overlap;
+
+    VLOG(0) << "safe sub_image_size = " << safe_sub_img_size;
+
+    return safe_sub_img_size;
 }
 
 int despeckcl::nlsar(float* ampl_master,
