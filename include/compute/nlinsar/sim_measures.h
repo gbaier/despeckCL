@@ -24,7 +24,7 @@ float pixel_kullback_leibler(float ref1, float dp1, float coh1,
                              float ref2, float dp2, float coh2) 
 {
     // test if ref1 or ref 2 are zero
-    const float a1 = ref2 ? ref1/ref2 * (1.0f-coh1*coh2*cos(dp1-dp2))/(1.0f-coh2*coh2) : 1.0f;
-    const float a2 = ref1 ? ref2/ref1 * (1.0f-coh1*coh2*cos(dp1-dp2))/(1.0f-coh1*coh1) : 1.0f;
+    const float a1 = (ref2 != 0.0f) ? ref1/ref2 * (1.0f-coh1*coh2*cos(dp1-dp2))/(1.0f-coh2*coh2) : 1.0f;
+    const float a2 = (ref2 != 0.0f) ? ref2/ref1 * (1.0f-coh1*coh2*cos(dp1-dp2))/(1.0f-coh1*coh1) : 1.0f;
     return -4.0f/M_PI_F*(a1+a2-2.0f);
 }
