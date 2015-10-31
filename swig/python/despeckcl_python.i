@@ -42,10 +42,9 @@ void _boxcar_c_wrap(float* ampl_master, int h1, int w1,
                     float* ampl_filt,   int h4, int w4,
                     float* dphase_filt, int h5, int w5,
                     float* coh_filt,    int h6, int w6,
-                    const int window_width)
+                    const int window_width,
+                    const std::vector<std::string> enabled_log_levels)
 {
-    std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
-
     despeckcl::boxcar(ampl_master,
                       ampl_slave,
                       dphase,
@@ -66,7 +65,9 @@ import numpy as np
 def boxcar(ampl_master,
            ampl_slave,
            dphase,
-           window_width):
+           window_width,
+           enabled_log_levels = ['error', 'warning', 'fatal']):
+
     ampl_filt   = np.zeros_like(ampl_master)
     dphase_filt = np.zeros_like(ampl_master)
     coh_filt    = np.zeros_like(ampl_master)
@@ -76,7 +77,8 @@ def boxcar(ampl_master,
                               ampl_filt,
                               dphase_filt,
                               coh_filt,
-                              window_width);
+                              window_width,
+                              enabled_log_levels);
     return (ampl_filt, dphase_filt, coh_filt)
 }
 
@@ -91,10 +93,9 @@ void _nlinsar_c_wrap(float* ampl_master, int h1, int w1,
                      const int search_window_size,
                      const int patch_size,
                      const int niter,
-                     const int lmin)
+                     const int lmin,
+                     const std::vector<std::string> enabled_log_levels)
 {
-    std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
-
     despeckcl::nlinsar(ampl_master,
                        ampl_slave,
                        dphase,
@@ -120,7 +121,9 @@ def nlinsar(ampl_master,
             search_window_size,
             patch_size,
             niter,
-            lmin):
+            lmin,
+            enabled_log_levels = ['error', 'warning', 'fatal']):
+
     ampl_filt   = np.zeros_like(ampl_master)
     dphase_filt = np.zeros_like(ampl_master)
     coh_filt    = np.zeros_like(ampl_master)
@@ -134,7 +137,8 @@ def nlinsar(ampl_master,
                                search_window_size,
                                patch_size,
                                niter,
-                               lmin)
+                               lmin,
+                               enabled_log_levels)
     return (ampl_filt, dphase_filt, coh_filt)
 }
 
