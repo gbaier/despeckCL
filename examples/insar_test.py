@@ -38,6 +38,7 @@ search_window_size = 21
 patch_sizes = [3, 5, 7, 9, 11]
 scale_sizes = [1, 3, 5]
 log_levels = ['debug', 'verbose', 'warning', 'fatal', 'error', 'info']
+log_levels = ['verbose', 'info', 'warning', 'fatal', 'error']
 log_levels = ['info', 'warning', 'fatal', 'error']
 training_dim = despeckcl.bbox(0, 0, 25, 25)
 methods[despeckcl.nlsar] = (search_window_size, patch_sizes, scale_sizes, training_dim, log_levels)
@@ -49,10 +50,12 @@ methods[despeckcl.nlsar] = (search_window_size, patch_sizes, scale_sizes, traini
 #################################
 
 search_window_size = 21
-patch_size = 5
-niter = 5
+patch_size = 7
+niter = 3
 lmin = 10
-#methods[despeckcl.nlinsar] = (search_window_size, patch_size, niter, lmin)
+log_levels = ['debug', 'verbose', 'warning', 'fatal', 'error', 'info']
+log_levels = ['info', 'warning', 'fatal', 'error']
+methods[despeckcl.nlinsar] = (search_window_size, patch_size, niter, lmin, log_levels)
 
 ##################################
 #
