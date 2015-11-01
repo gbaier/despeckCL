@@ -6,6 +6,7 @@ timings::map nlsar::routines::get_pixel_similarities (cl::Context context,
                                                       const int height_overlap,
                                                       const int width_overlap,
                                                       const int dimension,
+                                                      const int nlooks,
                                                       const int search_window_size,
                                                       const int scale_size,
                                                       const int scale_size_max,
@@ -37,6 +38,8 @@ timings::map nlsar::routines::get_pixel_similarities (cl::Context context,
                                                                                                    device_pixel_similarities,
                                                                                                    height_overlap,
                                                                                                    width_overlap,
+                                                                                                   dimension,
+                                                                                                   nlooks,
                                                                                                    search_window_size);
 
     return tm;

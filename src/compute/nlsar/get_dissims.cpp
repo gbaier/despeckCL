@@ -112,6 +112,8 @@ std::vector<float> nlsar::get_dissims(cl::Context context,
                                                      device_pixel_similarities,
                                                      height_overlap,
                                                      width_overlap,
+                                                     dimension,
+                                                     nlooks,
                                                      search_window_size);
 
     compute_patch_similarities_routine.timed_run(cmd_queue,

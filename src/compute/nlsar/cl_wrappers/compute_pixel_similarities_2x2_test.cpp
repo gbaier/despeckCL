@@ -20,6 +20,7 @@ TEST_CASE( "compute_pixel_similarities_2x2", "[cl_kernels]" ) {
         const int height_overlap = 10;
         const int width_overlap  = 10;
         const int dimension = 2;
+        const int nlooks = 1;
         const int search_window_size = 5;
         const int height_sim = height_overlap - search_window_size + 1;
         const int width_sim  = width_overlap  - search_window_size + 1;
@@ -69,6 +70,8 @@ TEST_CASE( "compute_pixel_similarities_2x2", "[cl_kernels]" ) {
                 device_similarities,
                 height_overlap,
                 width_overlap,
+                dimension,
+                nlooks,
                 search_window_size);
 
         cmd_queue.enqueueReadBuffer(device_similarities, CL_TRUE, 0, similarities_nelems * sizeof(float), similarities.data(), NULL, NULL);
