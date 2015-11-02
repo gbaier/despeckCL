@@ -148,12 +148,11 @@ int despeckcl::nlsar(float* ampl_master,
         }
     }
     total_image.pad(overlap);
-    insar_data total_image_temp = total_image;
 
     // filtering
     start = std::chrono::system_clock::now();
     LOG(INFO) << "starting filtering";
-#pragma omp parallel shared(total_image, total_image_temp)
+#pragma omp parallel shared(total_image)
 {
 #pragma omp master
     {
@@ -176,11 +175,10 @@ int despeckcl::nlsar(float* ampl_master,
             LOG(ERROR) << "ERR while filtering sub image";
             std::terminate();
         }
-        total_image_temp.write_sub_insar_data(sub_image, overlap, boundaries);
+        total_image.write_sub_insar_data(sub_image, overlap, boundaries);
         }
     }
 #pragma omp taskwait
-    total_image = total_image_temp;
     }
 }
     total_image.unpad(overlap);
