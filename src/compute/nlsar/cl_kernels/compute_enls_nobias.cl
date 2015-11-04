@@ -1,6 +1,7 @@
 float enl_nobias(float enl, float alpha, float wsum) // Eq. 20 in Deledalle's NLSAR paper
 {
-    return enl/(pow(1.0f-alpha, 2.0f) + (pow(alpha, 2.0f) + 2.0f*alpha*(1.0f-alpha)/wsum*enl));
+    //return enl/(pow(1.0f-alpha, 2.0f) + (pow(alpha, 2.0f) + 2.0f*alpha*(1.0f-alpha)/wsum*enl));
+    return enl/(pow(1.0f-alpha, 2.0f) + enl*pow((1-alpha)/wsum+alpha, 2.0f));
 }
 
 __kernel void compute_enls_nobias (__global float * enls,

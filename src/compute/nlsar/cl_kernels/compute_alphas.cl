@@ -16,7 +16,10 @@ __kernel void compute_alphas (__global float * intensities_nl,
         for(int d=0; d<dimension; d++) {
             const float var    = weighted_variances [d*height_ori*width_ori + idx];
             const float int_nl = intensities_nl     [d*height_ori*width_ori + idx];
-            alpha = max(alpha, max(0.0f, (var - int_nl*int_nl/nlooks)/var));
+            //alpha = max(alpha, max(0.0f, (var - int_nl*int_nl/nlooks)/var));
+            float alpha_new = fabs(var-int_nl*int_nl/nlooks);
+            alpha_new = alpha_new / (alpha_new + int_nl*int_nl/nlooks);
+            alpha = max(alpha, alpha_new);
         }
         alphas[tx*width_ori + ty] = alpha;
     }
