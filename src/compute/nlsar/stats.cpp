@@ -36,6 +36,6 @@ nlsar::stats::stats(std::vector<float> dissims, unsigned int patch_size, unsigne
 
     for(float d=0; d<1; d += 1./lut_size) {
         // chi square cdf with patch_size*patch_size degrees of freedom
-        chi2cdf_inv.push_back(gsl_cdf_chisq_Pinv(d, patch_size*patch_size));
+        chi2cdf_inv.push_back(gsl_cdf_chisq_Pinv(d, 49));
     }
 }
