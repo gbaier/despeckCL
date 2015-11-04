@@ -99,7 +99,7 @@ int despeckcl::nlsar(float* ampl_master,
 
     // FIXME
     const int dimension = 2;
-    const int lut_size = 256;
+    const int lut_size = 1024;
     // overlap consists of:
     // - (patch_size_max - 1)/2 + (search_window_size - 1)/2 for similarities
     // - (window_width - 1)/2 for spatial averaging of covariance matrices
