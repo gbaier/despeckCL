@@ -14,7 +14,7 @@
 std::vector<float> nlsar::get_dissims(cl::Context context,
                                       const insar_data& sub_insar_data,
                                       const int patch_size,
-                                      const int window_width = 3)
+                                      const int scale_size)
 {
     const int dimension = 2;
     const int nlooks = 1;
@@ -36,8 +36,8 @@ std::vector<float> nlsar::get_dissims(cl::Context context,
     const int n_elem_overlap_avg = height_overlap_avg * width_overlap_avg;
 
     // overlapped dimension, large enough to include the complete padded data to compute the similarities;
-    const int height_overlap = height_overlap_avg - window_width + 1;
-    const int width_overlap  = width_overlap_avg  - window_width + 1;
+    const int height_overlap = height_overlap_avg - scale_size + 1;
+    const int width_overlap  = width_overlap_avg  - scale_size + 1;
     const int n_elem_overlap = height_overlap * width_overlap;
 
     // dimension of the precomputed patch similarity values
@@ -104,8 +104,8 @@ std::vector<float> nlsar::get_dissims(cl::Context context,
                                          dimension,
                                          height_overlap,
                                          width_overlap,
-                                         window_width,
-                                         window_width);
+                                         scale_size,
+                                         scale_size);
 
     compute_pixel_similarities_2x2_routine.timed_run(cmd_queue,
                                                      device_covmat_spatial_avg,

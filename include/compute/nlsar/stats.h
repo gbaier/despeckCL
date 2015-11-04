@@ -12,7 +12,7 @@ namespace nlsar {
         const unsigned int lut_size;
         float dissims_min;
         float dissims_max;
-        stats(std::vector<float> dissims, unsigned int patch_size, unsigned int lut_size);
+        stats(std::vector<float> dissims, unsigned int lut_size);
     };
 }
 

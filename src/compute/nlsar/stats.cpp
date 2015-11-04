@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-nlsar::stats::stats(std::vector<float> dissims, unsigned int patch_size, unsigned int lut_size): lut_size(lut_size)
+nlsar::stats::stats(std::vector<float> dissims, unsigned int lut_size): lut_size(lut_size)
 {
     std::sort(dissims.begin(), dissims.end());
     std::remove_if(dissims.begin(), dissims.end(), [] (float num) { return std::isnan(num);} );
@@ -35,7 +35,7 @@ nlsar::stats::stats(std::vector<float> dissims, unsigned int patch_size, unsigne
     }
 
     for(float d=0; d<1; d += 1./lut_size) {
-        // chi square cdf with patch_size*patch_size degrees of freedom
+        // chi square cdf with 49 degrees of freedom
         chi2cdf_inv.push_back(gsl_cdf_chisq_Pinv(d, 49));
     }
 }
