@@ -10,7 +10,8 @@ __kernel void compute_weights (__global float * patch_similarities,
                                const float dissims_min,
                                const float dissims_max)
 {
-    const float h = 0.33333f;
+    //const float h = 0.33333f;
+    const float h = 4.0f;
     const float c = 49.0f;
 
     const int tx = get_global_id(0);

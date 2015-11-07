@@ -1,0 +1,32 @@
+#ifndef PATCHES_UNPACK_H
+#define PATCHES_UNPACK_H
+
+#include "clcfg.h"
+
+#include <string>
+
+namespace goldstein
+    {
+    class patches_unpack : public kernel_env<patches_unpack>
+    {
+        public:
+            using kernel_env::kernel_env;
+
+            static constexpr const char* kernel_source =
+    "@CMAKE_KERNEL_SOURCE@"
+    ;
+
+            static constexpr const char* routine_name {"patches_unpack"};
+
+            void run(cl::CommandQueue cmd_queue,
+                     cl::Buffer interf_real, 
+                     cl::Buffer interf_img,
+                     cl::Buffer interf_real_unpacked, 
+                     cl::Buffer interf_imag_unpacked,
+                     const int height_unpacked,
+                     const int width_unpacked,
+                     const int patch_size,
+                     const int overlap);
+    };
+}
+#endif

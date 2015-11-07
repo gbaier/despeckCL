@@ -21,6 +21,8 @@ add_library(despeckcl STATIC
             $<TARGET_OBJECTS:boxcar_opencl_wrapper>
             $<TARGET_OBJECTS:nlinsar_lib>
             $<TARGET_OBJECTS:nlinsar_opencl_wrapper>
+            #$<TARGET_OBJECTS:goldstein_lib>
+            $<TARGET_OBJECTS:goldstein_cl_wrappers>
             ${despeckCL_SOURCE_DIR}/src/utils/logging.cpp
             ${despeckCL_SOURCE_DIR}/src/utils/timings.cpp
             ${despeckCL_SOURCE_DIR}/src/clcfg/clcfg.cpp
