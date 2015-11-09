@@ -31,8 +31,14 @@ target_link_libraries(patches_packing_test despeckcl)
 add_executable(patches_unpack_test patches_unpack_test.cpp)
 target_link_libraries(patches_unpack_test despeckcl)
 
+add_executable(patches_pack_test patches_pack_test.cpp)
+target_link_libraries(patches_pack_test despeckcl)
+
 add_test(NAME GOLDSTEIN_patches_packing
          COMMAND patches_packing_test)
 
 add_test(NAME GOLDSTEIN_patches_unpack
          COMMAND patches_unpack_test)
+
+add_test(NAME GOLDSTEIN_patches_pack
+         COMMAND patches_pack_test)
