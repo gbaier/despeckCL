@@ -271,7 +271,7 @@ TEST_CASE( "patches_unpack_rand_big", "[cl_kernels]" ) {
         
 
         bool flag = true;
-        for(int i = 0; i < height_packed*width_packed; i++) {
+        for(int i = 0; i < height_unpacked*width_unpacked; i++) {
             flag = flag && ( interf_real_unpacked_desired[i] == Approx(interf_real_unpacked[i]).epsilon( 0.0001 ));
             flag = flag && ( interf_imag_unpacked_desired[i] == Approx(interf_imag_unpacked[i]).epsilon( 0.0001 ));
         }
