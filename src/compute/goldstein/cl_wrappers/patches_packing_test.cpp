@@ -17,7 +17,7 @@ using namespace goldstein;
 TEST_CASE( "patches_packing", "[cl_kernels]" ) {
 
         // data setup
-        const int height_packed = 72;
+        const int height_packed = 48;
         const int width_packed  = 72;
         const int patch_size    = 32;
         const int overlap       = 4;
@@ -35,7 +35,7 @@ TEST_CASE( "patches_packing", "[cl_kernels]" ) {
         std::vector<float> interf_imag_out      (height_packed*width_packed, -1.0);
 
         static std::default_random_engine rand_eng{};
-        static std::uniform_real_distribution<float> dist_params(0, 10.0f);
+        static std::uniform_int_distribution<int> dist_params(1, 9.0f);
 
         for(int i = 0; i < height_packed * width_packed; i++) {
             interf_real[i] = dist_params(rand_eng);
@@ -89,10 +89,18 @@ TEST_CASE( "patches_packing", "[cl_kernels]" ) {
         cmd_queue.enqueueReadBuffer(device_interf_imag_out, CL_TRUE, 0, height_packed*width_packed*sizeof(float), interf_imag_out.data(), NULL, NULL);
 
         bool flag = true;
+        for(int y = 0; y < height_packed; y++) {
+            for(int x = 0; x < width_packed; x++) {
+                std::cout << std::setprecision(5) << (float) interf_real    [y*width_packed + x] << ":";
+                std::cout << std::setprecision(5) << (float) interf_real_out[y*width_packed + x] << ", ";
+            }
+            std::cout << std::endl;
+        }
+
         for(int i = 0; i < height_packed*width_packed; i++) {
             flag = flag && (interf_real_out[i] == Approx(interf_real[i]).epsilon( 0.0001 ));
-            std::cout << interf_real_out[i] << " : " << interf_real[i] << std::endl;
             flag = flag && (interf_imag_out[i] == Approx(interf_imag[i]).epsilon( 0.0001 ));
         }
+
         REQUIRE( flag);
 }

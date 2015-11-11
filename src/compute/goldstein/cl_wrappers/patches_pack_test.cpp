@@ -67,12 +67,14 @@ TEST_CASE( "patches_pack", "[cl_kernels]" ) {
         cmd_queue.enqueueReadBuffer(device_interf_real_packed, CL_TRUE, 0, height_packed*width_packed*sizeof(float), interf_real_packed.data(), NULL, NULL);
         cmd_queue.enqueueReadBuffer(device_interf_imag_packed, CL_TRUE, 0, height_packed*width_packed*sizeof(float), interf_imag_packed.data(), NULL, NULL);
 
+        /*
         for(int y = 0; y < height_packed; y++) {
             for(int x = 0; x < width_packed; x++) {
                 std::cout << std::setprecision(5) << (float) interf_real_packed[y*width_packed + x] << ",";
             }
             std::cout << std::endl;
         }
+        */
 
         bool flag = true;
         for(int i = 0; i < height_packed*width_packed; i++) {
@@ -85,8 +87,8 @@ TEST_CASE( "patches_pack", "[cl_kernels]" ) {
 TEST_CASE( "patches_pack_rand", "[cl_kernels]" ) {
 
         // data setup
-        const int height_packed = 48;
-        const int width_packed  = 48;
+        const int height_packed = 72;
+        const int width_packed  = 72;
         const int patch_size    = 32;
         const int overlap       = 4;
 
@@ -164,6 +166,7 @@ TEST_CASE( "patches_pack_rand", "[cl_kernels]" ) {
         cmd_queue.enqueueReadBuffer(device_interf_real_packed, CL_TRUE, 0, height_packed*width_packed*sizeof(float), interf_real_packed.data(), NULL, NULL);
         cmd_queue.enqueueReadBuffer(device_interf_imag_packed, CL_TRUE, 0, height_packed*width_packed*sizeof(float), interf_imag_packed.data(), NULL, NULL);
 
+        /*
         for(int y = 0; y < height_packed; y++) {
             for(int x = 0; x < width_packed; x++) {
                 std::cout << std::setw(1) << (float) interf_real_packed_desired[y*width_packed + x] << ",";
@@ -187,6 +190,7 @@ TEST_CASE( "patches_pack_rand", "[cl_kernels]" ) {
             }
             std::cout << std::endl;
         }
+        */
 
         bool flag = true;
         for(int i = 0; i < height_packed*width_packed; i++) {

@@ -16,11 +16,11 @@ __kernel void patches_unpack(__global float* interf_real_packed,
     const int patch_idx = tx / patch_size;
     const int patch_idy = ty / patch_size;
 
-    const int rel_tx = min(patch_size - 2*overlap - 1, max(0, (tx % patch_size) - overlap));
-    const int rel_ty = min(patch_size - 2*overlap - 1, max(0, (ty % patch_size) - overlap));
+    const int rel_tx = tx % patch_size;
+    const int rel_ty = ty % patch_size;
 
-    const int idx_packed = min(width_packed  - 1, patch_idx*(patch_size-2*overlap) + rel_tx);
-    const int idy_packed = min(height_packed - 1, patch_idy*(patch_size-2*overlap) + rel_ty);
+    const int idx_packed = min(width_packed  - 1, max(0, patch_idx*(patch_size-2*overlap) + (rel_tx - overlap)));
+    const int idy_packed = min(height_packed - 1, max(0, patch_idy*(patch_size-2*overlap) + (rel_ty - overlap)));
 
     // no check necessary since we assume that the unpacked dimensions are fixed multiples of the block size
     interf_real_unpacked[ty*width_unpacked + tx] = interf_real_packed[idy_packed*width_packed + idx_packed];
