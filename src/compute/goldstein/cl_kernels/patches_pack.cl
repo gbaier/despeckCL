@@ -5,7 +5,9 @@ __kernel void patches_pack(__global float* interf_real_unpacked,
                            const int height_unpacked,
                            const int width_unpacked,
                            const int patch_size,
-                           const int overlap)
+                           const int overlap,
+                           const int offset_x,
+                           const int offset_y)
 {
     const int width_packed  = width_unpacked  / patch_size * (patch_size-2*overlap);
     const int height_packed = height_unpacked / patch_size * (patch_size-2*overlap);
@@ -14,8 +16,11 @@ __kernel void patches_pack(__global float* interf_real_unpacked,
     const int ty = get_global_id(1);
 
     // factor of two is for striding, so that we take only every second patch
-    const int patch_idx = tx / patch_size;
-    const int patch_idy = ty / patch_size;
+    const int patch_idx = 2*(tx/patch_size) + offset_x/patch_size;
+    const int patch_idy = 2*(ty/patch_size) + offset_y/patch_size;
+
+    //const int patch_idx = (tx + offset_x) / patch_size;
+    //const int patch_idy = (ty + offset_y) / patch_size;
 
     const int rel_tx = tx % patch_size;
     const int rel_ty = ty % patch_size;
@@ -39,11 +44,9 @@ __kernel void patches_pack(__global float* interf_real_unpacked,
     if(out_idy < overlap || out_idy >= height_packed - overlap) {
         scaling_factor *= 2.0f;
     }
-
     
     const float val_real = scaling_factor * interf_real_unpacked[in_idx];
     const float val_imag = scaling_factor * interf_imag_unpacked[in_idx];
-
 
     // no check necessary since we assume that the unpacked dimensions are fixed multiples of the block size
     if (out_idx >= 0 && out_idx < width_packed && \

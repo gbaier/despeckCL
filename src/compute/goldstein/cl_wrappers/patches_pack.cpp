@@ -45,11 +45,13 @@ void goldstein::patches_pack::run(cl::CommandQueue cmd_queue,
         cl::NDRange global_size {(size_t) patch_size*((width_unpacked  - x_offset - 1) / (2*patch_size)+1),
                                  (size_t) patch_size*((height_unpacked - y_offset - 1) / (2*patch_size)+1)};
         cl::NDRange local_size  {block_size, block_size};
-        cl::NDRange offset_size {x_offset, y_offset};
+
+        kernel.setArg( 8, x_offset);
+        kernel.setArg( 9, y_offset);
 
         std::cout << "offset: " << x_offset << ", " << y_offset << std::endl;
         std::cout << "global_size: " << global_size[0] << ", " << global_size[1] << std::endl;
 
-        cmd_queue.enqueueNDRangeKernel(kernel, offset_size, global_size, local_size, NULL);
+        cmd_queue.enqueueNDRangeKernel(kernel, cl::NullRange, global_size, local_size, NULL);
     }
 }
