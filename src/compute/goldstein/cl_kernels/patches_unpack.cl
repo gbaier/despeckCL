@@ -7,18 +7,22 @@ __kernel void patches_unpack(__global float* interf_real_packed,
                              const int patch_size,
                              const int overlap)
 {
-    const int width_packed = width_unpacked / patch_size * (patch_size-2*overlap);
+    const int width_packed  = (width_unpacked  / patch_size) * (patch_size-2*overlap);
+    const int height_packed = (height_unpacked / patch_size) * (patch_size-2*overlap);
+
     const int tx = get_global_id(0);
     const int ty = get_global_id(1);
 
     const int patch_idx = tx / patch_size;
     const int patch_idy = ty / patch_size;
 
-    // indices of input for unpacking
-    const int pixel_idx = max(0, tx - (patch_idx * (patch_size-2*overlap)) - overlap);
-    const int pixel_idy = max(0, ty - (patch_idy * (patch_size-2*overlap)) - overlap);
+    const int rel_tx = min(patch_size - 2*overlap - 1, max(0, (tx % patch_size) - overlap));
+    const int rel_ty = min(patch_size - 2*overlap - 1, max(0, (ty % patch_size) - overlap));
+
+    const int idx_packed = min(width_packed  - 1, patch_idx*(patch_size-2*overlap) + rel_tx);
+    const int idy_packed = min(height_packed - 1, patch_idy*(patch_size-2*overlap) + rel_ty);
 
     // no check necessary since we assume that the unpacked dimensions are fixed multiples of the block size
-    interf_real_unpacked[ty*width_unpacked + tx] = interf_real_packed[pixel_idy*width_packed + pixel_idx];
-    interf_imag_unpacked[ty*width_unpacked + tx] = interf_imag_packed[pixel_idy*width_packed + pixel_idx];
+    interf_real_unpacked[ty*width_unpacked + tx] = interf_real_packed[idy_packed*width_packed + idx_packed];
+    interf_imag_unpacked[ty*width_unpacked + tx] = interf_imag_packed[idy_packed*width_packed + idx_packed];
 } 
