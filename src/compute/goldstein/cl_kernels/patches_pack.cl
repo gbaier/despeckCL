@@ -19,14 +19,11 @@ __kernel void patches_pack(__global float* interf_real_unpacked,
     const int patch_idx = 2*(tx/patch_size) + offset_x/patch_size;
     const int patch_idy = 2*(ty/patch_size) + offset_y/patch_size;
 
-    //const int patch_idx = (tx + offset_x) / patch_size;
-    //const int patch_idy = (ty + offset_y) / patch_size;
-
     const int rel_tx = tx % patch_size;
     const int rel_ty = ty % patch_size;
 
-    //const int in_idx = (patch_idy*patch_size + rel_ty)*width_unpacked + (patch_idx*patch_size + rel_tx);
-    const int in_idx = ty*width_unpacked + tx;
+    const int in_idx = patch_idx*patch_size + rel_tx;
+    const int in_idy = patch_idy*patch_size + rel_ty;
 
     const int out_idx = patch_idx*(patch_size-2*overlap) + (rel_tx - overlap);
     const int out_idy = patch_idy*(patch_size-2*overlap) + (rel_ty - overlap);
@@ -45,8 +42,8 @@ __kernel void patches_pack(__global float* interf_real_unpacked,
         scaling_factor *= 2.0f;
     }
     
-    const float val_real = scaling_factor * interf_real_unpacked[in_idx];
-    const float val_imag = scaling_factor * interf_imag_unpacked[in_idx];
+    const float val_real = scaling_factor * interf_real_unpacked[in_idy*width_unpacked + in_idx];
+    const float val_imag = scaling_factor * interf_imag_unpacked[in_idy*width_unpacked + in_idx];
 
     // no check necessary since we assume that the unpacked dimensions are fixed multiples of the block size
     if (out_idx >= 0 && out_idx < width_packed && \
@@ -54,4 +51,4 @@ __kernel void patches_pack(__global float* interf_real_unpacked,
         interf_real_packed[out_idy*width_packed + out_idx] += val_real;
         interf_imag_packed[out_idy*width_packed + out_idx] += val_imag;
     }
-} 
+}
