@@ -31,7 +31,8 @@ add_library(despeckcl STATIC
            )
 
 target_link_libraries(despeckcl ${OpenCL_LIBRARIES}
-                                ${GSL_LIBRARIES})
+                                ${GSL_LIBRARIES}
+                                ${CLFFT_LIBRARIES})
 
 INSTALL(TARGETS despeckcl
         DESTINATION "lib"

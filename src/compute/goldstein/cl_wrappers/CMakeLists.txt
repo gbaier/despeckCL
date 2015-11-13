@@ -23,6 +23,7 @@ endforeach()
 add_library(goldstein_cl_wrappers OBJECT
             patches_unpack.cpp
             patches_pack.cpp
+            goldstein_patch_ft.cpp
            )
 # Testing Code
 add_executable(patches_packing_test patches_packing_test.cpp)
@@ -34,6 +35,9 @@ target_link_libraries(patches_unpack_test despeckcl)
 add_executable(patches_pack_test patches_pack_test.cpp)
 target_link_libraries(patches_pack_test despeckcl)
 
+add_executable(goldstein_patch_ft_test goldstein_patch_ft_test.cpp)
+target_link_libraries(goldstein_patch_ft_test despeckcl)
+
 add_test(NAME GOLDSTEIN_patches_packing
          COMMAND patches_packing_test)
 
@@ -42,3 +46,6 @@ add_test(NAME GOLDSTEIN_patches_unpack
 
 add_test(NAME GOLDSTEIN_patches_pack
          COMMAND patches_pack_test)
+
+add_test(NAME GOLDSTEIN_patch_ft
+         COMMAND goldstein_patch_ft_test)

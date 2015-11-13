@@ -25,6 +25,12 @@ if (OPENMP_FOUND)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
+find_package(clFFT)
+if (CLFFT_FOUND)
+    include_directories(${CLFFT_INCLUDE_DIRS})
+    link_directories(${CLFFT_LIBRARY_DIR})
+endif()
+
 enable_testing()
 
 subdirs(src)
