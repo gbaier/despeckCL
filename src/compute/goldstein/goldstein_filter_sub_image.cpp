@@ -59,8 +59,8 @@ timings::map goldstein::filter_sub_image(cl::Context context,
     clfftPlanHandle plan_handle;
     clfftDim dim = CLFFT_2D;
     size_t cl_lengths[2] = {patch_size, patch_size};
-    size_t in_strides [2] = {1, width};
-    size_t out_strides[2] = {1, width};
+    size_t in_strides [2] = {1, width_tiles};
+    size_t out_strides[2] = {1, width_tiles};
 
 
     /* Setup clFFT. */
@@ -74,10 +74,10 @@ timings::map goldstein::filter_sub_image(cl::Context context,
     /* Set plan parameters. */
     clfftSetPlanPrecision(plan_handle, CLFFT_SINGLE);
     clfftSetLayout(plan_handle, CLFFT_COMPLEX_PLANAR, CLFFT_COMPLEX_PLANAR); // separate arrays for real and complex data
-    clfftSetResultLocation(plan_handle, CLFFT_OUTOFPLACE);
+    clfftSetResultLocation(plan_handle, CLFFT_INPLACE);
     clfftSetPlanInStride  (plan_handle, dim, in_strides);
     clfftSetPlanOutStride (plan_handle, dim, out_strides);
-    clfftSetPlanBatchSize (plan_handle, width/patch_size);
+    clfftSetPlanBatchSize (plan_handle, width_tiles/patch_size);
     clfftSetPlanDistance  (plan_handle, patch_size, patch_size);
 
     /* Bake the plan. */
