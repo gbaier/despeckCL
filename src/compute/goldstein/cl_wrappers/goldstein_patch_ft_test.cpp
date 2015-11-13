@@ -91,7 +91,8 @@ TEST_CASE( "patches_pack", "[cl_kernels]" ) {
                            dev_imag_out,
                            height,
                            width,
-                           patch_size);
+                           patch_size,
+                           CLFFT_FORWARD);
 
         /* Release the plan. */
         clfftDestroyPlan( &plan_handle );

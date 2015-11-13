@@ -8,7 +8,8 @@ void goldstein_patch_ft(cl::CommandQueue &cmd_queue,
                         cl::Buffer interf_patches_imag_out,
                         const int height,
                         const int width,
-                        const int patch_size)
+                        const int patch_size,
+                        clfftDirection dir)
 {
     for(int h=0; h < height/patch_size; h++) {
         cl_mem buffers_in  [2] = {0, 0};
@@ -35,6 +36,6 @@ void goldstein_patch_ft(cl::CommandQueue &cmd_queue,
         buffers_in[1] = dev_imag_in_sub();
         buffers_out[0] = dev_real_out_sub();
         buffers_out[1] = dev_imag_out_sub();
-        clfftEnqueueTransform(plan_handle, CLFFT_FORWARD, 1, &cmd_queue(), 0, NULL, NULL, buffers_in, buffers_out, NULL);
+        clfftEnqueueTransform(plan_handle, dir, 1, &cmd_queue(), 0, NULL, NULL, buffers_in, buffers_out, NULL);
     }
 }

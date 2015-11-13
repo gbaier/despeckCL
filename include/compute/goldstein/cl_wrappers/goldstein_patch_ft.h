@@ -14,6 +14,7 @@ void goldstein_patch_ft(cl::CommandQueue &cmd_queue,
                         cl::Buffer interf_imag_out,
                         const int height,
                         const int width,
-                        const int patch_size);
+                        const int patch_size,
+                        clfftDirection dir);
 
 #endif
