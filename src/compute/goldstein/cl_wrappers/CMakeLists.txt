@@ -21,9 +21,13 @@ foreach(infile ${infiles})
 endforeach()
 
 add_library(goldstein_cl_wrappers OBJECT
+            cl_wrappers.cpp
             patches_unpack.cpp
             patches_pack.cpp
             goldstein_patch_ft.cpp
+            weighted_multiply.cpp
+            raw_interferogram.cpp
+            slc2real.cpp
            )
 # Testing Code
 add_executable(patches_packing_test patches_packing_test.cpp)

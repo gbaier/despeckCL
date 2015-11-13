@@ -1,0 +1,31 @@
+#ifndef RAW_INTERFEROGRAM_H
+#define RAW_INTERFEROGRAM_H
+
+#include "clcfg.h"
+
+#include <string>
+
+namespace goldstein
+    {
+    class raw_interferogram : public kernel_env<raw_interferogram>
+    {
+        public:
+            using kernel_env::kernel_env;
+
+            static constexpr const char* kernel_source =
+    "@CMAKE_KERNEL_SOURCE@"
+    ;
+
+            static constexpr const char* routine_name {"raw_interferogram"};
+
+            void run(cl::CommandQueue cmd_queue,
+                     cl::Buffer ampl_master,
+                     cl::Buffer ampl_slave,
+                     cl::Buffer dphase,
+                     cl::Buffer interf_real,
+                     cl::Buffer interf_imag,
+                     const int height,
+                     const int width);
+    };
+}
+#endif

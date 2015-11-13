@@ -47,6 +47,19 @@ namespace despeckcl {
                 const int lmin,
                 std::vector<std::string> enabled_log_levels);
 
+    int goldstein(float* ampl_master,
+                  float* ampl_slave,
+                  float* dphase,
+                  float* ampl_filt,
+                  float* dphase_filt,
+                  float* coh_filt,
+                  const int height,
+                  const int width,
+                  const int patch_size,
+                  const int alpha,
+                  const int overlap,
+                  std::vector<std::string> enabled_log_levels);
+
 }
 
 #endif

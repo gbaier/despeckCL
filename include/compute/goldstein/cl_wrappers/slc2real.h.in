@@ -1,0 +1,30 @@
+#ifndef SLC2REAL_H
+#define SLC2REAL_H
+
+#include "clcfg.h"
+
+#include <string>
+
+namespace goldstein
+    {
+    class slc2real : public kernel_env<slc2real>
+    {
+        public:
+            using kernel_env::kernel_env;
+
+            static constexpr const char* kernel_source =
+    "@CMAKE_KERNEL_SOURCE@"
+    ;
+
+            static constexpr const char* routine_name {"slc2real"};
+
+            void run(cl::CommandQueue cmd_queue,
+                     cl::Buffer interf_real,
+                     cl::Buffer interf_imag,
+                     cl::Buffer ampl,
+                     cl::Buffer dphase,
+                     const int height,
+                     const int width);
+    };
+}
+#endif
