@@ -36,11 +36,8 @@ timings::map goldstein::filter_sub_image(cl::Context context,
     cl::Buffer dev_interf_real {context, CL_MEM_READ_WRITE, height * width * sizeof(float), NULL, NULL};
     cl::Buffer dev_interf_imag {context, CL_MEM_READ_WRITE, height * width * sizeof(float), NULL, NULL};
 
-    cl::Buffer dev_interf_tiles_real_in {context, CL_MEM_READ_WRITE, height_tiles * width_tiles * sizeof(float), NULL, NULL};
-    cl::Buffer dev_interf_tiles_imag_in {context, CL_MEM_READ_WRITE, height_tiles * width_tiles * sizeof(float), NULL, NULL};
-
-    cl::Buffer dev_interf_tiles_real_out {context, CL_MEM_READ_WRITE, height_tiles * width_tiles * sizeof(float), NULL, NULL};
-    cl::Buffer dev_interf_tiles_imag_out {context, CL_MEM_READ_WRITE, height_tiles * width_tiles * sizeof(float), NULL, NULL};
+    cl::Buffer dev_interf_tiles_real {context, CL_MEM_READ_WRITE, height_tiles * width_tiles * sizeof(float), NULL, NULL};
+    cl::Buffer dev_interf_tiles_imag {context, CL_MEM_READ_WRITE, height_tiles * width_tiles * sizeof(float), NULL, NULL};
 
     /****************************************************************************
      *
@@ -94,8 +91,8 @@ timings::map goldstein::filter_sub_image(cl::Context context,
     gs_routines.patches_unpack_routine.run(cmd_queue,
                                            dev_interf_real,
                                            dev_interf_imag,
-                                           dev_interf_tiles_real_in,
-                                           dev_interf_tiles_imag_in,
+                                           dev_interf_tiles_real,
+                                           dev_interf_tiles_imag,
                                            height_tiles,
                                            width_tiles,
                                            patch_size,
@@ -103,34 +100,32 @@ timings::map goldstein::filter_sub_image(cl::Context context,
 
     goldstein_patch_ft(cmd_queue,
                        plan_handle,
-                       dev_interf_tiles_real_in,
-                       dev_interf_tiles_imag_in,
+                       dev_interf_tiles_real,
+                       dev_interf_tiles_imag,
                        height_tiles,
                        width_tiles,
                        patch_size,
                        CLFFT_FORWARD);
 
     gs_routines.weighted_multiply_routine.run(cmd_queue,
-                                              dev_interf_tiles_real_in,
-                                              dev_interf_tiles_imag_in,
-                                              dev_interf_tiles_real_out,
-                                              dev_interf_tiles_imag_out,
+                                              dev_interf_tiles_real,
+                                              dev_interf_tiles_imag,
                                               height_tiles,
                                               width_tiles,
                                               alpha);
 
     goldstein_patch_ft(cmd_queue,
                        plan_handle,
-                       dev_interf_tiles_real_out,
-                       dev_interf_tiles_imag_out,
+                       dev_interf_tiles_real,
+                       dev_interf_tiles_imag,
                        height_tiles,
                        width_tiles,
                        patch_size,
                        CLFFT_BACKWARD);
 
     gs_routines.patches_pack_routine.run(cmd_queue,
-                                         dev_interf_tiles_real_out,
-                                         dev_interf_tiles_imag_out,
+                                         dev_interf_tiles_real,
+                                         dev_interf_tiles_imag,
                                          dev_interf_real,
                                          dev_interf_imag,
                                          height_tiles,
@@ -154,7 +149,6 @@ timings::map goldstein::filter_sub_image(cl::Context context,
 
     cmd_queue.enqueueReadBuffer(dev_ampl_master, CL_TRUE, 0, height * width * sizeof(float), sub_insar_data.amp_filt, NULL, NULL);
     cmd_queue.enqueueReadBuffer(dev_dphase,      CL_TRUE, 0, height * width * sizeof(float), sub_insar_data.phi_filt, NULL, NULL);
-    cmd_queue.enqueueReadBuffer(dev_dphase,      CL_TRUE, 0, height * width * sizeof(float), sub_insar_data.coh_filt, NULL, NULL);
 
     return tm;
 }

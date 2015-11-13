@@ -21,8 +21,6 @@ namespace goldstein
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer interf_real,
                      cl::Buffer interf_imag,
-                     cl::Buffer interf_real_out,
-                     cl::Buffer interf_imag_out,
                      const int height,
                      const int width,
                      const float alpha);
