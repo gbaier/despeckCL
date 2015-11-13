@@ -38,11 +38,8 @@ TEST_CASE( "goldstein_patch_ft", "[cl_kernels]" ) {
         cl::CommandQueue cmd_queue{context, devices[0]};
 
         // io buffers
-        cl::Buffer dev_real_in {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), real_in.data(), NULL};
-        cl::Buffer dev_imag_in {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), imag_in.data(), NULL};
-
-        cl::Buffer dev_real_out {context, CL_MEM_READ_WRITE, height * width * sizeof(float), NULL, NULL};
-        cl::Buffer dev_imag_out {context, CL_MEM_READ_WRITE, height * width * sizeof(float), NULL, NULL};
+        cl::Buffer dev_real {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), real_in.data(), NULL};
+        cl::Buffer dev_imag {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), imag_in.data(), NULL};
 
         /****************************************************************************
          *
@@ -68,7 +65,7 @@ TEST_CASE( "goldstein_patch_ft", "[cl_kernels]" ) {
         /* Set plan parameters. */
         clfftSetPlanPrecision(plan_handle, CLFFT_SINGLE);
         clfftSetLayout(plan_handle, CLFFT_COMPLEX_PLANAR, CLFFT_COMPLEX_PLANAR); // separate arrays for real and complex data
-        clfftSetResultLocation(plan_handle, CLFFT_OUTOFPLACE);
+        clfftSetResultLocation(plan_handle, CLFFT_INPLACE);
         clfftSetPlanInStride  (plan_handle, dim, in_strides);
         clfftSetPlanOutStride (plan_handle, dim, out_strides);
         clfftSetPlanBatchSize (plan_handle, width/patch_size);
@@ -85,10 +82,8 @@ TEST_CASE( "goldstein_patch_ft", "[cl_kernels]" ) {
 
         goldstein_patch_ft(cmd_queue,
                            plan_handle,
-                           dev_real_in,
-                           dev_imag_in,
-                           dev_real_out,
-                           dev_imag_out,
+                           dev_real,
+                           dev_imag,
                            height,
                            width,
                            patch_size,
@@ -100,8 +95,8 @@ TEST_CASE( "goldstein_patch_ft", "[cl_kernels]" ) {
         /* Release clFFT library. */
         clfftTeardown( );
 
-        cmd_queue.enqueueReadBuffer(dev_real_out, CL_TRUE, 0, height*width*sizeof(float), real_out.data(), NULL, NULL);
-        cmd_queue.enqueueReadBuffer(dev_imag_out, CL_TRUE, 0, height*width*sizeof(float), imag_out.data(), NULL, NULL);
+        cmd_queue.enqueueReadBuffer(dev_real, CL_TRUE, 0, height*width*sizeof(float), real_out.data(), NULL, NULL);
+        cmd_queue.enqueueReadBuffer(dev_imag, CL_TRUE, 0, height*width*sizeof(float), imag_out.data(), NULL, NULL);
 
         /*
         for(int y = 0; y < height; y++) {
@@ -158,11 +153,8 @@ TEST_CASE( "goldstein_patch_ft_rand", "[cl_kernels]" ) {
         cl::CommandQueue cmd_queue{context, devices[0]};
 
         // io buffers
-        cl::Buffer dev_real_in {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), real_in.data(), NULL};
-        cl::Buffer dev_imag_in {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), imag_in.data(), NULL};
-
-        cl::Buffer dev_real_out {context, CL_MEM_READ_WRITE, height * width * sizeof(float), NULL, NULL};
-        cl::Buffer dev_imag_out {context, CL_MEM_READ_WRITE, height * width * sizeof(float), NULL, NULL};
+        cl::Buffer dev_real {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), real_in.data(), NULL};
+        cl::Buffer dev_imag {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), imag_in.data(), NULL};
 
         /****************************************************************************
          *
@@ -188,7 +180,7 @@ TEST_CASE( "goldstein_patch_ft_rand", "[cl_kernels]" ) {
         /* Set plan parameters. */
         clfftSetPlanPrecision(plan_handle, CLFFT_SINGLE);
         clfftSetLayout(plan_handle, CLFFT_COMPLEX_PLANAR, CLFFT_COMPLEX_PLANAR); // separate arrays for real and complex data
-        clfftSetResultLocation(plan_handle, CLFFT_OUTOFPLACE);
+        clfftSetResultLocation(plan_handle, CLFFT_INPLACE);
         clfftSetPlanInStride  (plan_handle, dim, in_strides);
         clfftSetPlanOutStride (plan_handle, dim, out_strides);
         clfftSetPlanBatchSize (plan_handle, width/patch_size);
@@ -205,10 +197,8 @@ TEST_CASE( "goldstein_patch_ft_rand", "[cl_kernels]" ) {
 
         goldstein_patch_ft(cmd_queue,
                            plan_handle,
-                           dev_real_in,
-                           dev_imag_in,
-                           dev_real_out,
-                           dev_imag_out,
+                           dev_real,
+                           dev_imag,
                            height,
                            width,
                            patch_size,
@@ -216,10 +206,8 @@ TEST_CASE( "goldstein_patch_ft_rand", "[cl_kernels]" ) {
 
         goldstein_patch_ft(cmd_queue,
                            plan_handle,
-                           dev_real_out,
-                           dev_imag_out,
-                           dev_real_in,
-                           dev_imag_in,
+                           dev_real,
+                           dev_imag,
                            height,
                            width,
                            patch_size,
@@ -231,8 +219,8 @@ TEST_CASE( "goldstein_patch_ft_rand", "[cl_kernels]" ) {
         /* Release clFFT library. */
         clfftTeardown( );
 
-        cmd_queue.enqueueReadBuffer(dev_real_in, CL_TRUE, 0, height*width*sizeof(float), real_out.data(), NULL, NULL);
-        cmd_queue.enqueueReadBuffer(dev_imag_in, CL_TRUE, 0, height*width*sizeof(float), imag_out.data(), NULL, NULL);
+        cmd_queue.enqueueReadBuffer(dev_real, CL_TRUE, 0, height*width*sizeof(float), real_out.data(), NULL, NULL);
+        cmd_queue.enqueueReadBuffer(dev_imag, CL_TRUE, 0, height*width*sizeof(float), imag_out.data(), NULL, NULL);
 
         /*
         for(int y = 0; y < height; y++) {
