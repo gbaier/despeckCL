@@ -56,8 +56,8 @@ namespace despeckcl {
                   const int height,
                   const int width,
                   const int patch_size,
-                  const int alpha,
                   const int overlap,
+                  const float alpha,
                   std::vector<std::string> enabled_log_levels);
 
 }

@@ -25,8 +25,8 @@ int despeckcl::goldstein(float* ampl_master,
                          const int height,
                          const int width,
                          const int patch_size,
-                         const int alpha,
                          const int overlap,
+                         const float alpha,
                          std::vector<std::string> enabled_log_levels)
 {
     timings::map tm;
