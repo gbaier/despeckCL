@@ -1,2 +1,5 @@
 patches_unpack.h
 patches_pack.h
+slc2real.h
+raw_interferogram.h
+weighted_multiply.h
