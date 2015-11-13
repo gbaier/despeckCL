@@ -24,6 +24,17 @@ timings::map goldstein::filter_sub_image(cl::Context context,
     const int height_tiles = patch_size * n_patches_height;
     const int width_tiles  = patch_size * n_patches_width;
 
+    LOG(DEBUG) << "sub_image";
+    LOG(DEBUG) << "height:           " << height;
+    LOG(DEBUG) << "width:            " << width;
+    LOG(DEBUG) << "n_patches_height: " << n_patches_height;
+    LOG(DEBUG) << "n_patches_width:  " << n_patches_width;
+    LOG(DEBUG) << "height_tiles:     " << height_tiles;
+    LOG(DEBUG) << "width_tiles:      " << width_tiles;
+    LOG(DEBUG) << "patch_size:       " << patch_size;
+    LOG(DEBUG) << "overlap:          " << overlap;
+    LOG(DEBUG) << "alpha:            " << alpha;
+
     std::vector<cl::Device> devices;
     context.getInfo(CL_CONTEXT_DEVICES, &devices);
     cl::CommandQueue cmd_queue{context, devices[0]};
@@ -79,6 +90,7 @@ timings::map goldstein::filter_sub_image(cl::Context context,
      *
      ******************************************************************/
 
+    LOG(DEBUG) << "raw_interferogram";
     gs_routines.raw_interferogram_routine.run(cmd_queue,
                                               dev_ampl_master,
                                               dev_ampl_slave,
@@ -88,6 +100,7 @@ timings::map goldstein::filter_sub_image(cl::Context context,
                                               height,
                                               width);
 
+    LOG(DEBUG) << "patches_unpack";
     gs_routines.patches_unpack_routine.run(cmd_queue,
                                            dev_interf_real,
                                            dev_interf_imag,
@@ -98,6 +111,7 @@ timings::map goldstein::filter_sub_image(cl::Context context,
                                            patch_size,
                                            overlap);
 
+    LOG(DEBUG) << "patch_ft forward";
     goldstein_patch_ft(cmd_queue,
                        plan_handle,
                        dev_interf_tiles_real,
@@ -107,6 +121,7 @@ timings::map goldstein::filter_sub_image(cl::Context context,
                        patch_size,
                        CLFFT_FORWARD);
 
+    LOG(DEBUG) << "weighted_multiply";
     gs_routines.weighted_multiply_routine.run(cmd_queue,
                                               dev_interf_tiles_real,
                                               dev_interf_tiles_imag,
@@ -114,6 +129,7 @@ timings::map goldstein::filter_sub_image(cl::Context context,
                                               width_tiles,
                                               alpha);
 
+    LOG(DEBUG) << "patch_ft backward";
     goldstein_patch_ft(cmd_queue,
                        plan_handle,
                        dev_interf_tiles_real,
@@ -123,6 +139,7 @@ timings::map goldstein::filter_sub_image(cl::Context context,
                        patch_size,
                        CLFFT_BACKWARD);
 
+    LOG(DEBUG) << "patches_pack";
     gs_routines.patches_pack_routine.run(cmd_queue,
                                          dev_interf_tiles_real,
                                          dev_interf_tiles_imag,
@@ -133,6 +150,7 @@ timings::map goldstein::filter_sub_image(cl::Context context,
                                          patch_size,
                                          overlap);
 
+    LOG(DEBUG) << "slc2real";
     gs_routines.slc2real_routine.run(cmd_queue,
                                      dev_interf_real,
                                      dev_interf_imag,
