@@ -7,47 +7,35 @@
 float* get_sub_image(const float * image,
                      const int height,
                      const int width,
-                     bbox boundaries)
+                     const int h_low,
+                     const int w_low,
+                     const int sub_img_size)
 {
-    if (!boundaries.valid(height, width)) {
-        throw std::logic_error("bounding box dimensions too big for image");
-    }
-    const int h_low = boundaries.h_low;
-    const int h_up = boundaries.h_up;
-    const int w_low = boundaries.w_low;
-    const int w_up = boundaries.w_up;
-    float* sub_image = (float *) malloc((h_up-h_low)*(w_up-w_low)*sizeof(float));
-    const int siw = w_up - w_low;
-    for(int h = h_low; h < h_up; h++) {
-        for(int w = w_low; w < w_up; w++) {
-            const int h_rel = h-h_low;
-            const int w_rel = w-w_low;
-            sub_image[h_rel * siw + w_rel] = image[h*width + w];
+    float* sub_image = (float *) malloc(sub_img_size*sub_img_size*sizeof(float));
+    for(int h = 0; h < sub_img_size; h++) {
+        for(int w = 0; w < sub_img_size; w++) {
+            const int h_img = std::max(height-1, std::min(0, h+h_low));
+            const int w_img = std::max(width-1,  std::min(0, w+w_low));
+            sub_image[h * sub_img_size + w] = image[h_img*width + w_img];
         }
     }
     return sub_image;
 }
 
 void write_sub_image(float * image,
-                     float * sub_image,
-                     const int overlap,
                      const int height,
                      const int width,
-                     bbox boundaries)
+                     float * sub_image,
+                     const int h_low,
+                     const int w_low,
+                     const int sub_img_size,
+                     const int overlap)
 {
-    if (!boundaries.valid(height, width)) {
-        throw std::logic_error("bounding box dimensions too big for image");
-    }
-    const int h_low = boundaries.h_low;
-    const int h_up = boundaries.h_up;
-    const int w_low = boundaries.w_low;
-    const int w_up = boundaries.w_up;
-    const int siw = w_up - w_low;
-    for(int h = h_low+overlap; h < h_up-overlap; h++) {
-        for(int w = w_low+overlap; w < w_up-overlap; w++) {
-            const int h_rel = h-h_low;
-            const int w_rel = w-w_low;
-            image[h*width + w] = sub_image[h_rel * siw + w_rel];
+    for(int h = overlap; h < sub_img_size-overlap; h++) {
+        for(int w = overlap; w < sub_img_size-overlap; w++) {
+            const int h_img = std::max(height-1, std::min(0, h+h_low));
+            const int w_img = std::max(width-1,  std::min(0, w+w_low));
+            image[h_img*width + w_img] = sub_image[h*sub_img_size + w];
         }
     }
 }

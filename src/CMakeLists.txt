@@ -15,6 +15,7 @@ if(GSL_FOUND)
 endif()
 
 add_library(despeckcl STATIC 
+            $<TARGET_OBJECTS:insar_data>
             $<TARGET_OBJECTS:nlsar_lib>
             $<TARGET_OBJECTS:nlsar_cl_wrappers>
             $<TARGET_OBJECTS:boxcar_lib>
@@ -26,7 +27,6 @@ add_library(despeckcl STATIC
             ${despeckCL_SOURCE_DIR}/src/utils/logging.cpp
             ${despeckCL_SOURCE_DIR}/src/utils/timings.cpp
             ${despeckCL_SOURCE_DIR}/src/clcfg/clcfg.cpp
-            $<TARGET_OBJECTS:insar_data>
             $<TARGET_OBJECTS:common_opencl_wrappers>
            )
 

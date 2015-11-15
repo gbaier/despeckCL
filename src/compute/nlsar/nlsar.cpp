@@ -9,6 +9,7 @@
 
 #include "cl_wrappers.h"
 #include "insar_data.h"
+#include "tile_iterator.h"
 #include "nlsar_filter_sub_image.h"
 #include "sub_images.h"
 #include "stats.h"
@@ -143,13 +144,17 @@ int despeckcl::nlsar(float* ampl_master,
     std::map<nlsar::params, nlsar::stats> nlsar_stats;
     for(int patch_size : patch_sizes) {
         for(int scale_size : scale_sizes) {
-            std::vector<float> dissims  = nlsar::get_dissims(context, total_image.get_sub_insar_data(training_dims), patch_size, scale_size);
+            std::vector<float> dissims  = nlsar::get_dissims(context,
+                                                             tile{total_image,
+                                                                  training_dims.h_low,
+                                                                  training_dims.w_low,
+                                                                  training_dims.h_up - training_dims.h_low,
+                                                                  0}.get(),
+                                                             patch_size, scale_size);
             nlsar_stats.emplace(nlsar::params{patch_size, scale_size},
                                 nlsar::stats(dissims, lut_size));
         }
     }
-    total_image.pad(overlap);
-
     // filtering
     start = std::chrono::system_clock::now();
     LOG(INFO) << "starting filtering";
@@ -157,18 +162,17 @@ int despeckcl::nlsar(float* ampl_master,
 {
 #pragma omp master
     {
-    for( auto boundaries : gen_sub_images(total_image.height, total_image.width, sub_image_size, overlap) ) {
-#pragma omp task firstprivate(boundaries)
+    for( auto imgtile : tile_iterator(total_image, sub_image_size, overlap, overlap) ) {
+#pragma omp task firstprivate(imgtile)
         {
-        insar_data sub_image = total_image.get_sub_insar_data(boundaries);
         try {
             timings::map tm_sub = filter_sub_image(context, nlsar_cl_wrappers, // opencl stuff
-                                                  sub_image, // data
-                                                  search_window_size,
-                                                  patch_sizes,
-                                                  scale_sizes,
-                                                  dimension,
-                                                  nlsar_stats);
+                                                   imgtile.get(), // data
+                                                   search_window_size,
+                                                   patch_sizes,
+                                                   scale_sizes,
+                                                   dimension,
+                                                   nlsar_stats);
 #pragma omp critical
             tm = timings::join(tm, tm_sub);
         } catch (cl::Error error) {
@@ -176,13 +180,12 @@ int despeckcl::nlsar(float* ampl_master,
             LOG(ERROR) << "ERR while filtering sub image";
             std::terminate();
         }
-        total_image.write_sub_insar_data(sub_image, overlap, boundaries);
+        imgtile.write(total_image);
         }
     }
 #pragma omp taskwait
     }
 }
-    total_image.unpad(overlap);
     LOG(INFO) << "filtering done";
     timings::print(tm);
     end = std::chrono::system_clock::now();

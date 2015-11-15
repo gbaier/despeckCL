@@ -10,6 +10,8 @@
 
 #include "boxcar_sub_image.h"
 #include "insar_data.h"
+#include "tile_iterator.h"
+#include "tile.h"
 
 
 void despeckcl::boxcar(float* ampl_master,
@@ -57,7 +59,6 @@ void despeckcl::boxcar(float* ampl_master,
     VLOG(0) << "Time it took to build the kernels: " << elapsed_seconds.count() << "secs";
 
 
-    total_image.pad(overlap);
     // timing
     double boxcar_timing = 0.0;
     
@@ -66,18 +67,16 @@ void despeckcl::boxcar(float* ampl_master,
 #pragma omp parallel shared(total_image)
 {
 #pragma omp master
-    for( auto boundaries : gen_sub_images(total_image.height, total_image.width, sub_image_size, overlap) ) {
-#pragma omp task firstprivate(boundaries)
+    for( auto imgtile : tile_iterator(total_image, sub_image_size, overlap, overlap) ) {
+#pragma omp task firstprivate(imgtile)
         {
-        insar_data sub_image = total_image.get_sub_insar_data(boundaries);
         boxcar_sub_image(context, boxcar_routine, // opencl stuff
-                         sub_image); // data
-        total_image.write_sub_insar_data(sub_image, overlap, boundaries);
+                         imgtile.get()); // data
+        imgtile.write(total_image);
         }
     }
 #pragma omp taskwait
 }
-    total_image.unpad(overlap);
     LOG(INFO) << "filtering done";
 
     memcpy(ampl_filt,   total_image.amp_filt, sizeof(float)*height*width);

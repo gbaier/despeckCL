@@ -9,6 +9,7 @@
 
 #include "cl_wrappers.h"
 #include "insar_data.h"
+#include "tile_iterator.h"
 #include "goldstein_filter_sub_image.h"
 #include "sub_images.h"
 #include "clcfg.h"
@@ -69,14 +70,13 @@ int despeckcl::goldstein(float* ampl_master,
 {
 #pragma omp master
     {
-    for( auto boundaries : gen_sub_images(total_image.height, total_image.width, sub_image_size, overlap) ) {
-#pragma omp task firstprivate(boundaries)
+        for( auto imgtile : tile_iterator(total_image, sub_image_size, overlap, overlap) ) {
+#pragma omp task firstprivate(imgtile)
         {
-        insar_data sub_image = total_image.get_sub_insar_data(boundaries);
         try {
             timings::map tm_sub = filter_sub_image(context,
                                                    goldstein_cl_wrappers, // opencl stuff
-                                                   sub_image, // data
+                                                   imgtile.get(), // data
                                                    patch_size,
                                                    overlap,
                                                    alpha);
@@ -87,7 +87,7 @@ int despeckcl::goldstein(float* ampl_master,
             LOG(ERROR) << "ERR while filtering sub image";
             std::terminate();
         }
-        total_image.write_sub_insar_data(sub_image, overlap, boundaries);
+        imgtile.write(total_image);
         }
     }
 #pragma omp taskwait

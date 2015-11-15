@@ -10,6 +10,7 @@
 #include <string>
 
 #include "insar_data.h"
+#include "tile_iterator.h"
 #include "nlinsar_sub_image.h"
 #include "sub_images.h"
 #include "insarsim_simu.h"
@@ -83,8 +84,6 @@ int despeckcl::nlinsar(float* ampl_master,
     // sws^2 * sis^2 * n_threads * 4 (float) * 5
     const int sub_image_size = 80;
 
-    total_image.pad(overlap);
-
     insar_data total_image_temp = total_image;
     
     // new build kernel interface
@@ -115,21 +114,17 @@ int despeckcl::nlinsar(float* ampl_master,
     for(int n = 0; n<niter; n++) {
         LOG(INFO) << "Iteration " << n + 1 << " of " << niter;
         total_image_temp = total_image;
-        for( auto boundaries : gen_sub_images(total_image.height, total_image.width, sub_image_size, overlap) ) {
-#pragma omp task firstprivate(boundaries)
+        for( auto imgtile : tile_iterator(total_image_temp, sub_image_size, overlap, overlap) ) {
+#pragma omp task firstprivate(imgtile)
             {
-            insar_data sub_image = total_image.get_sub_insar_data(boundaries);
             nlinsar_sub_image(context, nl_routines, // opencl stuff
-                              sub_image, // data
-                              search_window_size, patch_size, lmin, h_para, T_para); // filter parameters
-            total_image_temp.write_sub_insar_data(sub_image, overlap, boundaries);
+                             imgtile.get(),
+                             search_window_size, patch_size, lmin, h_para, T_para); // filter parameters
+            imgtile.write(total_image_temp);
             }
         }
 #pragma omp taskwait
         total_image = total_image_temp;
-        // the next two lines pad the overlap borders with the filtered pixel values
-        total_image.unpad(overlap);
-        total_image.pad(overlap);
     }
 #pragma omp critical
     {
@@ -144,7 +139,6 @@ int despeckcl::nlinsar(float* ampl_master,
         smoothing_timing                        += nl_routines.smoothing_routine.elapsed_seconds.count();
     }
 }
-    total_image.unpad(overlap);
     LOG(INFO) << "filtering done";
 
     memcpy(ampl_filt,   total_image.amp_filt, sizeof(float)*height*width);
