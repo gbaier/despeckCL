@@ -66,13 +66,7 @@ int despeckcl::goldstein(float* ampl_master,
     // filtering
     start = std::chrono::system_clock::now();
     LOG(INFO) << "starting filtering";
-#pragma omp parallel shared(total_image)
-{
-#pragma omp master
-    {
-        for( auto imgtile : tile_iterator(total_image, sub_image_size, overlap, overlap) ) {
-#pragma omp task firstprivate(imgtile)
-        {
+    for( auto imgtile : tile_iterator(total_image, sub_image_size, overlap, overlap) ) {
         try {
             timings::map tm_sub = filter_sub_image(context,
                                                    goldstein_cl_wrappers, // opencl stuff
@@ -80,7 +74,6 @@ int despeckcl::goldstein(float* ampl_master,
                                                    patch_size,
                                                    overlap,
                                                    alpha);
-#pragma omp critical
             tm = timings::join(tm, tm_sub);
         } catch (cl::Error error) {
             LOG(ERROR) << error.what() << "(" << error.err() << ")";
@@ -88,11 +81,7 @@ int despeckcl::goldstein(float* ampl_master,
             std::terminate();
         }
         imgtile.write(total_image);
-        }
     }
-#pragma omp taskwait
-    }
-}
     LOG(INFO) << "filtering done";
     timings::print(tm);
     end = std::chrono::system_clock::now();
