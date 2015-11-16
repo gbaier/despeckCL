@@ -35,7 +35,7 @@ void goldstein::patches_pack::run(cl::CommandQueue cmd_queue,
     kernel.setArg( 6, patch_size);
     kernel.setArg( 7, overlap);
 
-    std::cout << width_unpacked << " : " << height_unpacked << std::endl;
+//    std::cout << width_unpacked << " : " << height_unpacked << std::endl;
 
     for(auto offset : offsets) {
         const int x_offset = offset.first;
@@ -49,8 +49,8 @@ void goldstein::patches_pack::run(cl::CommandQueue cmd_queue,
         kernel.setArg( 8, x_offset);
         kernel.setArg( 9, y_offset);
 
-        std::cout << "offset: " << x_offset << ", " << y_offset << std::endl;
-        std::cout << "global_size: " << global_size[0] << ", " << global_size[1] << std::endl;
+//        std::cout << "offset: " << x_offset << ", " << y_offset << std::endl;
+//        std::cout << "global_size: " << global_size[0] << ", " << global_size[1] << std::endl;
 
         cmd_queue.enqueueNDRangeKernel(kernel, cl::NullRange, global_size, local_size, NULL);
     }
