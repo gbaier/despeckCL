@@ -46,7 +46,7 @@ int despeckcl::goldstein(float* ampl_master,
     // legacy opencl setup
     cl::Context context = opencl_setup();
 
-    const int sub_image_size = 256;
+    const int sub_image_size = 8*(patch_size - 2*overlap);
 
     // new build kernel interface
     std::chrono::time_point<std::chrono::system_clock> start, end;
