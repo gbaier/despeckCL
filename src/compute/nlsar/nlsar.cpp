@@ -138,18 +138,18 @@ int despeckcl::nlsar(float* ampl_master,
     VLOG(0) << "Time it took to build all kernels: " << elapsed_seconds.count() << "secs";
 
     // prepare data
-    insar_data total_image{ampl_master, ampl_slave, dphase,
-                           ampl_filt, dphase_filt, coh_filt,
-                           height, width};
+    insar_data_shared total_image{ampl_master, ampl_slave, dphase,
+                                  ampl_filt, dphase_filt, coh_filt,
+                                  height, width};
     std::map<nlsar::params, nlsar::stats> nlsar_stats;
     for(int patch_size : patch_sizes) {
         for(int scale_size : scale_sizes) {
             std::vector<float> dissims  = nlsar::get_dissims(context,
-                                                             tile{total_image,
+                                                             tile(total_image,
                                                                   training_dims.h_low,
                                                                   training_dims.w_low,
                                                                   training_dims.h_up - training_dims.h_low,
-                                                                  0}.get(),
+                                                                  0).get(),
                                                              patch_size, scale_size);
             nlsar_stats.emplace(nlsar::params{patch_size, scale_size},
                                 nlsar::stats(dissims, lut_size));

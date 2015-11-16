@@ -59,9 +59,9 @@ int despeckcl::goldstein(float* ampl_master,
     VLOG(0) << "Time it took to build all kernels: " << elapsed_seconds.count() << "secs";
 
     // prepare data
-    insar_data total_image{ampl_master, ampl_slave, dphase,
-                           ampl_filt, dphase_filt, coh_filt,
-                           height, width};
+    insar_data_shared total_image{ampl_master, ampl_slave, dphase,
+                                  ampl_filt, dphase_filt, coh_filt,
+                                  height, width};
 
     // filtering
     start = std::chrono::system_clock::now();

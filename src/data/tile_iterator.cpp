@@ -1,6 +1,6 @@
 #include "tile_iterator.h"
 
-tile_iterator::tile_iterator(insar_data& data,
+tile_iterator::tile_iterator(insar_data_shared& data,
                              const int tile_size,
                              const int overlap_border,
                              const int overlap_tile) : data(data),

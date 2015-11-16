@@ -4,6 +4,33 @@
 #include <iostream>
 #include <algorithm>
 
+insar_data_shared::insar_data_shared(float * a1,
+                                     float * a2,
+                                     float * dp,
+                                     float * amp_filt,
+                                     float * phi_filt,
+                                     float * coh_filt,
+                                     const int height,
+                                     const int width) : a1(a1),
+                                                        a2(a2),
+                                                        dp(dp),
+                                                        amp_filt(amp_filt),
+                                                        phi_filt(phi_filt),
+                                                        coh_filt(coh_filt),
+                                                        height(height),
+                                                        width(width) {}
+
+insar_data_shared::insar_data_shared(const insar_data_shared &data) : a1(data.a1),
+                                                                      a2(data.a2),
+                                                                      dp(data.dp),
+                                                                      amp_filt(data.amp_filt),
+                                                                      phi_filt(data.phi_filt),
+                                                                      coh_filt(data.coh_filt),
+                                                                      height(data.height),
+                                                                      width(data.width) {}
+
+insar_data_shared::~insar_data_shared() {}
+
 insar_data::insar_data(float * a1,
                        float * a2,
                        float * dp,
@@ -11,7 +38,7 @@ insar_data::insar_data(float * a1,
                        float * phi_filt,
                        float * coh_filt,
                        const int height,
-                       const int width) : height(height), width(width)
+                       const int width) : insar_data_shared(a1, a2, dp, amp_filt, phi_filt, coh_filt, height, width)
 {
     const size_t bytesize = height*width*sizeof(float);
 
@@ -34,7 +61,7 @@ insar_data::insar_data(float * a1,
     memcpy(this->coh_filt, coh_filt, bytesize);
 }
 
-insar_data::insar_data(const insar_data &data) : height(data.height), width(data.width)
+insar_data::insar_data(const insar_data &data) : insar_data_shared(data)
 {
     const size_t bytesize = height*width*sizeof(float);
 
@@ -81,3 +108,4 @@ insar_data::~insar_data()
     free(phi_filt);
     free(coh_filt);
 }
+

@@ -7,7 +7,7 @@
 class tile_iterator
 {
     protected:
-        insar_data& data;
+        insar_data_shared& data;
         const int tile_size;
         const int overlap_border;
         const int overlap_tile;
@@ -17,7 +17,7 @@ class tile_iterator
         int w_low;
 
     public:
-        tile_iterator(insar_data& data,
+        tile_iterator(insar_data_shared& data,
                       const int tile_size,
                       const int overlap_border,
                       const int overlap_tile);

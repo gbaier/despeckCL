@@ -27,9 +27,9 @@ void despeckcl::boxcar(float* ampl_master,
 {
     logging_setup(enabled_log_levels);
 
-    insar_data total_image{ampl_master, ampl_slave, dphase,
-                           ampl_filt, dphase_filt, coh_filt,
-                           height, width};
+    insar_data_shared total_image{ampl_master, ampl_slave, dphase,
+                                  ampl_filt, dphase_filt, coh_filt,
+                                  height, width};
 
     LOG(INFO) << "filter parameters";
     LOG(INFO) << "window width: " << window_width;
