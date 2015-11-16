@@ -14,7 +14,7 @@ void tile_iterator::operator++()
 {
     w_low += tile_size - 2*overlap_tile;
     if (w_low >= data.width) {
-        w_low = 0;
+        w_low = -overlap_border;
         h_low += tile_size - 2*overlap_tile;
     }
 }
@@ -26,7 +26,7 @@ bool tile_iterator::operator!=(const tile_iterator&) const
 
 tile tile_iterator::operator*() const
 {
-    return tile{data, tile_size, h_low, w_low, overlap_tile};
+    return tile{data, h_low, w_low, tile_size, overlap_tile};
 }
 
 const tile_iterator& tile_iterator::begin() const
