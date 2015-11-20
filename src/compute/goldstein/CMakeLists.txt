@@ -10,4 +10,5 @@ include_directories(${despeckCL_SOURCE_DIR}/include/compute/goldstein/cl_wrapper
 add_library(goldstein_lib OBJECT
             goldstein.cpp
             goldstein_filter_sub_image.cpp
+            tile_size.cpp
            )
