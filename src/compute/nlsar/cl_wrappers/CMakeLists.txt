@@ -46,37 +46,37 @@ add_library(nlsar_cl_wrappers OBJECT
                              )
 # Testing Code
 add_executable(covmat_rescale_test covmat_rescale_test.cpp covmat_rescale.cpp)
-target_link_libraries(covmat_rescale_test despeckcl)
+target_link_libraries(covmat_rescale_test clcfg ${OpenCL_LIBRARIES})
 
 add_executable(covmat_spatial_avg_test covmat_spatial_avg_test.cpp covmat_spatial_avg.cpp)
-target_link_libraries(covmat_spatial_avg_test despeckcl)
+target_link_libraries(covmat_spatial_avg_test clcfg ${OpenCL_LIBRARIES})
 
 add_executable(covmat_create_test covmat_create_test.cpp covmat_create.cpp)
-target_link_libraries(covmat_create_test despeckcl)
+target_link_libraries(covmat_create_test clcfg ${OpenCL_LIBRARIES})
 
 add_executable(compute_pixel_similarities_2x2_test compute_pixel_similarities_2x2_test.cpp compute_pixel_similarities_2x2.cpp)
-target_link_libraries(compute_pixel_similarities_2x2_test despeckcl)
+target_link_libraries(compute_pixel_similarities_2x2_test clcfg ${OpenCL_LIBRARIES})
 
 add_executable(compute_patch_similarities_test compute_patch_similarities_test.cpp compute_patch_similarities.cpp)
-target_link_libraries(compute_patch_similarities_test despeckcl)
+target_link_libraries(compute_patch_similarities_test clcfg ${OpenCL_LIBRARIES})
 
 add_executable(compute_nl_statistics_test compute_nl_statistics_test.cpp compute_nl_statistics.cpp)
-target_link_libraries(compute_nl_statistics_test despeckcl)
+target_link_libraries(compute_nl_statistics_test clcfg ${OpenCL_LIBRARIES})
 
 add_executable(compute_alphas_test compute_alphas_test.cpp compute_alphas.cpp)
-target_link_libraries(compute_alphas_test despeckcl)
+target_link_libraries(compute_alphas_test clcfg ${OpenCL_LIBRARIES})
 
 add_executable(compute_enls_nobias_test compute_enls_nobias_test.cpp compute_enls_nobias.cpp)
-target_link_libraries(compute_enls_nobias_test despeckcl)
+target_link_libraries(compute_enls_nobias_test clcfg ${OpenCL_LIBRARIES})
 
 add_executable(copy_best_weights_test copy_best_weights_test.cpp copy_best_weights.cpp)
-target_link_libraries(copy_best_weights_test despeckcl)
+target_link_libraries(copy_best_weights_test clcfg ${OpenCL_LIBRARIES})
 
-add_executable(covmat_decompose_test covmat_decompose_test.cpp covmat_decompose.cpp)
-target_link_libraries(covmat_decompose_test despeckcl)
+add_executable(covmat_decompose_test covmat_decompose_test.cpp covmat_decompose.cpp covmat_create.cpp)
+target_link_libraries(covmat_decompose_test clcfg ${OpenCL_LIBRARIES})
 
 add_executable(weighted_means_test weighted_means_test.cpp weighted_means.cpp)
-target_link_libraries(weighted_means_test despeckcl)
+target_link_libraries(weighted_means_test clcfg ${OpenCL_LIBRARIES})
 
 add_test(NAME NLSAR_covmat_rescale
          COMMAND covmat_rescale_test)
