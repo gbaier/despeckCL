@@ -30,8 +30,6 @@ set_source_files_properties(${swig_generated_file_fullname} PROPERTIES COMPILE_F
 
 set_target_properties(_despeckcl_python PROPERTIES OUTPUT_NAME _despeckcl)
 
-message(STATUS ${CMAKE_INSTALL_PREFIX})
-
 INSTALL(TARGETS _despeckcl_python DESTINATION ${CMAKE_INSTALL_PREFIX}/${PYTHON_SITE_PACKAGES})
 INSTALL(FILES ${CMAKE_BINARY_DIR}/swig/python/despeckcl.py DESTINATION ${CMAKE_INSTALL_PREFIX}/${PYTHON_SITE_PACKAGES})
 
