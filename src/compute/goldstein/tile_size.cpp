@@ -8,6 +8,11 @@ int goldstein::round_down(const int num, const int multiple)
      return num - remainder;
 }
 
+int goldstein::round_up(const int num, const int multiple)
+{
+     return round_down(num, multiple) + multiple;
+}
+
 int goldstein::tile_size(cl::Context context,
                          const int patch_size,
                          const int overlap)

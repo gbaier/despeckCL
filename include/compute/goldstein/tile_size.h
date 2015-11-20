@@ -6,6 +6,7 @@
 
 namespace goldstein {
     int round_down(const int num, const int multiple);
+    int round_up(const int num, const int multiple);
 
     int tile_size(cl::Context context,
                   const int patch_size,
