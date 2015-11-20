@@ -15,4 +15,4 @@ swig_link_libraries(despeckcl_octave despeckcl)
 set_source_files_properties(${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "-w")
 set_target_properties(despeckcl_octave PROPERTIES OUTPUT_NAME despeckcl)
 
-INSTALL(TARGETS despeckcl_octave DESTINATION bindings)
+INSTALL(TARGETS despeckcl_octave DESTINATION ${CMAKE_INSTALL_PREFIX}/lib64/octave/${OCTAVE_VERSION_STRING}/site/oct/x86_64-redhat-linux-gnu)
