@@ -20,6 +20,7 @@ add_library(nlsar_lib OBJECT
             best_weights_copy.cpp
             best_alpha_copy.cpp
             routines/routines.cpp
+            tile_size.cpp
            )
 
 # Testing Code

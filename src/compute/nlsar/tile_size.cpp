@@ -1,0 +1,66 @@
+#include "tile_size.h"
+
+#include <algorithm>
+#include <omp.h>
+
+#include "logging.h"
+#include "easylogging++.h"
+
+int nlsar::round_down(const int num, const int multiple)
+{
+     int remainder = num % multiple;
+     return num - remainder;
+}
+
+int nlsar::tile_size(cl::Context context,
+                     const int search_window_size,
+                     const std::vector<int>& patch_sizes,
+                     const std::vector<int>& scale_sizes)
+{
+    const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
+    const int scale_size_max = *std::max_element(scale_sizes.begin(), scale_sizes.end());
+
+    const int overlap = search_window_size + patch_size_max + scale_size_max - 3;
+
+    const int n_params = patch_sizes.size() * scale_sizes.size();
+    VLOG(0) << "number of parameters = " << n_params;
+
+    std::vector<cl::Device> devices;
+    context.getInfo(CL_CONTEXT_DEVICES, &devices);
+    cl::Device dev = devices[0];
+
+    int long global_mem_size;
+    dev.getInfo(CL_DEVICE_GLOBAL_MEM_SIZE, &global_mem_size);
+    VLOG(0) << "global memory size = " << global_mem_size;
+
+    int long max_mem_alloc_size;
+    dev.getInfo(CL_DEVICE_MAX_MEM_ALLOC_SIZE, &max_mem_alloc_size);
+    VLOG(0) << "maximum memory allocation size = " << max_mem_alloc_size;
+
+    // Most the most memory is required for storing weights, so only this is taken into account.
+    // required bytes per pixel = reg_bpp
+    const int req_bpp = 4 * search_window_size * search_window_size * n_params;
+    const int n_pixels_global = global_mem_size    / (req_bpp * omp_get_num_threads());
+    const int n_pixels_alloc  = max_mem_alloc_size /  req_bpp;
+    const int n_pixels = std::min(n_pixels_global, n_pixels_alloc);
+
+    const int tile_size_fit        = std::sqrt(n_pixels);
+    const int tile_size_fit_rounded = round_down(tile_size_fit, 64);
+
+    VLOG(0) << "tile_size_fit = "         << tile_size_fit;
+    VLOG(0) << "tile_size_fit_rounded = " << tile_size_fit_rounded;
+
+    const float safety_factor = 0.75;
+    int safe_tile_size = 0;
+    if (float(tile_size_fit_rounded)/tile_size_fit < safety_factor) {
+        safe_tile_size = tile_size_fit_rounded;
+    } else {
+        safe_tile_size = tile_size_fit_rounded - 64;
+    }
+    VLOG(0) << "safe_sub_image_size = " << safe_tile_size;
+    safe_tile_size += overlap;
+    VLOG(0) << "safe_sub_image_size with overlap = " << safe_tile_size;
+
+
+    return safe_tile_size;
+}
