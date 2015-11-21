@@ -5,7 +5,6 @@
 #include <iostream>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include <string.h> // for memcpy
 #include "logging.h"
 
 #include "boxcar_sub_image.h"
@@ -78,10 +77,6 @@ void despeckcl::boxcar(float* ampl_master,
 #pragma omp taskwait
 }
     LOG(INFO) << "filtering done";
-
-    memcpy(ampl_filt,   total_image.amp_filt, sizeof(float)*height*width);
-    memcpy(dphase_filt, total_image.phi_filt, sizeof(float)*height*width);
-    memcpy(coh_filt,    total_image.coh_filt, sizeof(float)*height*width);
 
     VLOG(0) << "elapsed time for boxcar: " << boxcar_timing << " secs";
 

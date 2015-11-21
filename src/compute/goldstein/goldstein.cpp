@@ -2,7 +2,6 @@
 
 #include <CL/cl.h>
 #include <chrono>
-#include <string.h> // for memcpy
 #include <vector>
 #include <string>
 #include <omp.h>
@@ -93,10 +92,6 @@ int despeckcl::goldstein(float* ampl_master,
     end = std::chrono::system_clock::now();
     std::chrono::duration<double> duration = end-start;
     std::cout << "filtering ran for " << duration.count() << " secs" << std::endl;
-
-    memcpy(ampl_filt,   total_image.amp_filt, sizeof(float)*height*width);
-    memcpy(dphase_filt, total_image.phi_filt, sizeof(float)*height*width);
-    memcpy(coh_filt,    total_image.coh_filt, sizeof(float)*height*width);
 
     return 0;
 }
