@@ -40,7 +40,7 @@ scale_sizes = [1, 3, 5]
 log_levels = ['debug', 'verbose', 'warning', 'fatal', 'error', 'info']
 log_levels = ['verbose', 'info', 'warning', 'fatal', 'error']
 log_levels = ['info', 'warning', 'fatal', 'error']
-training_dim = despeckcl.bbox(0, 0, 25, 25)
+training_dim = (0, 0, 25)
 methods[despeckcl.nlsar] = (search_window_size, patch_sizes, scale_sizes, training_dim, log_levels)
 
 ##################################

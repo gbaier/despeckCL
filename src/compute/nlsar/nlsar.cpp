@@ -28,7 +28,7 @@ int despeckcl::nlsar(float* ampl_master,
                      const int search_window_size,
                      const std::vector<int> patch_sizes,
                      const std::vector<int> scale_sizes,
-                     const bbox training_dims,
+                     const std::tuple<int, int, int> training_dims,
                      std::vector<std::string> enabled_log_levels)
 {
     timings::map tm;
@@ -84,9 +84,9 @@ int despeckcl::nlsar(float* ampl_master,
         for(int scale_size : scale_sizes) {
             std::vector<float> dissims  = nlsar::get_dissims(context,
                                                              tile(total_image,
-                                                                  training_dims.h_low,
-                                                                  training_dims.w_low,
-                                                                  training_dims.h_up - training_dims.h_low,
+                                                                  std::get<0>(training_dims),
+                                                                  std::get<1>(training_dims),
+                                                                  std::get<2>(training_dims),
                                                                   0).get(),
                                                              patch_size, scale_size);
             nlsar_stats.emplace(nlsar::params{patch_size, scale_size},

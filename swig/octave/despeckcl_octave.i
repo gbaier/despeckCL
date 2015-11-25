@@ -5,7 +5,6 @@
 
 %include "std_vector.i"
 %include "std_string.i"
-%include "bbox.h"
 
 namespace std {
    %template(IntVector) vector<int>;
@@ -153,7 +152,9 @@ void nlsar(float* ampl_master,  int h1, int w1,
            const int search_window_size,
            const std::vector<int> patch_sizes,
            const std::vector<int> scale_sizes,
-           const bbox training_dims)
+           const int training_dim_h_low,
+           const int training_dim_w_low,
+           const int training_dim_size)
 {
     std::vector<std::string> enabled_log_levels {"warning", "error", "fatal"};
 
@@ -183,7 +184,9 @@ void nlsar(float* ampl_master,  int h1, int w1,
                      search_window_size,
                      patch_sizes,
                      scale_sizes,
-                     training_dims,
+                     std::make_tuple(training_dim_h_low,
+                                     training_dim_w_low,
+                                     training_dim_size),
                      enabled_log_levels);
 }
 %}
