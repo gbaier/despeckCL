@@ -27,6 +27,8 @@ add_library(nlsar_lib OBJECT
 add_executable(sim_measures_test sim_measures_test.cpp)
 add_executable(best_params_test best_params_test.cpp best_params.cpp)
 add_executable(best_weights_copy_test best_weights_copy_test.cpp best_weights_copy.cpp)
+add_executable(stats_test stats_test.cpp stats.cpp)
+target_link_libraries(stats_test ${GSL_LIBRARIES})
 
 add_test(NAME NLSAR_sim_measures
          COMMAND sim_measures_test)
@@ -36,3 +38,6 @@ add_test(NAME NLSAR_best_params
 
 add_test(NAME NLSAR_best_weights_copy
          COMMAND best_weights_copy_test)
+
+add_test(NAME NLSAR_stats
+         COMMAND stats_test)

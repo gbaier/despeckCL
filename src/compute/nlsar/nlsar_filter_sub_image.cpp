@@ -83,7 +83,7 @@ timings::map nlsar::filter_sub_image(cl::Context context,
         const int lut_size = para_stats->lut_size;
         try {
             device_lut_dissims2relidx [parameter] = cl::Buffer {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                                                                lut_size * sizeof(float), (void*) para_stats->dissims2relidx.data(), NULL};
+                                                                lut_size * sizeof(float), (void*) para_stats->quantilles.data(), NULL};
             device_lut_chi2cdf_inv    [parameter] = cl::Buffer {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, \
                                                                 lut_size * sizeof(float), (void*) para_stats->chi2cdf_inv.data(), NULL};
         } catch (cl::Error error) {

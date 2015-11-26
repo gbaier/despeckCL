@@ -2,9 +2,9 @@
 
 #include <gsl/gsl_statistics_float.h>
 #include <gsl/gsl_cdf.h>
-#include <iostream>
 
 #include <algorithm>
+#include <functional>
 
 nlsar::stats::stats(std::vector<float> dissims, unsigned int lut_size): lut_size(lut_size)
 {
@@ -13,29 +13,48 @@ nlsar::stats::stats(std::vector<float> dissims, unsigned int lut_size): lut_size
     dissims_min = *std::min_element(dissims.begin(), dissims.end());
     dissims_max = *std::max_element(dissims.begin(), dissims.end());
 
-    for(float dissim = dissims_min; dissim<dissims_max; dissim += (dissims_max - dissims_min)/lut_size) {
+    this->quantilles  = get_quantilles(dissims);
+    this->chi2cdf_inv = get_chi2cdf_inv();
+}
+
+std::vector<float> nlsar::stats::get_quantilles(std::vector<float> &dissims)
+{
+    const float step_size = (dissims_max - dissims_min)/lut_size;
+    
+    std::vector<float> quantilles;
+    quantilles.reserve(lut_size);
+
+    for(int i = 0; i < lut_size; i++) {
+        const float dissim = dissims_min + i*step_size;
         const std::vector<float>::iterator lower_bound = std::lower_bound(dissims.begin(), dissims.end(), dissim);
-
-        const float dissim_resampled_upper = *lower_bound;
-        float dissim_resampled_lower = 0;
-        if (lower_bound == dissims.begin()) {
-            dissim_resampled_lower = dissim_resampled_upper;
-        } else {
-            dissim_resampled_lower = *(lower_bound-1);
-        }
-
-        //std::cout << dissim_resampled_lower << ", " << dissim << ", " << dissim_resampled_upper << std::endl;
-        if (dissim - dissim_resampled_lower < dissim_resampled_upper - dissim) {
-            const float rel_idx = ((float) (lower_bound - dissims.begin()-1))/dissims.size();
-            this->dissims2relidx.push_back(rel_idx);
-        } else {
-            const float rel_idx = ((float) (lower_bound - dissims.begin()))/dissims.size();
-            this->dissims2relidx.push_back(rel_idx);
-        }
+        quantilles.push_back( ((float) (lower_bound - dissims.begin()))/dissims.size() );
     }
+    return quantilles;
+}
 
-    for(float d=0; d<1; d += 1./lut_size) {
-        // chi square cdf with 49 degrees of freedom
-        chi2cdf_inv.push_back(gsl_cdf_chisq_Pinv(d, 49));
+std::vector<float> nlsar::stats::get_chi2cdf_inv(void)
+{
+    const float step_size = 1.0f/lut_size;
+
+    std::vector<float> chi2cdf_inv;
+    chi2cdf_inv.reserve(lut_size);
+
+    for(int i=0; i < lut_size; i++) {
+        const float y = i*step_size;
+        // inverse of the chi square cdf with 49 degrees of freedom
+        chi2cdf_inv.push_back(gsl_cdf_chisq_Pinv(y, 49));
     }
+    return chi2cdf_inv;
+}
+
+float nlsar::stats::get_max_quantilles_error(std::vector<float> &quantilles)
+{
+    std::vector<float> diffs;
+
+    std::transform(quantilles.begin()+1,
+                   quantilles.end(),
+                   quantilles.begin(),
+                   std::back_inserter(diffs),
+                   std::minus<float>());
+
 }
