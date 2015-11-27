@@ -19,7 +19,7 @@ nlsar::stats::stats(std::vector<float> dissims, unsigned int lut_size): lut_size
 
 std::vector<float> nlsar::stats::get_quantilles(std::vector<float> &dissims)
 {
-    const float step_size = (dissims_max - dissims_min)/lut_size;
+    const float step_size = (dissims_max - dissims_min)/(lut_size-1);
     
     std::vector<float> quantilles;
     quantilles.reserve(lut_size);
@@ -39,11 +39,12 @@ std::vector<float> nlsar::stats::get_chi2cdf_inv(void)
     std::vector<float> chi2cdf_inv;
     chi2cdf_inv.reserve(lut_size);
 
-    for(size_t i = 0; i < lut_size; i++) {
+    for(size_t i = 0; i < lut_size-1; i++) {
         const float y = i*step_size;
         // inverse of the chi square cdf with 49 degrees of freedom
         chi2cdf_inv.push_back(gsl_cdf_chisq_Pinv(y, 49));
     }
+    chi2cdf_inv.push_back(100000);
     return chi2cdf_inv;
 }
 

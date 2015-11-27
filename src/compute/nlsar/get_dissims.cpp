@@ -24,7 +24,7 @@ std::vector<float> nlsar::get_dissims(cl::Context context,
 
     cl::CommandQueue cmd_queue{context, devices[0]};
 
-    const int search_window_size = 15;
+    const int search_window_size = 7;
     const int psh = (patch_size - 1)/2;
     const int wsh = (search_window_size - 1)/2;
     const int overlap = wsh+psh;

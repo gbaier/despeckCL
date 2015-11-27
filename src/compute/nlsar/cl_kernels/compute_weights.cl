@@ -10,8 +10,7 @@ __kernel void compute_weights (__global float * patch_similarities,
                                const float dissims_min,
                                const float dissims_max)
 {
-    //const float h = 0.33333f;
-    const float h = 4.0f;
+    const float h = 16.0f;
     const float c = 49.0f;
 
     const int tx = get_global_id(0);
@@ -19,15 +18,20 @@ __kernel void compute_weights (__global float * patch_similarities,
     if( tx < height_ori*width_ori*search_window_size*search_window_size ) {
         float dissim = patch_similarities[tx];
 
-        dissim = max(dissim, dissims_min);
-        dissim = min(dissim, dissims_max);
+        if (dissim > dissims_max) {
+            weights[tx] = 0.0f;
+        } else  {
+            dissim = max(dissim, dissims_min);
+            dissim = min(dissim, dissims_max);
 
-        // map dissimilarities to lookup table index
-        const float mapped_idx = (dissim-dissims_min)/(dissims_max - dissims_min)*lut_size;
+            // map dissimilarities to lookup table index
+            const float mapped_idx = (dissim-dissims_min)/(dissims_max - dissims_min)*(lut_size-1);
 
-        const float quantile = dissims2relidx[ (unsigned int) mapped_idx];
-        const float x        = chi2cdf_inv[(unsigned int) (quantile * lut_size)];
+            const float quantile = dissims2relidx[ (unsigned int) mapped_idx];
+            const float x        = chi2cdf_inv[(unsigned int) (quantile * (lut_size-1))];
+            const float weight = exp(-fabs(x-c)/h);
 
-        weights[tx] = max(0.000001f, exp(-fabs(x-c)/h));
+            weights[tx] = weight;
+        }
     }
 }
