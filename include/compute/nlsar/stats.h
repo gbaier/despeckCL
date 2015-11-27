@@ -17,6 +17,7 @@ namespace nlsar {
         private:
             std::vector<float> get_quantilles(std::vector<float> &dissims);
             std::vector<float> get_chi2cdf_inv(void);
+            float get_max_quantilles_error();
     };
 }
 

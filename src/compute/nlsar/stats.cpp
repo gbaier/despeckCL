@@ -24,7 +24,7 @@ std::vector<float> nlsar::stats::get_quantilles(std::vector<float> &dissims)
     std::vector<float> quantilles;
     quantilles.reserve(lut_size);
 
-    for(int i = 0; i < lut_size; i++) {
+    for(size_t i = 0; i < lut_size; i++) {
         const float dissim = dissims_min + i*step_size;
         const std::vector<float>::iterator lower_bound = std::lower_bound(dissims.begin(), dissims.end(), dissim);
         quantilles.push_back( ((float) (lower_bound - dissims.begin()))/dissims.size() );
@@ -39,7 +39,7 @@ std::vector<float> nlsar::stats::get_chi2cdf_inv(void)
     std::vector<float> chi2cdf_inv;
     chi2cdf_inv.reserve(lut_size);
 
-    for(int i=0; i < lut_size; i++) {
+    for(size_t i = 0; i < lut_size; i++) {
         const float y = i*step_size;
         // inverse of the chi square cdf with 49 degrees of freedom
         chi2cdf_inv.push_back(gsl_cdf_chisq_Pinv(y, 49));
@@ -47,7 +47,7 @@ std::vector<float> nlsar::stats::get_chi2cdf_inv(void)
     return chi2cdf_inv;
 }
 
-float nlsar::stats::get_max_quantilles_error(std::vector<float> &quantilles)
+float nlsar::stats::get_max_quantilles_error()
 {
     std::vector<float> diffs;
 
@@ -57,4 +57,5 @@ float nlsar::stats::get_max_quantilles_error(std::vector<float> &quantilles)
                    std::back_inserter(diffs),
                    std::minus<float>());
 
+    return *std::max_element(diffs.begin(), diffs.end());
 }
