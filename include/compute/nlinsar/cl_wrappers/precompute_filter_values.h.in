@@ -5,16 +5,13 @@
 
 namespace nlinsar {
 
-    class precompute_filter_values : public kernel_env<precompute_filter_values>
+    class precompute_filter_values : public kernel_env_build<precompute_filter_values>
     {
         public:
             static constexpr const char* routine_name {"precompute_filter_values"};
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
 
-            static constexpr const char* kernel_source =
-    "@CMAKE_KERNEL_SOURCE@"
-    ;
-
-            using kernel_env::kernel_env;
+            using kernel_env_build::kernel_env_build;
 
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer device_a1,

@@ -6,16 +6,13 @@
 #include "clcfg.h"
 
 namespace nlsar {
-    class compute_pixel_similarities_2x2 : public kernel_env<compute_pixel_similarities_2x2>
+    class compute_pixel_similarities_2x2 : public kernel_env_build<compute_pixel_similarities_2x2>
     {
         public:
-            using kernel_env::kernel_env;
+            using kernel_env_build::kernel_env_build;
 
             static constexpr const char* routine_name {"compute_pixel_similarities_2x2"};
-
-            static constexpr const char* kernel_source =
-    "@CMAKE_KERNEL_SOURCE@"
-    ;
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
 
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer covmat,

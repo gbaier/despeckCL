@@ -5,19 +5,26 @@
 
 nlinsar::compute_insar::compute_insar(const size_t block_size,
                                       cl::Context context,
-                                      const int search_window_size) : kernel_env<compute_insar>(block_size,
-                                                                                                context,
-                                                                                                return_build_options(block_size, search_window_size)),
-                                                                      search_window_size(search_window_size) {}
+                                      const int search_window_size) : kernel_env_single<compute_insar>(block_size,
+                                                                                                context),
+                                                                      search_window_size(search_window_size)
+{
+    program = build_program(build_opts(), kernel_source);
+    kernel  = build_kernel(program, routine_name);
+}
 
-nlinsar::compute_insar::compute_insar(const compute_insar& other) : kernel_env<compute_insar>(other),
-                                                                    search_window_size(other.search_window_size) {}
+nlinsar::compute_insar::compute_insar(const compute_insar& other) : kernel_env_single<compute_insar>(other),
+                                                                    search_window_size(other.search_window_size)
+{
+    program = other.program;
+    kernel  = build_kernel(program, routine_name);
+}
 
-std::string nlinsar::compute_insar::return_build_options(const int block_size, const int search_window_size)
+std::string nlinsar::compute_insar::build_opts()
 {
     std::ostringstream out;
     out << " -D BLOCK_SIZE=" << block_size << " -D SEARCH_WINDOW_SIZE=" << search_window_size;
-    return return_default_build_opts() + out.str();
+    return default_build_opts() + out.str();
 }
 
 void nlinsar::compute_insar::run(cl::CommandQueue cmd_queue,

@@ -3,16 +3,13 @@
 
 #include "clcfg.h"
 
-class compute_number_of_looks : public kernel_env<compute_number_of_looks>
+class compute_number_of_looks : public kernel_env_build<compute_number_of_looks>
 {
     public:
         static constexpr const char* routine_name {"compute_number_of_looks"};
+        static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
 
-        static constexpr const char* kernel_source =
-"@CMAKE_KERNEL_SOURCE@"
-;
-
-        using kernel_env::kernel_env;
+        using kernel_env_build::kernel_env_build;
 
         void run(cl::CommandQueue cmd_queue,
                  cl::Buffer weights,

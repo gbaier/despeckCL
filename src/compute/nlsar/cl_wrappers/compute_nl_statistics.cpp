@@ -7,21 +7,27 @@
 nlsar::compute_nl_statistics::compute_nl_statistics(const size_t block_size,
                                                     cl::Context context,
                                                     const int search_window_size,
-                                                    const int dimension) : kernel_env<compute_nl_statistics>(block_size,
-                                                                                                             context,
-                                                                                                             return_build_options(search_window_size, block_size, dimension)),
+                                                    const int dimension) : kernel_env_single<compute_nl_statistics>(block_size, context),
                                                                            search_window_size(search_window_size),
-                                                                           dimension(dimension) {}
+                                                                           dimension(dimension)
+{
+    program = build_program(build_opts(), kernel_source);
+    kernel  = build_kernel(program, routine_name);
+}
 
-nlsar::compute_nl_statistics::compute_nl_statistics(const compute_nl_statistics& other) : kernel_env<compute_nl_statistics>(other),
+nlsar::compute_nl_statistics::compute_nl_statistics(const compute_nl_statistics& other) : kernel_env_single<compute_nl_statistics>(other),
                                                                                           search_window_size(other.search_window_size),
-                                                                                          dimension(other.dimension) {}
+                                                                                          dimension(other.dimension)
+{
+    program = other.program;
+    kernel  = build_kernel(program, routine_name);
+}
 
-std::string nlsar::compute_nl_statistics::return_build_options(const int search_window_size, const int block_size, const int dimension)
+std::string nlsar::compute_nl_statistics::build_opts()
 {
     std::ostringstream out;
     out << " -D SEARCH_WINDOW_SIZE=" << search_window_size << " -D BLOCK_SIZE=" << block_size << " -D DIMENSION=" << dimension;
-    return return_default_build_opts() + out.str();
+    return default_build_opts() + out.str();
 }
 
 void nlsar::compute_nl_statistics::run(cl::CommandQueue cmd_queue,

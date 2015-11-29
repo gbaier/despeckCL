@@ -7,16 +7,13 @@
 
 namespace goldstein
     {
-    class raw_interferogram : public kernel_env<raw_interferogram>
+    class raw_interferogram : public kernel_env_build<raw_interferogram>
     {
         public:
-            using kernel_env::kernel_env;
-
-            static constexpr const char* kernel_source =
-    "@CMAKE_KERNEL_SOURCE@"
-    ;
+            using kernel_env_build::kernel_env_build;
 
             static constexpr const char* routine_name {"raw_interferogram"};
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
 
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer ampl_master,

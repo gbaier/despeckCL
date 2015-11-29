@@ -12,6 +12,9 @@ namespace nlsar {
             const size_t block_size_y;
             const size_t steps_row;
             const size_t steps_col;
+            
+            cl::Kernel kernel_row_pass;
+            cl::Kernel kernel_col_pass;
 
             compute_patch_similarities (cl::Context context,
                                         const size_t block_size_x,
@@ -21,26 +24,10 @@ namespace nlsar {
 
             compute_patch_similarities (const compute_patch_similarities& other);
 
-            static constexpr const char* kernel_source_row_pass =
-    "@CMAKE_KERNEL_SOURCE_ROW_PASS@"
-    ;
-
-            static constexpr const char* kernel_source_col_pass =
-    "@CMAKE_KERNEL_SOURCE_COL_PASS@"
-    ;
-
-            cl::Program program_row_pass;
-            cl::Program program_col_pass;
-
-            cl::Kernel  kernel_row_pass;
-            cl::Kernel  kernel_col_pass;
-
             static constexpr const char* routine_name {"compute_patch_similarities"};
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE_ROW_PASS@\n@CMAKE_KERNEL_SOURCE_COL_PASS@"};
 
-            std::string return_build_options(const int block_size_x,
-                                             const int block_size_y,
-                                             const int steps_row,
-                                             const int steps_col);
+            std::string build_opts(void);
 
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer pixel_similarities,

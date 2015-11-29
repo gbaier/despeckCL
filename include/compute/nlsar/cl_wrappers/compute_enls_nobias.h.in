@@ -6,16 +6,13 @@
 #include "clcfg.h"
 
 namespace nlsar {
-    class compute_enls_nobias : public kernel_env<compute_enls_nobias>
+    class compute_enls_nobias : public kernel_env_build<compute_enls_nobias>
     {
         public:
-            using kernel_env::kernel_env;
+            using kernel_env_build::kernel_env_build;
 
             static constexpr const char* routine_name {"compute_enls_nobias"};
-
-            static constexpr const char* kernel_source =
-    "@CMAKE_KERNEL_SOURCE@"
-    ;
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
 
     void run(cl::CommandQueue cmd_queue,
              cl::Buffer enls,

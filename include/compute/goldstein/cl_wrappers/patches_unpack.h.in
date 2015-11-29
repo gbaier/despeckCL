@@ -7,16 +7,13 @@
 
 namespace goldstein
     {
-    class patches_unpack : public kernel_env<patches_unpack>
+    class patches_unpack : public kernel_env_build<patches_unpack>
     {
         public:
-            using kernel_env::kernel_env;
-
-            static constexpr const char* kernel_source =
-    "@CMAKE_KERNEL_SOURCE@"
-    ;
+            using kernel_env_build::kernel_env_build;
 
             static constexpr const char* routine_name {"patches_unpack"};
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
 
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer interf_real, 

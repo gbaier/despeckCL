@@ -7,19 +7,17 @@
 
 namespace nlinsar {
 
-    class compute_insar : public kernel_env<compute_insar>
+    class compute_insar : public kernel_env_single<compute_insar>
     {
         private:
             const int search_window_size;
 
         public:
-            std::string return_build_options(const int block_size, const int search_window_size);
-
-            static constexpr const char* kernel_source =
-    "@CMAKE_KERNEL_SOURCE@"
-    ;
+            std::string build_opts();
 
             static constexpr const char* routine_name {"compute_insar"};
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
+
 
             compute_insar(const size_t block_size,
                           cl::Context context,

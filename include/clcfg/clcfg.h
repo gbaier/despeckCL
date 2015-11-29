@@ -18,32 +18,29 @@ template<typename Derived>
 class kernel_env : public routine_env<Derived>
 {
     public:
+        kernel_env(size_t block_size,
+                   cl::Context context) : block_size(block_size), context(context) {}
+
+        kernel_env(const kernel_env& other) : block_size(other.block_size), context(other.context) {}
+
+
         size_t block_size;
         cl::Context context;
+
+        static constexpr const char* kernel_source {"SOURCE"};
         cl::Program program;
-        cl::Kernel kernel;
-        kernel_env() {}
 
-        kernel_env(size_t block_size,
-                   cl::Context context,
-                   std::string build_opts = "-Werror -cl-std=CL1.2") : block_size(block_size), context(context)
-        {
-            this->program = build_program(build_opts, static_cast<Derived*>(this)->kernel_source);
-            this->kernel  = build_kernel(this->program, static_cast<Derived*>(this)->routine_name);
-        }
-
-        kernel_env(const kernel_env& other) : block_size(other.block_size), context(other.context)
-        {
-            this->program = other.program;
-            this->kernel  = build_kernel(this->program, static_cast<Derived*>(this)->routine_name);
-        }
-
-        std::string return_default_build_opts(void)
+   protected:
+        std::string default_build_opts(void)
         {
             return std::string{"-Werror -cl-std=CL1.2"};
         }
 
-   protected:
+        std::string build_opts(void)
+        {
+            return default_build_opts();
+        }
+
         cl::Program build_program(std::string build_opts, std::string kernel_source)
         {
             std::vector<cl::Device> devices;
@@ -103,4 +100,35 @@ class kernel_env : public routine_env<Derived>
         }
 };
 
+template<typename Derived>
+class kernel_env_single : public kernel_env<Derived>
+{
+    using kernel_env<Derived>::kernel_env;
+
+    public:
+        cl::Kernel kernel;
+};
+
+template<typename Derived>
+class kernel_env_build : public kernel_env<Derived>
+{
+    public:
+        cl::Kernel kernel;
+
+        kernel_env_build(size_t block_size,
+                         cl::Context context) : kernel_env<Derived>(block_size, context)
+        {
+            std::string routine_name {static_cast<Derived*>(this)->routine_name};
+            this->program = kernel_env<Derived>::build_program(kernel_env<Derived>::build_opts(), static_cast<Derived*>(this)->kernel_source);
+            this->kernel  = kernel_env<Derived>::build_kernel(this->program, routine_name);
+        }
+
+        kernel_env_build(const kernel_env_build& other) : kernel_env<Derived>(other)
+        {
+            std::string routine_name {static_cast<Derived*>(this)->routine_name};
+            this->program = other.program;
+            this->kernel  = kernel_env<Derived>::build_kernel(this->program, routine_name);
+        }
+
+};
 #endif

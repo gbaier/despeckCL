@@ -6,16 +6,13 @@
 #include "clcfg.h"
 
 namespace nlsar {
-    class covmat_decompose : public kernel_env<covmat_decompose>
+    class covmat_decompose : public kernel_env_build<covmat_decompose>
     {
         public:
-            using kernel_env::kernel_env;
+            using kernel_env_build::kernel_env_build;
 
             static constexpr const char* routine_name {"covmat_decompose"};
-
-            static constexpr const char* kernel_source =
-    "@CMAKE_KERNEL_SOURCE@"
-    ;
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
 
         void run(cl::CommandQueue cmd_queue,
                  cl::Buffer covmat,

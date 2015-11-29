@@ -3,23 +3,29 @@
 #include <sstream>
 
 nlinsar::transpose::transpose(const size_t block_size,
-                     cl::Context context,
-                     const size_t thread_size_row,
-                     const size_t thread_size_col) : kernel_env<transpose>(block_size,
-                                                                           context,
-                                                                           return_build_options(thread_size_row, thread_size_col)),
-                                                     thread_size_row(thread_size_row),
-                                                     thread_size_col(thread_size_col) {}
+                              cl::Context context,
+                              const size_t thread_size_row,
+                              const size_t thread_size_col) : kernel_env_single<transpose>(block_size, context),
+                                                              thread_size_row(thread_size_row),
+                                                              thread_size_col(thread_size_col)
+{
+    program = build_program(build_opts(), kernel_source);
+    kernel  = build_kernel(program, routine_name);
+}
 
-nlinsar::transpose::transpose(const transpose& other) : kernel_env<transpose>(other),
+nlinsar::transpose::transpose(const transpose& other) : kernel_env_single<transpose>(other),
                                                         thread_size_row(other.thread_size_row),
-                                                        thread_size_col(other.thread_size_col) {}
+                                                        thread_size_col(other.thread_size_col)
+{
+    program = other.program;
+    kernel  = build_kernel(program, routine_name);
+}
 
-std::string nlinsar::transpose::return_build_options(const int thread_size_row, const int thread_size_col)
+std::string nlinsar::transpose::build_opts()
 {
     std::ostringstream out;
     out << " -D THREAD_SIZE_ROW=" << thread_size_row << " -D THREAD_SIZE_COL=" << thread_size_col;
-    return return_default_build_opts() + out.str();
+    return default_build_opts() + out.str();
 }
 
 void nlinsar::transpose::run(cl::CommandQueue cmd_queue,

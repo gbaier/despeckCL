@@ -5,16 +5,13 @@
 
 namespace nlsar
     {
-    class copy_best_weights : public kernel_env<copy_best_weights>
+    class copy_best_weights : public kernel_env_build<copy_best_weights>
     {
         public:
-            using kernel_env::kernel_env;
-
-            static constexpr const char* kernel_source =
-    "@CMAKE_KERNEL_SOURCE@"
-    ;
+            using kernel_env_build::kernel_env_build;
 
             static constexpr const char* routine_name {"copy_best_weights"};
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
 
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer all_weights,

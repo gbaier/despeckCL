@@ -4,20 +4,17 @@
 #include "clcfg.h"
 
 namespace nlsar {
-    class covmat_spatial_avg : public kernel_env<covmat_spatial_avg>
+    class covmat_spatial_avg : public kernel_env_build<covmat_spatial_avg>
     {
         private:
             int get_output_block_size(const int patch_size);
 
         public:
-            using kernel_env::kernel_env;
+            using kernel_env_build::kernel_env_build;
             std::vector<float> gen_gauss(const int scale_size);
 
-            static constexpr const char* kernel_source =
-    "@CMAKE_KERNEL_SOURCE@"
-    ;
-
             static constexpr const char* routine_name {"covmat_spatial_avg"};
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
 
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer covmat_in,

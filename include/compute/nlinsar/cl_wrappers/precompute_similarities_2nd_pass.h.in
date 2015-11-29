@@ -5,16 +5,13 @@
 
 namespace nlinsar {
 
-    class precompute_similarities_2nd_pass : public kernel_env<precompute_similarities_2nd_pass>
+    class precompute_similarities_2nd_pass : public kernel_env_build<precompute_similarities_2nd_pass>
     {
         public:
-            static constexpr const char* kernel_source =
-                "@CMAKE_KERNEL_SOURCE@"
-                ;
-
             static constexpr const char* routine_name {"precompute_similarities_2nd_pass"};
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
 
-            using kernel_env::kernel_env;
+            using kernel_env_build::kernel_env_build;
 
             void run(cl::CommandQueue cmd_queue,
                     const int height_overlap,

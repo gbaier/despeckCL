@@ -7,16 +7,13 @@
 
 namespace goldstein
     {
-    class weighted_multiply : public kernel_env<weighted_multiply>
+    class weighted_multiply : public kernel_env_build<weighted_multiply>
     {
         public:
-            using kernel_env::kernel_env;
-
-            static constexpr const char* kernel_source =
-    "@CMAKE_KERNEL_SOURCE@"
-    ;
+            using kernel_env_build::kernel_env_build;
 
             static constexpr const char* routine_name {"weighted_multiply"};
+            static constexpr const char* kernel_source = "@CMAKE_KERNEL_SOURCE@";
 
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer interf_real,

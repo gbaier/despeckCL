@@ -4,26 +4,23 @@
 #include "clcfg.h"
 
 namespace nlsar {
-    class compute_nl_statistics : public kernel_env<compute_nl_statistics>
+    class compute_nl_statistics : public kernel_env_single<compute_nl_statistics>
     {
         public:
             const int search_window_size;
             const int dimension;
 
-            static constexpr const char* kernel_source =
-    "@CMAKE_KERNEL_SOURCE@"
-    ;
-
             static constexpr const char* routine_name {"compute_nl_statistics"};
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
 
             compute_nl_statistics(const size_t block_size,
-                               cl::Context context,
-                               const int search_window_size,
-                               const int dimension);
+                                  cl::Context context,
+                                  const int search_window_size,
+                                  const int dimension);
 
             compute_nl_statistics(const compute_nl_statistics& other);
 
-            std::string return_build_options(const int search_window_size, const int block_size, const int dimension);
+            std::string build_opts(void);
 
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer covmat_ori,

@@ -5,25 +5,23 @@
 
 namespace nlinsar {
 
-    class transpose : public kernel_env<transpose>
+    class transpose : public kernel_env_single<transpose>
     {
         public:
-            static constexpr const char* kernel_source =
-                "@CMAKE_KERNEL_SOURCE@"
-                ;
             static constexpr const char* routine_name {"transpose"};
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
 
             const size_t thread_size_row;
             const size_t thread_size_col;
 
             transpose(const size_t block_size,
-                    cl::Context context,
-                    const size_t thread_size_row,
-                    const size_t thread_size_col);
+                      cl::Context context,
+                      const size_t thread_size_row,
+                      const size_t thread_size_col);
 
             transpose(const transpose& other);
 
-            std::string return_build_options(const int thread_size_row, const int thread_size_col);
+            std::string build_opts(void);
 
             void run(cl::CommandQueue cmd_queue,
                     cl::Buffer matrix,

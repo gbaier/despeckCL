@@ -9,21 +9,27 @@
 nlsar::weighted_means::weighted_means(const size_t block_size,
                                       cl::Context context,
                                       const int search_window_size,
-                                      const int dimension) : kernel_env<weighted_means>(block_size,
-                                                                                        context,
-                                                                                        this->return_build_options(search_window_size, block_size, dimension)),
+                                      const int dimension) : kernel_env_single<weighted_means>(block_size, context),
                                                              search_window_size(search_window_size),
-                                                             dimension(dimension) {}
+                                                             dimension(dimension)
+{
+    program = build_program(build_opts(), kernel_source);
+    kernel  = build_kernel(program, routine_name);
+}
 
-nlsar::weighted_means::weighted_means(const weighted_means& other) : kernel_env<weighted_means>(other),
+nlsar::weighted_means::weighted_means(const weighted_means& other) : kernel_env_single<weighted_means>(other),
                                                                      search_window_size(other.search_window_size),
-                                                                     dimension(other.dimension) {}
+                                                                     dimension(other.dimension)
+{
+    program = other.program;
+    kernel  = build_kernel(program, routine_name);
+}
 
-std::string nlsar::weighted_means::return_build_options(const int search_window_size, const int block_size, const int dimension)
+std::string nlsar::weighted_means::build_opts()
 {
     std::ostringstream out;
     out << " -D SEARCH_WINDOW_SIZE=" << search_window_size << " -D BLOCK_SIZE=" << block_size << " -D DIMENSION=" << dimension;
-    return return_default_build_opts() + out.str();
+    return default_build_opts() + out.str();
 }
 
 void nlsar::weighted_means::run(cl::CommandQueue cmd_queue,

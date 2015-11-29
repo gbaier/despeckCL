@@ -7,17 +7,13 @@
 
 namespace nlinsar {
 
-    class compute_weights : public kernel_env<compute_weights>
+    class compute_weights : public kernel_env_build<compute_weights>
     {
         public:
-            using kernel_env::kernel_env;
+            using kernel_env_build::kernel_env_build;
 
             static constexpr const char* routine_name {"compute_weights"};
-
-            static constexpr const char* kernel_source =
-    "@CMAKE_KERNEL_SOURCE@"
-    ;
-
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
 
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer patch_similarities,

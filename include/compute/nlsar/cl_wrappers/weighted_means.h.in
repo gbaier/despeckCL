@@ -4,28 +4,23 @@
 #include "clcfg.h"
 
 namespace nlsar {
-    class weighted_means : public kernel_env<weighted_means>
+    class weighted_means : public kernel_env_single<weighted_means>
     {
         public:
             const int search_window_size;
             const int dimension;
 
-            static constexpr const char* kernel_source =
-    "@CMAKE_KERNEL_SOURCE@"
-    ;
-
             static constexpr const char* routine_name {"weighted_means"};
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
 
             weighted_means(const size_t block_size,
-                               cl::Context context,
-                               const int search_window_size,
-                               const int dimension);
+                           cl::Context context,
+                           const int search_window_size,
+                           const int dimension);
 
             weighted_means(const weighted_means& other);
 
-            std::string return_build_options(const int search_window_size,
-                                             const int block_size,
-                                             const int dimension);
+            std::string build_opts(void);
 
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer covmat_in,

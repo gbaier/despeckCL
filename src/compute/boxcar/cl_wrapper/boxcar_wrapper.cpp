@@ -8,21 +8,27 @@
 
 boxcar_wrapper::boxcar_wrapper(const size_t block_size,
                                cl::Context context,
-                               const int window_width) : kernel_env<boxcar_wrapper>(block_size,
-                                                                                    context,
-                                                                                    return_build_options(window_width, block_size, block_size - window_width + 1)),
+                               const int window_width) : kernel_env_single<boxcar_wrapper>(block_size, context),
                                                          window_width(window_width),
-                                                         output_block_size(block_size - window_width + 1) {}
+                                                         output_block_size(block_size - window_width + 1)
+{
+    program = build_program(build_opts(), kernel_source);
+    kernel  = build_kernel(program, routine_name);
+}
 
-boxcar_wrapper::boxcar_wrapper(const boxcar_wrapper& other) : kernel_env<boxcar_wrapper>(other),
+boxcar_wrapper::boxcar_wrapper(const boxcar_wrapper& other) : kernel_env_single<boxcar_wrapper>(other),
                                                               window_width(other.window_width),
-                                                              output_block_size(other.output_block_size) {}
+                                                              output_block_size(other.output_block_size)
+{
+    program = other.program;
+    kernel = build_kernel(program, routine_name);
+}
 
-std::string boxcar_wrapper::return_build_options(const int window_width, const int block_size, const int output_block_size)
+std::string boxcar_wrapper::build_opts()
 {
     std::ostringstream out;
     out << " -D WINDOW_WIDTH=" << window_width << " -D BLOCK_SIZE=" << block_size << " -D OUTPUT_BLOCK_SIZE=" << output_block_size;
-    return return_default_build_opts() + out.str();
+    return default_build_opts() + out.str();
 }
 
 void boxcar_wrapper::run(cl::CommandQueue cmd_queue,
