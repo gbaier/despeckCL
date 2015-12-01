@@ -22,10 +22,10 @@ int despeckcl::goldstein(float* ampl_master,
                          float* ampl_filt,
                          float* dphase_filt,
                          float* coh_filt,
-                         const int height,
-                         const int width,
-                         const int patch_size,
-                         const int overlap,
+                         const unsigned int height,
+                         const unsigned int width,
+                         const unsigned int patch_size,
+                         const unsigned int overlap,
                          const float alpha,
                          std::vector<std::string> enabled_log_levels)
 {
@@ -66,7 +66,7 @@ int despeckcl::goldstein(float* ampl_master,
     // prepare data
     insar_data_shared total_image{ampl_master, ampl_slave, dphase,
                                   ampl_filt, dphase_filt, coh_filt,
-                                  height, width};
+                                  (int) height, (int) width};
 
     // filtering
     start = std::chrono::system_clock::now();

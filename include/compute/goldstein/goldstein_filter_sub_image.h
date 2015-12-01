@@ -9,8 +9,8 @@ namespace goldstein {
     timings::map filter_sub_image(cl::Context context,
                                   cl_wrappers gs_routines,
                                   insar_data& sub_insar_data,
-                                  const int patch_size,
-                                  const int overlap,
+                                  const unsigned int patch_size,
+                                  const unsigned int overlap,
                                   const float alpha);
 }
 

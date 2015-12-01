@@ -216,8 +216,8 @@ void _goldstein_c_wrap(float* ampl_master, int h1, int w1,
                        float* ampl_filt,   int h4, int w4,
                        float* dphase_filt, int h5, int w5,
                        float* coh_filt,    int h6, int w6,
-                       const int patch_size,
-                       const int overlap,
+                       const unsigned int patch_size,
+                       const unsigned int overlap,
                        const float alpha,
                        const std::vector<std::string> enabled_log_levels)
 {

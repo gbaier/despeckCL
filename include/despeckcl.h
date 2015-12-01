@@ -52,10 +52,10 @@ namespace despeckcl {
                   float* ampl_filt,
                   float* dphase_filt,
                   float* coh_filt,
-                  const int height,
-                  const int width,
-                  const int patch_size,
-                  const int overlap,
+                  const unsigned int height,
+                  const unsigned int width,
+                  const unsigned int patch_size,
+                  const unsigned int overlap,
                   const float alpha,
                   std::vector<std::string> enabled_log_levels);
 }

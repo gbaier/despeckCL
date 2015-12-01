@@ -9,20 +9,20 @@
 timings::map goldstein::filter_sub_image(cl::Context context,
                                          cl_wrappers gs_routines,
                                          insar_data& sub_insar_data,
-                                         const int patch_size,
-                                         const int overlap,
+                                         const unsigned int patch_size,
+                                         const unsigned int overlap,
                                          const float alpha)
 {
     timings::map tm;
 
-    const int height = sub_insar_data.height;
-    const int width  = sub_insar_data.width;
+    const unsigned int height = sub_insar_data.height;
+    const unsigned int width  = sub_insar_data.width;
 
-    const int n_patches_width  = width  / (patch_size-2*overlap);
-    const int n_patches_height = height / (patch_size-2*overlap);
+    const unsigned int n_patches_width  = width  / (patch_size-2*overlap);
+    const unsigned int n_patches_height = height / (patch_size-2*overlap);
 
-    const int height_tiles = patch_size * n_patches_height;
-    const int width_tiles  = patch_size * n_patches_width;
+    const unsigned int height_tiles = patch_size * n_patches_height;
+    const unsigned int width_tiles  = patch_size * n_patches_width;
 
     LOG(DEBUG) << "sub_image";
     LOG(DEBUG) << "height:           " << height;
