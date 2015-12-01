@@ -84,7 +84,6 @@ int despeckcl::nlinsar(float* ampl_master,
     // sws^2 * sis^2 * n_threads * 4 (float) * 5
     const int sub_image_size = 80;
 
-    insar_data total_image_temp = total_image;
     
     // new build kernel interface
     std::chrono::time_point<std::chrono::system_clock> start, end;
@@ -105,6 +104,8 @@ int despeckcl::nlinsar(float* ampl_master,
     double precompute_filter_values_timing = 0.0;
     double compute_insar_timing = 0.0;
     double smoothing_timing = 0.0;
+
+    insar_data total_image_temp = total_image;
 #pragma omp parallel shared(total_image, total_image_temp)
 {
 // every thread needs its own kernel, in order not to recompile the program again
@@ -114,7 +115,7 @@ int despeckcl::nlinsar(float* ampl_master,
     for(int n = 0; n<niter; n++) {
         LOG(INFO) << "Iteration " << n + 1 << " of " << niter;
         total_image_temp = total_image;
-        for( auto imgtile : tile_iterator(total_image_temp, sub_image_size, overlap, overlap) ) {
+        for( auto imgtile : tile_iterator(total_image, sub_image_size, overlap, overlap) ) {
 #pragma omp task firstprivate(imgtile)
             {
             nlinsar_sub_image(context, nl_routines, // opencl stuff
