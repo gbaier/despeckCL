@@ -31,6 +31,21 @@ insar_data_shared::insar_data_shared(const insar_data_shared &data) : a1(data.a1
 
 insar_data_shared::~insar_data_shared() {}
 
+insar_data_shared& insar_data_shared::operator=(const insar_data_shared &data)
+{
+    const size_t bytesize = height*width*sizeof(float);
+
+    memcpy(a1, data.a1, bytesize);
+    memcpy(a2, data.a2, bytesize);
+    memcpy(dp, data.dp, bytesize);
+
+    memcpy(amp_filt, data.amp_filt, bytesize);
+    memcpy(phi_filt, data.phi_filt, bytesize);
+    memcpy(coh_filt, data.coh_filt, bytesize);
+
+    return *this;
+}
+
 insar_data::insar_data(float * a1,
                        float * a2,
                        float * dp,
@@ -70,20 +85,7 @@ insar_data::insar_data(const insar_data_shared &data) : insar_data_shared(data)
     copy(data);
 }
 
-insar_data& insar_data::operator=(const insar_data &data)
-{
-    const size_t bytesize = height*width*sizeof(float);
 
-    memcpy(a1, data.a1, bytesize);
-    memcpy(a2, data.a2, bytesize);
-    memcpy(dp, data.dp, bytesize);
-
-    memcpy(amp_filt, data.amp_filt, bytesize);
-    memcpy(phi_filt, data.phi_filt, bytesize);
-    memcpy(coh_filt, data.coh_filt, bytesize);
-
-    return *this;
-}
 
 insar_data::~insar_data()
 {

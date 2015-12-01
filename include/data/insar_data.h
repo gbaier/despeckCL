@@ -28,6 +28,8 @@ class insar_data_shared
         insar_data_shared(const insar_data_shared &data);
 
         ~insar_data_shared();
+
+        insar_data_shared& operator=(const insar_data_shared &data);
 };
 
 class insar_data : public insar_data_shared
@@ -44,8 +46,6 @@ class insar_data : public insar_data_shared
 
         insar_data(const insar_data &data);
         insar_data(const insar_data_shared &data);
-
-        insar_data& operator=(const insar_data &data);
 
         ~insar_data();
 

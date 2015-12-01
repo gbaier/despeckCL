@@ -35,9 +35,9 @@ int despeckcl::nlinsar(float* ampl_master,
 {
     logging_setup(enabled_log_levels);
 
-    insar_data total_image{ampl_master, ampl_slave, dphase,
-                           ampl_filt, dphase_filt, coh_filt,
-                           height, width};
+    insar_data_shared total_image{ampl_master, ampl_slave, dphase,
+                                  ampl_filt, dphase_filt, coh_filt,
+                                  height, width};
 
     const int overlap = (patch_size - 1)/2 + (search_window_size - 1)/2;
 
@@ -105,7 +105,7 @@ int despeckcl::nlinsar(float* ampl_master,
     double compute_insar_timing = 0.0;
     double smoothing_timing = 0.0;
 
-    insar_data total_image_temp = total_image;
+    insar_data total_image_temp{total_image};
 #pragma omp parallel shared(total_image, total_image_temp)
 {
 // every thread needs its own kernel, in order not to recompile the program again
