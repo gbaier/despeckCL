@@ -28,6 +28,11 @@ add_executable(sim_measures_test sim_measures_test.cpp)
 add_executable(best_params_test best_params_test.cpp best_params.cpp)
 add_executable(best_weights_copy_test best_weights_copy_test.cpp best_weights_copy.cpp)
 add_executable(stats_test stats_test.cpp stats.cpp)
+
+find_package(GSL REQUIRED)
+if(GSL_FOUND)
+    include_directories(${GSL_INCLUDE_DIRS})
+endif()
 target_link_libraries(stats_test ${GSL_LIBRARIES})
 
 add_test(NAME NLSAR_sim_measures
