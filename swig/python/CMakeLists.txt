@@ -1,8 +1,8 @@
 include_directories(${despeckCL_SOURCE_DIR}/include)
 include_directories(${despeckCL_SOURCE_DIR}/include/data)
 
-set(PYTHON_LIBRARY /usr/lib64/libpython3.4m.so)
-set(PYTHON_INCLUDE_DIR /usr/include/python3.4m)
+#set(PYTHON_LIBRARY /usr/lib64/libpython3.4m.so)
+#set(PYTHON_INCLUDE_DIR /usr/include/python3.4m)
 
 find_package(PythonInterp 3.4 REQUIRED)
 
