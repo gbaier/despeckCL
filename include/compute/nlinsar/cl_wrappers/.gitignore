@@ -1,1 +1,7 @@
-*.h
+compute_insar.h
+compute_weights.h
+precompute_filter_values.h
+precompute_patch_similarities.h
+precompute_similarities_1st_pass.h
+precompute_similarities_2nd_pass.h
+transpose.h
