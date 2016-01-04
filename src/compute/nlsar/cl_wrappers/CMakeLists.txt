@@ -78,6 +78,9 @@ target_link_libraries(covmat_decompose_test clcfg ${OpenCL_LIBRARIES})
 add_executable(weighted_means_test weighted_means_test.cpp weighted_means.cpp)
 target_link_libraries(weighted_means_test clcfg ${OpenCL_LIBRARIES})
 
+add_executable(copy_symm_weights_test copy_symm_weights_test.cpp copy_symm_weights.cpp)
+target_link_libraries(copy_symm_weights_test clcfg ${OpenCL_LIBRARIES})
+
 add_test(NAME NLSAR_covmat_rescale
          COMMAND covmat_rescale_test)
 
@@ -107,3 +110,6 @@ add_test(NAME NLSAR_covmat_decompose
 
 add_test(NAME NLSAR_weighted_means
          COMMAND weighted_means_test)
+
+add_test(NAME NLSAR_copy_symm_weights
+         COMMAND copy_symm_weights_test)

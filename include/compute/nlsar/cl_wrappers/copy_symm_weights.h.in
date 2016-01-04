@@ -1,0 +1,26 @@
+#ifndef COPY_SYMM_WEIGHTS_H
+#define COPY_SYMM_WEIGHTS_H
+
+#include <CL/cl.h>
+
+#include "clcfg.h"
+
+namespace nlsar {
+    class copy_symm_weights : public kernel_env_build<copy_symm_weights>
+    {
+        public:
+            using kernel_env_build::kernel_env_build;
+
+            static constexpr const char* routine_name {"copy_symm_weights"};
+            static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
+
+            void run(cl::CommandQueue cmd_queue,
+                     cl::Buffer weights_symm,
+                     cl::Buffer weights_full,
+                     const int height_ori,
+                     const int width_ori,
+                     const int search_window_size);
+    };
+}
+
+#endif
