@@ -6,22 +6,32 @@ __kernel void compute_pixel_similarities_2x2 (__global float * covmat,
                                               const int width_overlap,
                                               const int dimensions,
                                               const int nlooks,
-                                              const int search_window_size)
+                                              const int search_window_size,
+                                              const int hh_start,
+                                              const int hh_stop,
+                                              const int ww_start,
+                                              const int ww_stop)
 {
-    const int h = get_group_id(0) * get_local_size(0) + get_local_id(0);
-    const int w = get_group_id(1) * get_local_size(1) + get_local_id(1);
-
     const int wsh = (search_window_size - 1)/2;
 
-    const int height_sim = height_overlap - search_window_size + 1;
-    const int width_sim  = width_overlap  - search_window_size + 1;
+    const int h = get_global_id(0);
+    const int w = get_global_id(1);
 
-    if( h < height_sim && w < width_sim) {
-        for(int hh = 0; hh < search_window_size; hh++) {
-            for(int ww = 0; ww < search_window_size; ww++) {
+    const int width_symm  = width_overlap;
+    const int height_symm = height_overlap - wsh;
 
-                const int center_idx = (h+wsh)* width_overlap + w + wsh;
-                const int window_idx = (h+hh) * width_overlap + w + ww;
+    if(h < height_symm && w < width_symm) {
+        for(int hh=hh_start; hh<hh_stop; hh++) {
+            for(int ww=ww_start; ww<ww_stop; ww++) {
+
+                const int center_h = h + wsh;
+                const int center_w = w;
+
+                const int window_h = center_h - wsh + hh;
+                const int window_w = center_w - wsh + ww;
+
+                const int center_idx = center_h * width_overlap + center_w;
+                const int window_idx = window_h * width_overlap + window_w;
 
                 const float el_00_p1     = covmat[center_idx];
                 const float el_01real_p1 = covmat[center_idx + 2*height_overlap*width_overlap];
@@ -33,13 +43,13 @@ __kernel void compute_pixel_similarities_2x2 (__global float * covmat,
                 const float el_01imag_p2 = covmat[window_idx + 3*height_overlap*width_overlap];
                 const float el_11_p2     = covmat[window_idx + 6*height_overlap*width_overlap];
 
-                const int idx = hh * search_window_size * height_sim * width_sim \
-                              + ww * height_sim * width_sim \
-                              + h * width_sim \
+                const int idx = hh * search_window_size * height_symm * width_symm \
+                              + ww * height_symm * width_symm \
+                              + h * width_symm \
                               + w;
 
                 pixel_similarities[idx] = pixel_similarity_2x2(el_00_p1, el_01real_p1, el_01imag_p1, el_11_p1, \
-                                                               el_00_p2, el_01real_p2, el_01imag_p2, el_11_p2,
+                                                               el_00_p2, el_01real_p2, el_01imag_p2, el_11_p2, \
                                                                nlooks);
             }
         }

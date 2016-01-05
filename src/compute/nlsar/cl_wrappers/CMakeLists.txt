@@ -40,6 +40,7 @@ add_library(nlsar_cl_wrappers OBJECT
             compute_nl_statistics.cpp
             compute_alphas.cpp
             compute_enls_nobias.cpp
+            copy_symm_weights.cpp
             copy_best_weights.cpp
             covmat_decompose.cpp
             weighted_means.cpp

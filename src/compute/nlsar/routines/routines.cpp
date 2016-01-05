@@ -32,15 +32,30 @@ timings::map nlsar::routines::get_pixel_similarities (cl::Context context,
                                                                                 scale_size,
                                                                                 scale_size_max);
 
+    const int wsh = (search_window_size - 1)/2;
+    const int height_sim = height_overlap - search_window_size + 1;
+    const int width_sim  = width_overlap  - search_window_size + 1;
+    const int width_symm  = width_sim  + 2*wsh;
+    const int height_symm = height_sim +   wsh;
+
+    cl::Buffer device_pixel_similarities_symm {context, CL_MEM_READ_WRITE, (wsh+search_window_size*wsh) * height_symm*width_symm * sizeof(float), NULL, NULL};
     LOG(DEBUG) << "covmat_pixel_similarities";
     tm["covmat_pixel_similarities"] = nl_routines.compute_pixel_similarities_2x2_routine.timed_run(cmd_queue,
                                                                                                    covmat_spatial_avg,
-                                                                                                   device_pixel_similarities,
+                                                                                                   device_pixel_similarities_symm,
                                                                                                    height_overlap,
                                                                                                    width_overlap,
                                                                                                    dimension,
                                                                                                    nlooks,
                                                                                                    search_window_size);
+
+    LOG(DEBUG) << "copy_symm_weights";
+    tm["copy_symm_weights"] = nl_routines.copy_symm_weights_routine.timed_run(cmd_queue,
+                                                                              device_pixel_similarities_symm,
+                                                                              device_pixel_similarities,
+                                                                              height_sim,
+                                                                              width_sim,
+                                                                              search_window_size);
 
     return tm;
 }

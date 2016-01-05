@@ -17,21 +17,21 @@ using namespace nlsar;
 TEST_CASE( "compute_pixel_similarities_2x2", "[cl_kernels]" ) {
 
         // data setup
-        const int height_overlap = 10;
-        const int width_overlap  = 10;
+        const int height_overlap = 8;
+        const int width_overlap  = 8;
         const int dimension = 2;
         const int nlooks = 1;
-        const int search_window_size = 5;
-        const int height_sim = height_overlap - search_window_size + 1;
-        const int width_sim  = width_overlap  - search_window_size + 1;
+        const int search_window_size = 3;
+        const int wsh = (search_window_size-1)/2;
+        const int width_symm  = width_overlap;
+        const int height_symm = height_overlap - wsh;
 
         const int nelems              = height_overlap * width_overlap;
         const int covmat_nelems       = 2 * dimension * dimension * height_overlap * width_overlap;
-        const int similarities_nelems = search_window_size * search_window_size * height_sim * width_sim;
+        const int similarities_nelems = (search_window_size*wsh+wsh) * height_symm * width_symm;
 
         std::vector<float> covmat                 (covmat_nelems, 1.0);
         std::vector<float> similarities           (similarities_nelems, 0.0);
-        std::vector<float> undesired_similarities (similarities_nelems, 0.0);
 
         // simulate coherence value
         static std::default_random_engine rand_eng{};
@@ -76,5 +76,38 @@ TEST_CASE( "compute_pixel_similarities_2x2", "[cl_kernels]" ) {
 
         cmd_queue.enqueueReadBuffer(device_similarities, CL_TRUE, 0, similarities_nelems * sizeof(float), similarities.data(), NULL, NULL);
 
-        REQUIRE( ( similarities != undesired_similarities ) );
+        bool flag = true;
+        // check 2nd quadrant
+        std::cout << "2nd quadrant" << std::endl;
+        for(int hh=0; hh<wsh+1; hh++) {
+            for(int ww=0; ww<wsh; ww++) {
+                for(int h=0; h<height_symm; h++) {
+                   for(int w=wsh; w<width_symm; w++) {
+                       flag = flag && similarities[(hh*search_window_size + ww)*height_symm*width_symm + h*width_symm + w] != 0;
+                       std::cout << similarities[(hh*search_window_size + ww)*height_symm*width_symm + h*width_symm + w] << ",";
+                   }
+                   std::cout << std::endl;;
+                }
+                std::cout << std::endl;;
+                std::cout << std::endl;;
+            }
+        }
+        
+        // check 1st quadrant
+        std::cout << "1st quadrant" << std::endl;
+        for(int hh=0; hh<wsh; hh++) {
+            for(int ww=wsh; ww<search_window_size; ww++) {
+                for(int h=0; h<height_symm; h++) {
+                   for(int w=0; w<width_symm-wsh; w++) {
+                       flag = flag && similarities[(hh*search_window_size + ww)*height_symm*width_symm + h*width_symm + w] != 0;
+                       std::cout << similarities[(hh*search_window_size + ww)*height_symm*width_symm + h*width_symm + w] << ",";
+                   }
+                   std::cout << std::endl;;
+                }
+                std::cout << std::endl;;
+                std::cout << std::endl;;
+            }
+        }
+
+        REQUIRE( (flag) );
 }

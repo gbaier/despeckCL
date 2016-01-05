@@ -14,6 +14,7 @@
 #include "compute_alphas.h"
 #include "compute_enls_nobias.h"
 #include "copy_best_weights.h"
+#include "copy_symm_weights.h"
 #include "covmat_decompose.h"
 #include "weighted_means.h"
 
@@ -30,6 +31,7 @@ namespace nlsar {
         compute_alphas                 compute_alphas_routine;
         compute_enls_nobias            compute_enls_nobias_routine;
         copy_best_weights              copy_best_weights_routine;
+        copy_symm_weights              copy_symm_weights_routine;
         covmat_decompose               covmat_decompose_routine;
         weighted_means                 weighted_means_routine;
 
