@@ -63,10 +63,10 @@ bool check_arr(std::vector<float> weights_symm,
 TEST_CASE( "copy_symm_weights", "[cl_kernels]" ) {
 
         // data setup
-        const int height_ori = 2;
-        const int width_ori  = 2;
+        const int height_ori = 70;
+        const int width_ori  = 30;
 
-        const int search_window_size = 3;
+        const int search_window_size = 7;
         const int wsh = (search_window_size - 1)/2;
 
         const int width_symm  = width_ori  + 2*wsh;
