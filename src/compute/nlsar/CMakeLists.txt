@@ -10,11 +10,14 @@ include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar/cl_wrappers)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/common/cl_wrappers)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar/routines)
+include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar/training)
 
 add_library(nlsar_lib OBJECT
             nlsar.cpp
             nlsar_filter_sub_image.cpp
             stats.cpp
+            training/patches.cpp
+            training/combinations.cpp
             get_dissims.cpp
             best_params.cpp
             best_weights_copy.cpp

@@ -80,6 +80,7 @@ int despeckcl::nlsar(float* ampl_master,
                                   ampl_filt, dphase_filt, coh_filt,
                                   height, width};
     std::map<nlsar::params, nlsar::stats> nlsar_stats;
+    VLOG(0) << "Training weighting kernels";
     for(int patch_size : patch_sizes) {
         for(int scale_size : scale_sizes) {
             std::vector<float> dissims  = nlsar::get_dissims(context,

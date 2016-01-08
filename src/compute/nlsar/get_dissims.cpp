@@ -6,8 +6,8 @@
 #include "covmat_create.h"
 #include "covmat_rescale.h"
 #include "covmat_spatial_avg.h"
-#include "compute_pixel_similarities_2x2.h"
-#include "compute_patch_similarities.h"
+#include "training/patches.h"
+#include "training/combinations.h"
 
 #include "clcfg.h"
 
@@ -24,11 +24,6 @@ std::vector<float> nlsar::get_dissims(cl::Context context,
 
     cl::CommandQueue cmd_queue{context, devices[0]};
 
-    const int search_window_size = 7;
-    const int psh = (patch_size - 1)/2;
-    const int wsh = (search_window_size - 1)/2;
-    const int overlap = wsh+psh;
-
     // overlapped dimension, large enough to include the complete padded data to compute the similarities;
     // also includes overlap for spatial averaging
     const int height_overlap_avg = sub_insar_data.height;
@@ -40,26 +35,12 @@ std::vector<float> nlsar::get_dissims(cl::Context context,
     const int width_overlap  = width_overlap_avg  - scale_size + 1;
     const int n_elem_overlap = height_overlap * width_overlap;
 
-    // dimension of the precomputed patch similarity values
-    const int height_sim = height_overlap - search_window_size + 1;
-    const int width_sim  = width_overlap  - search_window_size + 1;
-    const int n_elem_sim = height_sim * width_sim;
-
-    // original dimension of the unpadded data
-    const int height_ori = height_overlap - 2*overlap;
-    const int width_ori  = width_overlap - 2*overlap;
-    const int n_elem_ori = height_ori * width_ori;
-
+    LOG(DEBUG) << "patch_size: " << patch_size;
+    LOG(DEBUG) << "scale_size: " << scale_size;
     LOG(DEBUG) << "height_overlap_avg: " << height_overlap_avg;
     LOG(DEBUG) << "width_overlap_avg: " << width_overlap_avg;
     LOG(DEBUG) << "height_overlap: " << height_overlap;
     LOG(DEBUG) << "width_overlap: " << width_overlap;
-    LOG(DEBUG) << "height_sim: " << height_sim;
-    LOG(DEBUG) << "width_sim: " << width_sim;
-    LOG(DEBUG) << "height_ori: " << height_ori;
-    LOG(DEBUG) << "width_ori: " << width_ori;
-
-    std::vector<float> patch_similarities (n_elem_ori * search_window_size * search_window_size);
 
     //***************************************************************************
     //
@@ -74,15 +55,11 @@ std::vector<float> nlsar::get_dissims(cl::Context context,
     cl::Buffer device_covmat              {context, CL_MEM_READ_WRITE, 2 * dimension * dimension * n_elem_overlap_avg * sizeof(float), NULL, NULL};
     cl::Buffer device_covmat_spatial_avg  {context, CL_MEM_READ_WRITE, 2 * dimension * dimension * n_elem_overlap     * sizeof(float), NULL, NULL};
 
-    cl::Buffer device_pixel_similarities  {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_sim * sizeof(float), NULL, NULL};
-    cl::Buffer device_patch_similarities  {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
-
     covmat_create                  covmat_create_routine                  (16, context);
     covmat_rescale                 covmat_rescale_routine                 (16, context);
     covmat_spatial_avg             covmat_spatial_avg_routine             (16, context);
-    compute_pixel_similarities_2x2 compute_pixel_similarities_2x2_routine (16, context);
-    compute_patch_similarities     compute_patch_similarities_routine     (context, 16, 4, 4, 4);
 
+    LOG(DEBUG) << "covmat_create";
     covmat_create_routine.timed_run(cmd_queue,
                                     device_ampl_master,
                                     device_ampl_slave,
@@ -91,6 +68,7 @@ std::vector<float> nlsar::get_dissims(cl::Context context,
                                     height_overlap_avg,
                                     width_overlap_avg);
 
+    LOG(DEBUG) << "covmat_rescale";
     covmat_rescale_routine.timed_run(cmd_queue,
                                      device_covmat,
                                      dimension,
@@ -98,6 +76,7 @@ std::vector<float> nlsar::get_dissims(cl::Context context,
                                      height_overlap_avg,
                                      width_overlap_avg);
 
+    LOG(DEBUG) << "covmat_spatial_avg";
     covmat_spatial_avg_routine.timed_run(cmd_queue,
                                          device_covmat,
                                          device_covmat_spatial_avg,
@@ -107,25 +86,18 @@ std::vector<float> nlsar::get_dissims(cl::Context context,
                                          scale_size,
                                          scale_size);
 
-    compute_pixel_similarities_2x2_routine.timed_run(cmd_queue,
-                                                     device_covmat_spatial_avg,
-                                                     device_pixel_similarities,
-                                                     height_overlap,
-                                                     width_overlap,
-                                                     dimension,
-                                                     nlooks,
-                                                     search_window_size);
+    std::vector<float> covmat_spatial_avg (2 * dimension * dimension * n_elem_overlap);
+    cmd_queue.enqueueReadBuffer(device_covmat_spatial_avg, CL_TRUE, 0, covmat_spatial_avg.size() * sizeof(float), covmat_spatial_avg.data(), NULL, NULL);
 
-    compute_patch_similarities_routine.timed_run(cmd_queue,
-                                                 device_pixel_similarities,
-                                                 device_patch_similarities,
-                                                 height_sim,
-                                                 width_sim,
-                                                 search_window_size,
-                                                 patch_size,
-                                                 patch_size);
+    LOG(DEBUG) << "setting up training data";
+    training::data covmat_spatial_avg_c {covmat_spatial_avg.data(),
+                                         (uint32_t) height_overlap,
+                                         (uint32_t) width_overlap,
+                                         dimension};
 
-    cmd_queue.enqueueReadBuffer(device_patch_similarities, CL_TRUE, 0, patch_similarities.size() * sizeof(float), patch_similarities.data(), NULL, NULL);
+    LOG(DEBUG) << "get all patches inside training data";
+    std::vector<training::data> all_patches = covmat_spatial_avg_c.get_all_patches(patch_size);
 
-    return patch_similarities;
+    LOG(DEBUG) << "computing all patch dissimilarity combinations";
+    return get_all_dissim_combs(all_patches);
 }
