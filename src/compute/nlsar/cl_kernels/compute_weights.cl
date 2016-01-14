@@ -1,7 +1,7 @@
 __kernel void compute_weights (__global float * patch_similarities,
                                __global float * weights,
-                               const int height_ori,
-                               const int width_ori,
+                               const int height_symm,
+                               const int width_symm,
                                const int search_window_size,
                                const int patch_size,
                                __constant float * dissims2relidx,
@@ -15,7 +15,9 @@ __kernel void compute_weights (__global float * patch_similarities,
 
     const int tx = get_global_id(0);
 
-    if( tx < height_ori*width_ori*search_window_size*search_window_size ) {
+    const int wsh = (search_window_size-1)/2;
+
+    if( tx < (search_window_size*wsh + wsh)*height_symm*width_symm) {
         float dissim = patch_similarities[tx];
 
         if (dissim > dissims_max) {

@@ -20,7 +20,7 @@ timings::map nlsar::routines::get_pixel_similarities (cl::Context context,
 
     const int n_elem_overlap = height_overlap * width_overlap;
 
-    cl::Buffer covmat_spatial_avg        {context, CL_MEM_READ_WRITE, 2*dimension * dimension * n_elem_overlap             * sizeof(float), NULL, NULL};
+    cl::Buffer covmat_spatial_avg        {context, CL_MEM_READ_WRITE, 2*dimension * dimension * n_elem_overlap * sizeof(float), NULL, NULL};
 
     LOG(DEBUG) << "covmat_spatial_avg";
     tm["covmat_spatial_avg"] = nl_routines.covmat_spatial_avg_routine.timed_run(cmd_queue,
@@ -32,30 +32,15 @@ timings::map nlsar::routines::get_pixel_similarities (cl::Context context,
                                                                                 scale_size,
                                                                                 scale_size_max);
 
-    const int wsh = (search_window_size - 1)/2;
-    const int height_sim = height_overlap - search_window_size + 1;
-    const int width_sim  = width_overlap  - search_window_size + 1;
-    const int width_symm  = width_sim  + 2*wsh;
-    const int height_symm = height_sim +   wsh;
-
-    cl::Buffer device_pixel_similarities_symm {context, CL_MEM_READ_WRITE, (wsh+search_window_size*wsh) * height_symm*width_symm * sizeof(float), NULL, NULL};
     LOG(DEBUG) << "covmat_pixel_similarities";
     tm["covmat_pixel_similarities"] = nl_routines.compute_pixel_similarities_2x2_routine.timed_run(cmd_queue,
                                                                                                    covmat_spatial_avg,
-                                                                                                   device_pixel_similarities_symm,
+                                                                                                   device_pixel_similarities,
                                                                                                    height_overlap,
                                                                                                    width_overlap,
                                                                                                    dimension,
                                                                                                    nlooks,
                                                                                                    search_window_size);
-
-    LOG(DEBUG) << "copy_symm_weights";
-    tm["copy_symm_weights"] = nl_routines.copy_symm_weights_routine.timed_run(cmd_queue,
-                                                                              device_pixel_similarities_symm,
-                                                                              device_pixel_similarities,
-                                                                              height_sim,
-                                                                              width_sim,
-                                                                              search_window_size);
 
     return tm;
 }
@@ -63,8 +48,8 @@ timings::map nlsar::routines::get_pixel_similarities (cl::Context context,
 timings::map nlsar::routines::get_weights (cl::Context context,
                                            cl::Buffer& pixel_similarities,
                                            cl::Buffer& weights,
-                                           const int height_sim,
-                                           const int width_sim,
+                                           const int height_overlap,
+                                           const int width_overlap,
                                            const int search_window_size,
                                            const int patch_size,
                                            const int patch_size_max,
@@ -81,19 +66,25 @@ timings::map nlsar::routines::get_weights (cl::Context context,
 
     const int wsh = (search_window_size - 1)/2;
 
-    // original dimension of the unpadded data
-    const int height_ori = height_sim - patch_size_max + 1;
-    const int width_ori  = width_sim  - patch_size_max + 1;
-    const int n_elem_ori = height_ori * width_ori;
+    const int height_pix_symm = height_overlap - wsh;
+    const int width_pix_symm  = width_overlap;
 
-    cl::Buffer patch_similarities {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
+    const int height_pat_symm = height_pix_symm - patch_size_max + 1;
+    const int width_pat_symm  = width_pix_symm  - patch_size_max + 1;
+
+    // original dimension of the unpadded data
+    const int height_ori = height_pat_symm - wsh;
+    const int width_ori  = width_pat_symm - 2*wsh;
+
+    cl::Buffer patch_similarities {context, CL_MEM_READ_WRITE, (search_window_size*wsh + wsh) * height_pat_symm * width_pat_symm * sizeof(float), NULL, NULL};
+    cl::Buffer weights_symm       {context, CL_MEM_READ_WRITE, (search_window_size*wsh + wsh) * height_pat_symm * width_pat_symm * sizeof(float), NULL, NULL};
 
     LOG(DEBUG) << "covmat_patch_similarities";
     tm["covmat_patch_similarities"] = nl_routines.compute_patch_similarities_routine.timed_run(cmd_queue,
                                                                                                pixel_similarities,
                                                                                                patch_similarities,
-                                                                                               height_sim,
-                                                                                               width_sim,
+                                                                                               height_pix_symm,
+                                                                                               width_pix_symm,
                                                                                                search_window_size,
                                                                                                patch_size,
                                                                                                patch_size_max);
@@ -101,9 +92,9 @@ timings::map nlsar::routines::get_weights (cl::Context context,
     LOG(DEBUG) << "compute_weights";
     tm["compute_weights"] = nl_routines.compute_weights_routine.timed_run(cmd_queue,
                                                                           patch_similarities,
-                                                                          weights,
-                                                                          height_ori,
-                                                                          width_ori,
+                                                                          weights_symm,
+                                                                          height_pat_symm,
+                                                                          width_pat_symm,
                                                                           search_window_size,
                                                                           patch_size,
                                                                           lut_dissims2relidx,
@@ -111,6 +102,14 @@ timings::map nlsar::routines::get_weights (cl::Context context,
                                                                           parameter_stats.lut_size,
                                                                           parameter_stats.dissims_min,
                                                                           parameter_stats.dissims_max);
+
+    LOG(DEBUG) << "copy_symm_weights";
+    tm["copy_symm_weights"] = nl_routines.copy_symm_weights_routine.timed_run(cmd_queue,
+                                                                              weights_symm,
+                                                                              weights,
+                                                                              height_ori,
+                                                                              width_ori,
+                                                                              search_window_size);
 
     // set weight for self similarity
     const cl_float self_weight = 1.0f;

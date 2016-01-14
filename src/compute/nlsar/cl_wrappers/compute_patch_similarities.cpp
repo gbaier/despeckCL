@@ -46,6 +46,7 @@ void nlsar::compute_patch_similarities::run(cl::CommandQueue cmd_queue,
                                             const int patch_size_max)
 {
     const int offset = (patch_size_max - patch_size) / 2;
+    const int wsh = (search_window_size - 1) / 2;
 
     const int height_intermed = height_pix - 2*offset;
     const int width_intermed  = width_pix  - 2*offset - patch_size + 1;
@@ -69,7 +70,7 @@ void nlsar::compute_patch_similarities::run(cl::CommandQueue cmd_queue,
 
     cl::NDRange global_size_row {(size_t) block_size_x*( (width_intermed  - 1)/(block_size_x*steps_row) + 1), \
                                  (size_t) block_size_y*( (height_intermed - 1)/(block_size_y) + 1), \
-                                 (size_t) search_window_size*search_window_size };
+                                 (size_t) wsh*search_window_size + wsh };
 
     LOG(DEBUG) << "patch similarities kernel row pass";
     cmd_queue.enqueueNDRangeKernel(kernel_row_pass, cl::NullRange, global_size_row, local_size, NULL, NULL);
@@ -88,7 +89,7 @@ void nlsar::compute_patch_similarities::run(cl::CommandQueue cmd_queue,
 
     cl::NDRange global_size_col {(size_t) block_size_x*( (width_pat  - 1)/(block_size_x) + 1), \
                                  (size_t) block_size_y*( (height_pat - 1)/(block_size_y*steps_col) + 1), \
-                                 (size_t) search_window_size*search_window_size };
+                                 (size_t) wsh*search_window_size + wsh };
 
     LOG(DEBUG) << "patch similarities kernel column pass";
     cmd_queue.enqueueNDRangeKernel(kernel_col_pass, cl::NullRange, global_size_col, local_size, NULL, NULL);

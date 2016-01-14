@@ -144,7 +144,9 @@ timings::map nlsar::filter_sub_image(cl::Context context,
 
     int idx = 0;
     for(int scale_size : scale_sizes) {
-        cl::Buffer device_pixel_similarities {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_sim * sizeof(float), NULL, NULL};
+        cl::Buffer device_pixel_similarities {context, CL_MEM_READ_WRITE,
+                                              (wsh+search_window_size*wsh) * (height_overlap-wsh) * width_overlap * sizeof(float),
+                                              NULL, NULL};
         timings::map tm_pixel_similarities = routines::get_pixel_similarities(context,
                                                                               covmat_rescaled,
                                                                               device_pixel_similarities,
@@ -169,8 +171,8 @@ timings::map nlsar::filter_sub_image(cl::Context context,
             timings::map tm_weights = routines::get_weights(context,
                                                             device_pixel_similarities,
                                                             device_weights,
-                                                            height_sim,
-                                                            width_sim,
+                                                            height_overlap,
+                                                            width_overlap,
                                                             search_window_size,
                                                             patch_size,
                                                             patch_size_max,
