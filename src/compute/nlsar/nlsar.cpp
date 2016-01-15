@@ -67,13 +67,13 @@ int despeckcl::nlsar(float* ampl_master,
 
     // new build kernel interface
     std::chrono::time_point<std::chrono::system_clock> start, end;
-    std::chrono::duration<double> elapsed_seconds = end-start;
+    std::chrono::duration<double> duration = end-start;
     start = std::chrono::system_clock::now();
     VLOG(0) << "Building kernels";
     nlsar::cl_wrappers nlsar_cl_wrappers (context, search_window_size, dimension);
     end = std::chrono::system_clock::now();
-    elapsed_seconds = end-start;
-    VLOG(0) << "Time it took to build all kernels: " << elapsed_seconds.count() << "secs";
+    duration = end-start;
+    VLOG(0) << "Time it took to build all kernels: " << duration.count() << "secs";
 
     // prepare data
     insar_data_shared total_image{ampl_master, ampl_slave, dphase,
@@ -81,6 +81,7 @@ int despeckcl::nlsar(float* ampl_master,
                                   height, width};
     std::map<nlsar::params, nlsar::stats> nlsar_stats;
     VLOG(0) << "Training weighting kernels";
+    start = std::chrono::system_clock::now();
     for(int patch_size : patch_sizes) {
         for(int scale_size : scale_sizes) {
             std::vector<float> dissims  = nlsar::get_dissims(context,
@@ -94,6 +95,10 @@ int despeckcl::nlsar(float* ampl_master,
                                 nlsar::stats(dissims, lut_size));
         }
     }
+    end = std::chrono::system_clock::now();
+    duration = end-start;
+    VLOG(0) << "training ran for " << duration.count() << " secs";
+
     // filtering
     start = std::chrono::system_clock::now();
     LOG(INFO) << "starting filtering";
@@ -128,7 +133,7 @@ int despeckcl::nlsar(float* ampl_master,
     LOG(INFO) << "filtering done";
     timings::print(tm);
     end = std::chrono::system_clock::now();
-    std::chrono::duration<double> duration = end-start;
+    duration = end-start;
     std::cout << "filtering ran for " << duration.count() << " secs" << std::endl;
 
     return 0;
