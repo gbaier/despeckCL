@@ -13,9 +13,7 @@ void nlsar::copy_symm_weights::run(cl::CommandQueue cmd_queue,
     kernel.setArg(3, width_ori);
     kernel.setArg(4, search_window_size);
 
-    cl::NDRange global_size {(size_t) block_size*( (height_ori - 1)/block_size + 1), \
-                             (size_t) block_size*( (width_ori  - 1)/block_size + 1)};
-    cl::NDRange local_size  {1, block_size};
+    cl::NDRange global_size {(size_t) width_ori, (size_t) height_ori};
 
-    cmd_queue.enqueueNDRangeKernel(kernel, cl::NullRange, global_size, local_size, NULL, NULL);
+    cmd_queue.enqueueNDRangeKernel(kernel, cl::NullRange, global_size, cl::NullRange, NULL, NULL);
 }

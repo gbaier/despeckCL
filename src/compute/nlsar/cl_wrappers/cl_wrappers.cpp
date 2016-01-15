@@ -14,7 +14,7 @@ nlsar::cl_wrappers::cl_wrappers(cl::Context context,
                                                         compute_alphas_routine                 (block_size, context),
                                                         compute_enls_nobias_routine            (block_size, context),
                                                         copy_best_weights_routine              (64, context),
-                                                        copy_symm_weights_routine              (32, context),
+                                                        copy_symm_weights_routine              (-1, context),
                                                         covmat_decompose_routine               (block_size, context),
                                                         weighted_means_routine                 (block_size, context, search_window_size, dimension)
 {

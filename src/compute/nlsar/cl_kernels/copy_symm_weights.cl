@@ -20,8 +20,8 @@ __kernel void copy_symm_weights(__global float * weights_symm,
 {
     const int wsh = (search_window_size - 1)/2;
 
-    const int h = get_global_id(0);
-    const int w = get_global_id(1);
+    const int h = get_global_id(1);
+    const int w = get_global_id(0);
 
     const int h_symm = h;
     const int w_symm = w + wsh;
