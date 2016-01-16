@@ -8,17 +8,19 @@ std::map<nlsar::params, nlsar::stats> nlsar::training::get_stats (const std::vec
                                                                   cl::Context context)
 {
     const int lut_size = 256;
-    std::map<nlsar::params, nlsar::stats> nlsar_stats;
+    std::vector<nlsar::params> params;
     for(int patch_size : patch_sizes) {
         for(int scale_size : scale_sizes) {
-            std::vector<float> dissims  = get_dissims(context,
-                                                      training_data,
-                                                      patch_size,
-                                                      scale_size);
-            nlsar_stats.emplace(nlsar::params{patch_size, scale_size},
-                                nlsar::stats(dissims, lut_size));
+            params.push_back(nlsar::params{patch_size, scale_size});
         }
     }
+
+    std::map<nlsar::params, nlsar::stats> nlsar_stats;
+    auto comp_stats = [&] (auto p) { return nlsar::stats(get_dissims(context, training_data, p.patch_size, p.scale_size), lut_size);};
+    for(auto p : params) {
+        nlsar_stats.emplace(p, comp_stats(p));
+    }
+
     return nlsar_stats;
 }
 
