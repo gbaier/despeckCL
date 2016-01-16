@@ -6,15 +6,15 @@
 #include "covmat_create.h"
 #include "covmat_rescale.h"
 #include "covmat_spatial_avg.h"
-#include "training/patches.h"
-#include "training/combinations.h"
+#include "patches.h"
+#include "combinations.h"
 
 #include "clcfg.h"
 
-std::vector<float> nlsar::get_dissims(cl::Context context,
-                                      const insar_data& sub_insar_data,
-                                      const int patch_size,
-                                      const int scale_size)
+std::vector<float> nlsar::training::get_dissims(cl::Context context,
+                                                const insar_data& sub_insar_data,
+                                                const int patch_size,
+                                                const int scale_size)
 {
     const int dimension = 2;
     const int nlooks = 1;

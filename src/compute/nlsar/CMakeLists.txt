@@ -16,9 +16,10 @@ add_library(nlsar_lib OBJECT
             nlsar.cpp
             nlsar_filter_sub_image.cpp
             stats.cpp
+            training/get_stats.cpp
+            training/get_dissims.cpp
             training/patches.cpp
             training/combinations.cpp
-            get_dissims.cpp
             best_params.cpp
             best_weights_copy.cpp
             best_alpha_copy.cpp

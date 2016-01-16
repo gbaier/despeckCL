@@ -11,7 +11,7 @@
 #include "nlsar_filter_sub_image.h"
 #include "sub_images.h"
 #include "stats.h"
-#include "get_dissims.h"
+#include "get_stats.h"
 #include "clcfg.h"
 #include "logging.h"
 #include "best_params.h"
@@ -38,7 +38,6 @@ int despeckcl::nlsar(float* ampl_master,
 
     // FIXME
     const int dimension = 2;
-    const int lut_size = 256;
     // overlap consists of:
     // - (patch_size_max - 1)/2 + (search_window_size - 1)/2 for similarities
     // - (window_width - 1)/2 for spatial averaging of covariance matrices
@@ -79,22 +78,14 @@ int despeckcl::nlsar(float* ampl_master,
     insar_data_shared total_image{ampl_master, ampl_slave, dphase,
                                   ampl_filt, dphase_filt, coh_filt,
                                   height, width};
-    std::map<nlsar::params, nlsar::stats> nlsar_stats;
+
     VLOG(0) << "Training weighting kernels";
-    start = std::chrono::system_clock::now();
     auto training_data = tile(total_image, std::get<0>(training_dims), std::get<1>(training_dims), std::get<2>(training_dims), 0).get();
-    for(int patch_size : patch_sizes) {
-        for(int scale_size : scale_sizes) {
-            std::vector<float> dissims  = nlsar::get_dissims(context,
-                                                             training_data,
-                                                             patch_size, scale_size);
-            nlsar_stats.emplace(nlsar::params{patch_size, scale_size},
-                                nlsar::stats(dissims, lut_size));
-        }
-    }
+    start = std::chrono::system_clock::now();
+    std::map<nlsar::params, nlsar::stats> nlsar_stats = nlsar::training::get_stats(patch_sizes, scale_sizes, training_data, context);
     end = std::chrono::system_clock::now();
     duration = end-start;
-    VLOG(0) << "training ran for " << duration.count() << " secs";
+    VLOG(0) << "training ran for: " << duration.count() << " secs";
 
     // filtering
     start = std::chrono::system_clock::now();
