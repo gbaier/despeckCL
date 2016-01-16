@@ -12,6 +12,7 @@
 #include "clcfg.h"
 
 std::vector<float> nlsar::training::get_dissims(cl::Context context,
+                                                nlsar::cl_wrappers nlsar_cl_wrappers,
                                                 const insar_data& sub_insar_data,
                                                 const int patch_size,
                                                 const int scale_size)
@@ -55,12 +56,8 @@ std::vector<float> nlsar::training::get_dissims(cl::Context context,
     cl::Buffer device_covmat              {context, CL_MEM_READ_WRITE, 2 * dimension * dimension * n_elem_overlap_avg * sizeof(float), NULL, NULL};
     cl::Buffer device_covmat_spatial_avg  {context, CL_MEM_READ_WRITE, 2 * dimension * dimension * n_elem_overlap     * sizeof(float), NULL, NULL};
 
-    covmat_create                  covmat_create_routine                  (16, context);
-    covmat_rescale                 covmat_rescale_routine                 (16, context);
-    covmat_spatial_avg             covmat_spatial_avg_routine             (16, context);
-
     LOG(DEBUG) << "covmat_create";
-    covmat_create_routine.timed_run(cmd_queue,
+    nlsar_cl_wrappers.covmat_create_routine.timed_run(cmd_queue,
                                     device_ampl_master,
                                     device_ampl_slave,
                                     device_dphase,
@@ -69,7 +66,7 @@ std::vector<float> nlsar::training::get_dissims(cl::Context context,
                                     width_overlap_avg);
 
     LOG(DEBUG) << "covmat_rescale";
-    covmat_rescale_routine.timed_run(cmd_queue,
+    nlsar_cl_wrappers.covmat_rescale_routine.timed_run(cmd_queue,
                                      device_covmat,
                                      dimension,
                                      nlooks,
@@ -77,7 +74,7 @@ std::vector<float> nlsar::training::get_dissims(cl::Context context,
                                      width_overlap_avg);
 
     LOG(DEBUG) << "covmat_spatial_avg";
-    covmat_spatial_avg_routine.timed_run(cmd_queue,
+    nlsar_cl_wrappers.covmat_spatial_avg_routine.timed_run(cmd_queue,
                                          device_covmat,
                                          device_covmat_spatial_avg,
                                          dimension,

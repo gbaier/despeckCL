@@ -82,7 +82,7 @@ int despeckcl::nlsar(float* ampl_master,
     VLOG(0) << "Training weighting kernels";
     auto training_data = tile(total_image, std::get<0>(training_dims), std::get<1>(training_dims), std::get<2>(training_dims), 0).get();
     start = std::chrono::system_clock::now();
-    std::map<nlsar::params, nlsar::stats> nlsar_stats = nlsar::training::get_stats(patch_sizes, scale_sizes, training_data, context);
+    std::map<nlsar::params, nlsar::stats> nlsar_stats = nlsar::training::get_stats(patch_sizes, scale_sizes, training_data, context, nlsar_cl_wrappers);
     end = std::chrono::system_clock::now();
     duration = end-start;
     VLOG(0) << "training ran for: " << duration.count() << " secs";
