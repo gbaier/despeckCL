@@ -37,10 +37,13 @@ int nlsar::tile_size(cl::Context context,
     dev.getInfo(CL_DEVICE_MAX_MEM_ALLOC_SIZE, &max_mem_alloc_size);
     VLOG(0) << "maximum memory allocation size = " << max_mem_alloc_size;
 
+    const int n_threads = omp_get_max_threads();
+    VLOG(0) << "number of threads = " << n_threads;
+
     // Most the most memory is required for storing weights, so only this is taken into account.
     // required bytes per pixel = reg_bpp
     const int req_bpp = 4 * search_window_size * search_window_size * n_params;
-    const int n_pixels_global = global_mem_size    / (req_bpp * omp_get_num_threads());
+    const int n_pixels_global = global_mem_size    / (req_bpp * n_threads);
     const int n_pixels_alloc  = max_mem_alloc_size /  req_bpp;
     const int n_pixels = std::min(n_pixels_global, n_pixels_alloc);
 
@@ -50,9 +53,9 @@ int nlsar::tile_size(cl::Context context,
     VLOG(0) << "tile_size_fit = "         << tile_size_fit;
     VLOG(0) << "tile_size_fit_rounded = " << tile_size_fit_rounded;
 
-    const float safety_factor = 0.75;
+    const float safety_factor = 0.95;
     int safe_tile_size = 0;
-    if (float(tile_size_fit_rounded)/tile_size_fit < safety_factor) {
+    if (tile_size_fit_rounded < safety_factor*tile_size_fit) {
         safe_tile_size = tile_size_fit_rounded;
     } else {
         safe_tile_size = tile_size_fit_rounded - 64;
