@@ -25,6 +25,7 @@ add_library(despeckcl STATIC
             $<TARGET_OBJECTS:goldstein_lib>
             $<TARGET_OBJECTS:goldstein_cl_wrappers>
             ${despeckCL_SOURCE_DIR}/src/utils/logging.cpp
+            ${despeckCL_SOURCE_DIR}/src/utils/checks.cpp
             ${despeckCL_SOURCE_DIR}/src/utils/timings.cpp
             ${despeckCL_SOURCE_DIR}/src/clcfg/clcfg.cpp
             $<TARGET_OBJECTS:common_opencl_wrappers>

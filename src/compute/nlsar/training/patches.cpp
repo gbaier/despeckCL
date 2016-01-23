@@ -3,10 +3,12 @@
 #include <cstdlib>
 #include <cstring>
 #include <stdexcept>
-
 #include <complex>
-#include "sim_measures.h"
 #include <iostream>
+#include <cassert>
+
+#include "sim_measures.h"
+#include "checks.h"
 
 nlsar::training::data::data(const float * covmats,
                             const uint32_t height,
@@ -56,6 +58,7 @@ nlsar::training::data nlsar::training::data::get_patch(const uint32_t upper_h,
                                                        const uint32_t left_w,
                                                        const uint32_t patch_size)
 {
+    assert(odd(patch_size) && (patch_size > 0));
     if (upper_h + patch_size > height || left_w + patch_size > width) {
         throw std::out_of_range("patch does not lie inside data");
     }
