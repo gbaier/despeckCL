@@ -40,10 +40,11 @@ namespace std {
     }
   }
   $result->append(mat);
+  free(*$1);
 }
 
-%typemap(freearg) (float** out_array, int* dim_h, int* dim_w) {
-   free(*$1);
+%typemap(freearg) (float* out_array, int* dim_h, int* dim_w) {
+   free($1);
 }
 
 %apply (float* in_array, int dim_h, int dim_w) {(float* ampl_master, int h1, int w1)}
@@ -77,10 +78,6 @@ void boxcar(float* ampl_master,  int h1, int w1,
     *w4 = width;
     *w5 = width;
     *w6 = width;
-
-    *ampl_filt   = (float*) malloc(height * width * sizeof(float));
-    *dphase_filt = (float*) malloc(height * width * sizeof(float));
-    *coh_filt    = (float*) malloc(height * width * sizeof(float));
 
     despeckcl::boxcar(ampl_master,
                       ampl_slave,
@@ -119,10 +116,6 @@ void nlinsar(float* ampl_master,  int h1, int w1,
     *w4 = width;
     *w5 = width;
     *w6 = width;
-
-    *ampl_filt   = (float*) malloc(height * width * sizeof(float));
-    *dphase_filt = (float*) malloc(height * width * sizeof(float));
-    *coh_filt    = (float*) malloc(height * width * sizeof(float));
 
     despeckcl::nlinsar(ampl_master,
                        ampl_slave,
@@ -168,10 +161,6 @@ void nlsar(float* ampl_master,  int h1, int w1,
     *w4 = width;
     *w5 = width;
     *w6 = width;
-
-    *ampl_filt   = (float*) malloc(height * width * sizeof(float));
-    *dphase_filt = (float*) malloc(height * width * sizeof(float));
-    *coh_filt    = (float*) malloc(height * width * sizeof(float));
 
     despeckcl::nlsar(ampl_master,
                      ampl_slave,
