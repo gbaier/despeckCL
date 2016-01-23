@@ -54,6 +54,6 @@ void nlsar::compute_pixel_similarities_2x2::run(cl::CommandQueue cmd_queue,
     kernel.setArg(8,  wsh+1); // hh_stop
     kernel.setArg(9,  0);     // ww_start
     kernel.setArg(10, wsh);   // ww_stop
-    cl::NDRange second_quadrant_offset  {0, wsh};
+    cl::NDRange second_quadrant_offset  {0, (size_t) wsh};
     cmd_queue.enqueueNDRangeKernel(kernel, second_quadrant_offset, global_size, local_size, NULL, NULL);
 }

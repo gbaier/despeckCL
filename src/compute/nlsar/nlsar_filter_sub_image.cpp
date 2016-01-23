@@ -44,11 +44,6 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     const int height_overlap = height_overlap_avg - scale_size_max + 1;
     const int width_overlap  = width_overlap_avg  - scale_size_max + 1;
 
-    // dimension of the precomputed patch similarity values
-    const int height_sim = height_overlap - search_window_size + 1;
-    const int width_sim  = width_overlap  - search_window_size + 1;
-    const int n_elem_sim = height_sim * width_sim;
-
     // original dimension of the unpadded data
     const int height_ori = height_overlap - 2*overlap;
     const int width_ori  = width_overlap - 2*overlap;
@@ -98,9 +93,9 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     cl::Buffer device_best_weights {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
     cl::Buffer device_best_alphas  {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
 
-    cl::Buffer device_ampl_filt   {context, CL_MEM_READ_WRITE,                             n_elem_overlap_avg * sizeof(float), NULL, NULL};
-    cl::Buffer device_dphase_filt {context, CL_MEM_READ_WRITE,                             n_elem_overlap_avg * sizeof(float), NULL, NULL};
-    cl::Buffer device_coh_filt    {context, CL_MEM_READ_WRITE,                             n_elem_overlap_avg * sizeof(float), NULL, NULL};
+    cl::Buffer device_ampl_filt   {context, CL_MEM_READ_WRITE,                               n_elem_overlap_avg * sizeof(float), NULL, NULL};
+    cl::Buffer device_dphase_filt {context, CL_MEM_READ_WRITE,                               n_elem_overlap_avg * sizeof(float), NULL, NULL};
+    cl::Buffer device_coh_filt    {context, CL_MEM_READ_WRITE,                               n_elem_overlap_avg * sizeof(float), NULL, NULL};
     cl::Buffer covmat_filt        {context, CL_MEM_READ_WRITE, 2 * dimensions * dimensions * n_elem_overlap_avg * sizeof(float), NULL, NULL};
 
     //***************************************************************************
