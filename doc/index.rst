@@ -6,12 +6,12 @@
 Welcome to despeckCL's documentation!
 =====================================
 
-A toolbox for despeckling SAR image written in OpenCL
+A toolbox for despeckling/denoising SAR/InSAR images written in OpenCL
 
 Implemented Filters
 -------------------
 
-So far only the following filters are implemented:
+So far the following filters are implemented:
 
 * **Boxcar**: The simple boxcar filter for InSAR data
 * **NLInSAR**: A nonlocal InSAR filter introduced in *Deledalle, C.-A.; Denis, L.; Tupin, F., "NL-InSAR: Nonlocal Interferogram Estimation," Geoscience and Remote Sensing, IEEE Transactions on , vol.49, no.4, pp.1441,1452, April 2011*
