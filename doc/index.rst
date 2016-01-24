@@ -25,6 +25,7 @@ API documentation
 
    cpp_api.rst
    python_api.rst
+   octave_api.rst
 
 Indices and tables
 ==================
