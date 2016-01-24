@@ -14,4 +14,5 @@ add_custom_target(despeckCL_docs ALL
         -d "${SPHINX_CACHE_DIR}"
         "${CMAKE_CURRENT_SOURCE_DIR}"
         "${SPHINX_HTML_DIR}"
-    COMMENT "Building HTML documentation with Sphinx")
+    COMMENT "Building HTML documentation with Sphinx"
+    DEPENDS _despeckcl_python)

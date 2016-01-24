@@ -1,4 +1,4 @@
-%module (docstring="despeckle Toolbox for InSAR written in OpenCL") despeckcl
+%module (docstring="A despeckling/denoising Toolbox for SAR/InSAR written in OpenCL") despeckcl
 
 %{
     #define SWIG_FILE_WITH_INIT
@@ -66,6 +66,15 @@ def boxcar(ampl_master,
            dphase,
            window_width,
            enabled_log_levels = ['error', 'warning', 'fatal']):
+    """Filters the input with a boxcar filter
+
+    :param ndarray ampl_master: the amplitude of the master image
+    :param ndarray ampl_slave: the amplitude of the slave image
+    :param ndarray dphase: the interferometric phase of the master and slave images
+    :param int window_width: the window width of the boxcar window, has to be an odd number
+    :return: a tuple containing the reflectivy, phase and coherence estimates
+    :rtype: tuple of ndarrays
+    """
 
     ampl_filt   = np.zeros_like(ampl_master)
     dphase_filt = np.zeros_like(ampl_master)
@@ -122,6 +131,20 @@ def nlinsar(ampl_master,
             niter,
             lmin,
             enabled_log_levels = ['error', 'warning', 'fatal']):
+    """Filters the input with the NLInSAR filter
+ 
+    :param ndarray ampl_master: the amplitude of the master image
+    :param ndarray ampl_slave: the amplitude of the slave image
+    :param ndarray dphase: the interferometric phase of the master and slave images
+    :param int search_window_size: width of the search window, has to be an odd number
+    :param int patch_size: width of the patch, has to be an odd number
+    :param int niter: number of iterations
+    :param int lmin: minimum number of looks for the smoothing step
+    :param [string] enabled_log_levels: enabled log levels, log levels are: error, fatal, warning, debug, info
+    :return: a tuple containing the reflectivy, phase and coherence estimates
+    :rtype: tuple of ndarrays
+
+    """
 
     ampl_filt   = np.zeros_like(ampl_master)
     dphase_filt = np.zeros_like(ampl_master)
@@ -186,6 +209,21 @@ def nlsar(ampl_master,
           scale_sizes,
           training_dims,
           enabled_log_levels = ['error', 'warning', 'fatal']):
+    """
+    Filters the input with the NLSAR filter
+
+    :param ndarray ampl_master: the amplitude of the master image
+    :param ndarray ampl_slave: the amplitude of the slave image
+    :param ndarray dphase: the interferometric phase of the master and slave images
+    :param int search_window_size: width of the search window, has to be an odd number
+    :param [int] patch_sizes: widths of the patches, have to be odd numbers
+    :param [int] scale_sizes: widths of the scales, have to be odd numbers
+    :param (x,y,w) training_dims: location of area used for training, where w is the width in x and y direction
+    :param [string] enabled_log_levels: enabled log levels, log levels are: error, fatal, warning, debug, info
+    :return: a tuple containing the reflectivy, phase and coherence estimates
+    :rtype: tuple of ndarrays
+
+    """
 
     ampl_filt   = np.zeros_like(ampl_master)
     dphase_filt = np.zeros_like(ampl_master)
@@ -246,6 +284,20 @@ def goldstein(ampl_master,
               overlap,
               alpha,
               enabled_log_levels = ['error', 'warning', 'fatal']):
+    """
+    Filters the input with the NLSAR filter
+
+    :param ndarray ampl_master: the amplitude of the master image
+    :param ndarray ampl_slave: the amplitude of the slave image
+    :param ndarray dphase: the interferometric phase of the master and slave images
+    :param int patch_size: width of the patch for each 2D FFT
+    :param int overlap: overlap of the patches
+    :param float alpha: strength of filtering
+    :param [string] enabled_log_levels: enabled log levels, log levels are: error, fatal, warning, debug, info
+    :return: a tuple containing the reflectivy, phase and coherence estimates
+    :rtype: tuple of ndarrays
+
+    """
 
     ampl_filt   = np.zeros_like(ampl_master)
     dphase_filt = np.zeros_like(ampl_master)
