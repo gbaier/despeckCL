@@ -285,7 +285,7 @@ def goldstein(ampl_master,
               alpha,
               enabled_log_levels = ['error', 'warning', 'fatal']):
     """
-    Filters the input with the NLSAR filter
+    Filters the input with the Goldstein filter
 
     :param ndarray ampl_master: the amplitude of the master image
     :param ndarray ampl_slave: the amplitude of the slave image
