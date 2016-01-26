@@ -37,6 +37,6 @@ subdirs(src)
 subdirs(swig)
 
 find_package(Sphinx)
-if(Sphinx_FOUND)
+if(Sphinx_FOUND OR SPHINX_FOUND)
     subdirs(doc)
 endif()
