@@ -17,17 +17,18 @@ TEST_CASE( "compute_patch_similarities", "[cl_kernels]" ) {
         const int height_sim = 20;
         const int width_sim  = 30;
         const int search_window_size = 5;
+        const int wsh = (search_window_size-1)/2;
         const int patch_size         = 3;
         const int patch_size_max     = patch_size;
 
         const int height_ori = height_sim - patch_size + 1;
         const int width_ori  = width_sim  - patch_size + 1;
 
-        std::vector<float> pixel_similarities         (search_window_size * search_window_size * height_sim * width_sim, 1.0);
-        std::vector<float> patch_similarities         (search_window_size * search_window_size * height_ori * width_ori, 0.0);
-        std::vector<float> desired_patch_similarities (search_window_size * search_window_size * height_ori * width_ori, 0.0);
+        std::vector<float> pixel_similarities         ((search_window_size*wsh+wsh) * height_sim * width_sim, 1.0);
+        std::vector<float> patch_similarities         ((search_window_size*wsh+wsh) * height_ori * width_ori, 0.0);
+        std::vector<float> desired_patch_similarities ((search_window_size*wsh+wsh) * height_ori * width_ori, 0.0);
 
-        for(int d = 0; d<search_window_size*search_window_size; d++) {
+        for(int d = 0; d<search_window_size*wsh+wsh; d++) {
             for(int i = 0; i < height_sim * width_sim; i++) {
                 pixel_similarities[d*height_sim*width_sim + i] = d;
             }
@@ -35,7 +36,7 @@ TEST_CASE( "compute_patch_similarities", "[cl_kernels]" ) {
                 desired_patch_similarities[d*height_ori*width_ori + i] = d*patch_size*patch_size;
             }
         }
-         
+
         // opencl setup
         cl::Context context = opencl_setup();
 
