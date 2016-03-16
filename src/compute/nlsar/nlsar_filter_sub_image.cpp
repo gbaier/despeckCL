@@ -74,13 +74,13 @@ timings::map nlsar::filter_sub_image(cl::Context context,
 
     for(auto& paramsstats : dissim_stats) {
         params parameter = paramsstats.first;
-        const stats* para_stats = &dissim_stats.find(parameter)->second;
-        const int lut_size = para_stats->lut_size;
+        const stats para_stats = paramsstats.second;
+        const int lut_size = para_stats.lut_size;
         try {
             device_lut_dissims2relidx [parameter] = cl::Buffer {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                                                                lut_size * sizeof(float), (void*) para_stats->quantilles.data(), NULL};
+                                                                lut_size * sizeof(float), (void*) para_stats.quantilles.data(), NULL};
             device_lut_chi2cdf_inv    [parameter] = cl::Buffer {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, \
-                                                                lut_size * sizeof(float), (void*) para_stats->chi2cdf_inv.data(), NULL};
+                                                                lut_size * sizeof(float), (void*) para_stats.chi2cdf_inv.data(), NULL};
         } catch (cl::Error error) {
             LOG(ERROR) << "ERR copying LUT to device";
             LOG(ERROR) << error.what() << "(" << error.err() << ")";
