@@ -201,12 +201,9 @@ void _nlsar_c_wrap(float* ampl_master, int h1, int w1,
                    const int search_window_size,
                    const std::vector<int> patch_sizes,
                    const std::vector<int> scale_sizes,
-                   const int training_dim_h_low,
-                   const int training_dim_w_low,
-                   const int training_dim_size,
+                   std::map<nlsar::params, nlsar::stats> nlsar_stats,
                    const std::vector<std::string> enabled_log_levels)
 {
-/*
     despeckcl::nlsar(ampl_master,
                      ampl_slave,
                      dphase,
@@ -218,11 +215,8 @@ void _nlsar_c_wrap(float* ampl_master, int h1, int w1,
                      search_window_size,
                      patch_sizes,
                      scale_sizes,
-                     std::make_tuple(training_dim_h_low,
-                                     training_dim_w_low,
-                                     training_dim_size),
+                     nlsar_stats,
                      enabled_log_levels);
-*/
 }
 %}
 
@@ -235,7 +229,7 @@ def nlsar(ampl_master,
           search_window_size,
           patch_sizes,
           scale_sizes,
-          training_dims,
+          nlsar_stats,
           enabled_log_levels = ['error', 'warning', 'fatal']):
     """
     Filters the input with the NLSAR filter
@@ -246,7 +240,7 @@ def nlsar(ampl_master,
     :param int search_window_size: width of the search window, has to be an odd number
     :param [int] patch_sizes: widths of the patches, have to be odd numbers
     :param [int] scale_sizes: widths of the scales, have to be odd numbers
-    :param (x,y,w) training_dims: location of area used for training, where w is the width in x and y direction
+    :param wrapped std::map: statistics of a homogenous training area
     :param [string] enabled_log_levels: enabled log levels, log levels are: error, fatal, warning, debug, info
     :return: a tuple containing the reflectivy, phase and coherence estimates
     :rtype: tuple of ndarrays
@@ -266,9 +260,7 @@ def nlsar(ampl_master,
                              search_window_size,
                              patch_sizes,
                              scale_sizes,
-                             training_dims[0],
-                             training_dims[1],
-                             training_dims[2],
+                             nlsar_stats,
                              enabled_log_levels)
 
     return (ampl_filt, dphase_filt, coh_filt)
