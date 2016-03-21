@@ -5,6 +5,7 @@
     #include "despeckcl.h"
     #include "parameters.h"
     #include "stats.h"
+    #include "nlsar_training.h"
     #include <tuple>
 %}
 
@@ -22,6 +23,7 @@ namespace std {
 
 %include "parameters.h"
 %include "stats.h"
+%include "nlsar_training.h"
 
 %init %{
     import_array();
@@ -169,6 +171,23 @@ def nlinsar(ampl_master,
     return (ampl_filt, dphase_filt, coh_filt)
 }
 
+%inline %{
+std::map<nlsar::params, nlsar::stats> _nlsar_training_c_wrap(float* ampl_master, int h1, int w1,
+                                                             float* ampl_slave,  int h2, int w2,
+                                                             float* dphase,      int h3, int w3,
+                                                             const std::vector<int> patch_sizes,
+                                                             const std::vector<int> scale_sizes)
+{
+  return nlsar::nlsar_training(ampl_master,
+                               ampl_slave,
+                               dphase,
+                               h1,
+                               w1,
+                               patch_sizes,
+                               scale_sizes);
+}
+%}
+
 /* NLSAR declaration and wrap */
 %inline %{
 void _nlsar_c_wrap(float* ampl_master, int h1, int w1,
@@ -185,6 +204,7 @@ void _nlsar_c_wrap(float* ampl_master, int h1, int w1,
                    const int training_dim_size,
                    const std::vector<std::string> enabled_log_levels)
 {
+/*
     despeckcl::nlsar(ampl_master,
                      ampl_slave,
                      dphase,
@@ -200,6 +220,7 @@ void _nlsar_c_wrap(float* ampl_master, int h1, int w1,
                                      training_dim_w_low,
                                      training_dim_size),
                      enabled_log_levels);
+*/
 }
 %}
 

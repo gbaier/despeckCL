@@ -5,8 +5,8 @@
 #include <string>
 #include <map>
 
-#include "parameters.h"
-#include "stats.h"
+#include "compute/nlsar/parameters.h"
+#include "compute/nlsar/stats.h"
 
 namespace despeckcl {
 void boxcar(float* ampl_master,
