@@ -3,6 +3,7 @@
 %{
     #define SWIG_FILE_WITH_INIT
     #include "despeckcl.h"
+    #include "parameters.h"
     #include <tuple>
 %}
 
@@ -10,6 +11,7 @@
 %include "typemaps.i"
 %include "std_string.i"
 %include "std_vector.i"
+%include "parameters.h"
 
 %nodefaultctor;
 
