@@ -1,5 +1,7 @@
 %module (docstring="A despeckling/denoising Toolbox for SAR/InSAR written in OpenCL") despeckcl
 
+%ignore nlsar_training;
+
 %{
     #define SWIG_FILE_WITH_INIT
     #include "despeckcl.h"
@@ -172,11 +174,11 @@ def nlinsar(ampl_master,
 }
 
 %inline %{
-std::map<nlsar::params, nlsar::stats> _nlsar_training_c_wrap(float* ampl_master, int h1, int w1,
-                                                             float* ampl_slave,  int h2, int w2,
-                                                             float* dphase,      int h3, int w3,
-                                                             const std::vector<int> patch_sizes,
-                                                             const std::vector<int> scale_sizes)
+std::map<nlsar::params, nlsar::stats> nlsar_train(float* ampl_master, int h1, int w1,
+                                                  float* ampl_slave,  int h2, int w2,
+                                                  float* dphase,      int h3, int w3,
+                                                  const std::vector<int> patch_sizes,
+                                                  const std::vector<int> scale_sizes)
 {
   return nlsar::nlsar_training(ampl_master,
                                ampl_slave,
