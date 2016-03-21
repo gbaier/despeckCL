@@ -6,6 +6,7 @@
 #include "stats.h"
 #include "best_params.h"
 #include "timings.h"
+#include "cl_wrappers.h"
 
 namespace nlsar {
     timings::map filter_sub_image(cl::Context context,

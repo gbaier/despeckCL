@@ -17,6 +17,8 @@
 #include "best_params.h"
 #include "timings.h"
 
+#include "training/nlsar_training.h"
+
 int despeckcl::nlsar(float* ampl_master,
                      float* ampl_slave,
                      float* dphase,
@@ -28,7 +30,7 @@ int despeckcl::nlsar(float* ampl_master,
                      const int search_window_size,
                      const std::vector<int> patch_sizes,
                      const std::vector<int> scale_sizes,
-                     const std::tuple<int, int, int> training_dims,
+                     std::map<nlsar::params, nlsar::stats> nlsar_stats,
                      std::vector<std::string> enabled_log_levels)
 {
     timings::map tm;
@@ -78,14 +80,6 @@ int despeckcl::nlsar(float* ampl_master,
     insar_data_shared total_image{ampl_master, ampl_slave, dphase,
                                   ampl_filt, dphase_filt, coh_filt,
                                   height, width};
-
-    VLOG(0) << "Training weighting kernels";
-    auto training_data = tile(total_image, std::get<0>(training_dims), std::get<1>(training_dims), std::get<2>(training_dims), 0).get();
-    start = std::chrono::system_clock::now();
-    std::map<nlsar::params, nlsar::stats> nlsar_stats = nlsar::training::get_stats(patch_sizes, scale_sizes, training_data, context, nlsar_cl_wrappers);
-    end = std::chrono::system_clock::now();
-    duration = end-start;
-    VLOG(0) << "training ran for: " << duration.count() << " secs";
 
     // filtering
     start = std::chrono::system_clock::now();
