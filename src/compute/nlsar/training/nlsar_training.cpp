@@ -1,4 +1,4 @@
-#include "nlsar_training.h"
+#include "despeckcl.h"
 
 #include "logging.h"
 #include "clcfg.h"
@@ -8,13 +8,13 @@
 #include "cl_wrappers.h"
 
 std::map<nlsar::params, nlsar::stats>
-nlsar::nlsar_training(float *ampl_master,
-                      float *ampl_slave,
-                      float *dphase,
-                      const int height,
-                      const int width,
-                      const std::vector<int> patch_sizes,
-                      const std::vector<int> scale_sizes)
+despeckcl::nlsar_training(float *ampl_master,
+                          float *ampl_slave,
+                          float *dphase,
+                          const int height,
+                          const int width,
+                          const std::vector<int> patch_sizes,
+                          const std::vector<int> scale_sizes)
 {
   logging_setup({});
 

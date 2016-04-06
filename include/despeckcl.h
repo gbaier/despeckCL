@@ -5,7 +5,6 @@
 #include <string>
 #include <map>
 
-#include "nlsar/nlsar_training.h"
 #include "nlsar/parameters.h"
 #include "nlsar/stats.h"
 
@@ -34,6 +33,15 @@ int nlsar(float* ampl_master,
           const std::vector<int> scale_sizes,
           std::map<nlsar::params, nlsar::stats> nlsar_stats,
           std::vector<std::string> enabled_log_levels);
+
+std::map<nlsar::params, nlsar::stats>
+nlsar_training(float *ampl_master,
+               float *ampl_slave,
+               float *dphase,
+               const int height,
+               const int width,
+               const std::vector<int> patch_sizes,
+               const std::vector<int> scale_sizes);
 
 int nlinsar(float* ampl_master,
             float* ampl_slave,

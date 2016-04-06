@@ -2,6 +2,7 @@ include_directories(${despeckCL_SOURCE_DIR}/include)
 include_directories(${despeckCL_SOURCE_DIR}/include/data)
 include_directories(${despeckCL_SOURCE_DIR}/include/clcfg)
 include_directories(${despeckCL_SOURCE_DIR}/include/utils)
+include_directories(${despeckCL_SOURCE_DIR}/include/compute)
 include_directories(${despeckCL_SOURCE_DIR}/include/compute/common/cl_wrappers)
 
 add_subdirectory(compute)
@@ -47,6 +48,5 @@ INSTALL(FILES ../include/despeckcl.h
 INSTALL(FILES
         ../include/compute/nlsar/parameters.h
         ../include/compute/nlsar/stats.h
-        ../include/compute/nlsar/training/nlsar_training.h
         DESTINATION "include/nlsar"
         )

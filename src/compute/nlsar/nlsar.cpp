@@ -17,8 +17,6 @@
 #include "best_params.h"
 #include "timings.h"
 
-#include "training/nlsar_training.h"
-
 int despeckcl::nlsar(float* ampl_master,
                      float* ampl_slave,
                      float* dphase,

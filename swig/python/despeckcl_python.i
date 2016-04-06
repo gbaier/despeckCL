@@ -7,7 +7,6 @@
     #include "despeckcl.h"
     #include "parameters.h"
     #include "stats.h"
-    #include "nlsar_training.h"
     #include <tuple>
 %}
 
@@ -22,10 +21,6 @@ namespace std {
    %template(FloatVector) vector<float>;
    %template(StringVector) vector<string>;
 }
-
-%include "parameters.h"
-%include "stats.h"
-%include "nlsar_training.h"
 
 %init %{
     import_array();
@@ -189,13 +184,13 @@ std::map<nlsar::params, nlsar::stats> nlsar_train(float* ampl_master, int h1, in
                                                   const std::vector<int> patch_sizes,
                                                   const std::vector<int> scale_sizes)
 {
-  return nlsar::nlsar_training(ampl_master,
-                               ampl_slave,
-                               dphase,
-                               h1,
-                               w1,
-                               patch_sizes,
-                               scale_sizes);
+  return despeckcl::nlsar_training(ampl_master,
+                                   ampl_slave,
+                                   dphase,
+                                   h1,
+                                   w1,
+                                   patch_sizes,
+                                   scale_sizes);
 }
 %}
 
