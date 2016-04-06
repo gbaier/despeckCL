@@ -39,6 +39,14 @@ target_link_libraries(despeckcl ${OpenCL_LIBRARIES}
 INSTALL(TARGETS despeckcl
         DESTINATION "lib"
         )
+
 INSTALL(FILES ../include/despeckcl.h
         DESTINATION "include"
+        )
+
+INSTALL(FILES
+        ../include/compute/nlsar/parameters.h
+        ../include/compute/nlsar/stats.h
+        ../include/compute/nlsar/training/nlsar_training.h
+        DESTINATION "include/nlsar"
         )
