@@ -39,8 +39,6 @@ namespace std {
 %apply( float* INPLACE_ARRAY2, int DIM1, int DIM2) {(float* coh_filt,    int h6, int w6)}
 
 %ignore boxcar_routines;
-%feature("autodoc", "2");
-
 
 /* Boxcar declarations and definitions */
 %inline %{
@@ -173,6 +171,17 @@ def nlinsar(ampl_master,
     return (ampl_filt, dphase_filt, coh_filt)
 }
 
+%feature("docstring") nlsar_train "
+    trains the weighting kernel on a homogeneous areas
+
+    :param ndarray ampl_master: the amplitude of the master image
+    :param ndarray ampl_slave: the amplitude of the slave image
+    :param ndarray dphase: the interferometric phase of the master and slave images
+    :param [int] patch_sizes: widths of the patches, have to be odd numbers
+    :param [int] scale_sizes: widths of the scales, have to be odd numbers
+    :return: dissimilarity statistics of the homogeneous training area
+    :rtype: wrapped std\:\:map of parameters to dissimilarity statistics
+    "
 %inline %{
 std::map<nlsar::params, nlsar::stats> nlsar_train(float* ampl_master, int h1, int w1,
                                                   float* ampl_slave,  int h2, int w2,
@@ -232,7 +241,7 @@ def nlsar(ampl_master,
           nlsar_stats,
           enabled_log_levels = ['error', 'warning', 'fatal']):
     """
-    Filters the input with the NLSAR filter
+    filters the input with the nlsar filter
 
     :param ndarray ampl_master: the amplitude of the master image
     :param ndarray ampl_slave: the amplitude of the slave image
@@ -240,7 +249,7 @@ def nlsar(ampl_master,
     :param int search_window_size: width of the search window, has to be an odd number
     :param [int] patch_sizes: widths of the patches, have to be odd numbers
     :param [int] scale_sizes: widths of the scales, have to be odd numbers
-    :param wrapped std::map: statistics of a homogenous training area
+    :param wrapped std\:\:map nlsar_stats: statistics of a homogenous training area produced by **nlsar_train**
     :param [string] enabled_log_levels: enabled log levels, log levels are: error, fatal, warning, debug, info
     :return: a tuple containing the reflectivy, phase and coherence estimates
     :rtype: tuple of ndarrays
