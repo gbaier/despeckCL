@@ -53,7 +53,7 @@ int nlsar::tile_size(cl::Context context,
     VLOG(0) << "tile_size_fit = "         << tile_size_fit;
     VLOG(0) << "tile_size_fit_rounded = " << tile_size_fit_rounded;
 
-    const float safety_factor = 0.95;
+    const float safety_factor = 0.90;
     int safe_tile_size = 0;
     if (tile_size_fit_rounded < safety_factor*tile_size_fit) {
         safe_tile_size = tile_size_fit_rounded;
