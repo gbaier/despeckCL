@@ -49,5 +49,7 @@ $ cmake -DCMAKE_INSTALL_PREFIX:PATH=/opt/despeckcl/ ../
 
 $ make -j4
 
+$ make test
+
 $ make install
 ```
