@@ -35,6 +35,17 @@ nlsar::stats::stats(std::vector<float> dissims, unsigned int lut_size): lut_size
     this->chi2cdf_inv = get_chi2cdf_inv();
 }
 
+nlsar::stats::stats(): lut_size(-1) {}
+
+nlsar::stats& nlsar::stats::operator=(const nlsar::stats& other)
+{
+  this->dissims_min = other.dissims_min;
+  this->dissims_max = other.dissims_max;
+  this->quantilles  = other.quantilles;
+  this->chi2cdf_inv = other.chi2cdf_inv;
+  return *this;
+}
+
 std::vector<float> nlsar::stats::get_quantilles(std::vector<float> &dissims)
 {
     const float step_size = (dissims_max - dissims_min)/(lut_size-1);

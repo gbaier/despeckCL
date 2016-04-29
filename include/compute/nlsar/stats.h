@@ -25,7 +25,9 @@ namespace nlsar {
     class stats
     {
         public:
+            stats();
             stats(std::vector<float> dissims, unsigned int lut_size);
+            stats& operator=(const stats& other);
             const unsigned int lut_size;
             float dissims_min;
             float dissims_max;

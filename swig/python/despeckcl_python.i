@@ -14,12 +14,15 @@
 %include "typemaps.i"
 %include "std_string.i"
 %include "std_vector.i"
-%nodefaultctor;
+%include "std_map.i"
+%include "parameters.h"
+%include "stats.h"
 
 namespace std {
    %template(IntVector) vector<int>;
    %template(FloatVector) vector<float>;
    %template(StringVector) vector<string>;
+   %template(map_params_stats) map<nlsar::params, nlsar::stats>;
 }
 
 %init %{
