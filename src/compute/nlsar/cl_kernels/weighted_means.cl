@@ -42,26 +42,25 @@ __kernel void weighted_means (__global float * covmat_in,
     const int out_x = get_group_id(0) * get_local_size(0) + tx;
     const int out_y = get_group_id(1) * get_local_size(1) + ty;
 
-    __local float covmat_local [2*DIMENSION*DIMENSION] [BLOCK_SIZE+SEARCH_WINDOW_SIZE] [BLOCK_SIZE+SEARCH_WINDOW_SIZE];
+    __local float covmat_local [BLOCK_SIZE+SEARCH_WINDOW_SIZE] [BLOCK_SIZE+SEARCH_WINDOW_SIZE];
 
+    for(int d = 0; d<2*DIMENSION*DIMENSION; d++) {
     for(int x = 0; x<BLOCK_SIZE+SEARCH_WINDOW_SIZE; x += get_local_size(0)) {
         for(int y = 0; y<BLOCK_SIZE+SEARCH_WINDOW_SIZE; y += get_local_size(1)) {
             if ( (tx+x) < (BLOCK_SIZE+SEARCH_WINDOW_SIZE)
               && (ty+y) < (BLOCK_SIZE+SEARCH_WINDOW_SIZE)
               && (out_x+x) < height_overlap
               && (out_y+y) < width_overlap ) {
-                for(int d = 0; d<2*DIMENSION*DIMENSION; d++) {
-                    covmat_local [d][tx+x][ty+y] = covmat_in[d*height_overlap_avg*width_overlap_avg \
-                                                              + (out_x+x+wwh+psh)*width_overlap_avg \
-                                                                                 + (out_y+y+wwh+psh) ];
-                }
+                    covmat_local [tx+x][ty+y] = covmat_in[d*height_overlap_avg*width_overlap_avg \
+                                                           + (out_x+x+wwh+psh)*width_overlap_avg \
+                                                                             + (out_y+y+wwh+psh) ];
             }
         }
     }
 
     barrier(CLK_LOCAL_MEM_FENCE);
     if (out_x < height_ori && out_y < width_ori) {
-        float covmat_new[2*DIMENSION*DIMENSION] = {0};
+        float covmat_new = 0.0f;
         float weight_sum = 0.0f;
         const float alpha = alphas[out_x * width_ori + out_y];
         for(int x = 0; x<SEARCH_WINDOW_SIZE; x++ ) {
@@ -71,17 +70,14 @@ __kernel void weighted_means (__global float * covmat_in,
                                                                          + out_x * width_ori \
                                                                                      + out_y];
                 weight_sum += weight;
-                for(int d = 0; d<2*DIMENSION*DIMENSION; d++) {
-                    covmat_new[d] += weight * covmat_local[d][tx+x][ty+y];
-                }
-
+                covmat_new += weight * covmat_local[tx+x][ty+y];
             }
         }
-        for(int d = 0; d<2*DIMENSION*DIMENSION; d++) {
             const int out_idx = d*height_overlap_avg*width_overlap_avg \
                                + (wsh+psh+wwh+out_x)*width_overlap_avg \
                                                   + (wsh+psh+wwh+out_y);
-            covmat_out[out_idx] = (1-alpha)*covmat_new[d]/weight_sum + alpha*covmat_local[d][tx+wsh][ty+wsh];
+            covmat_out[out_idx] = (1-alpha)*covmat_new/weight_sum + alpha*covmat_local[tx+wsh][ty+wsh];
         }
+    barrier(CLK_LOCAL_MEM_FENCE);
     }
 }
