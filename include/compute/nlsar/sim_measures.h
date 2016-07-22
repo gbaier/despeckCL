@@ -16,6 +16,12 @@
  * along with despeckCL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef __OPENCL_VERSION__
+#include <cmath>
+using std::isnan;
+#endif
+
+
 float det_covmat_2x2(float el_00, float el_01real, float el_01imag, float el_11)
 {
     return (el_00*el_11) - (el_01real*el_01real + el_01imag*el_01imag);
