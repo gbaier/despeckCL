@@ -20,7 +20,7 @@
 
 // computes the full similarities and kullback_leiblers till border_max
 __kernel void precompute_similarities_1st_pass (__global float * ampl_master, __global float * ampl_slave,  __global float * dphase,
-                                                __global float * ampl_filt,   __global float * dphase_filt, __global float * coh_filt,
+                                                __global float * ref_filt,   __global float * dphase_filt, __global float * coh_filt,
                                                 __global float * similarities, __global float * kullback_leiblers,
                                                 const int height_overlap, const int width_overlap, const int border_max, const int search_window_size)
 {
@@ -54,13 +54,13 @@ __kernel void precompute_similarities_1st_pass (__global float * ampl_master, __
                 const float as2 = ampl_slave   [window_idx];
                 const float dp2 = dphase       [window_idx];
 
-                const float ref1 = pow(ampl_filt   [center_idx], 2.0f);
-                const float pha1 =     dphase_filt [center_idx];
-                const float coh1 =     coh_filt    [center_idx];
+                const float ref1 = ref_filt    [center_idx];
+                const float pha1 = dphase_filt [center_idx];
+                const float coh1 = coh_filt    [center_idx];
 
-                const float ref2 = pow(ampl_filt   [window_idx], 2.0f);
-                const float pha2 =     dphase_filt [window_idx];
-                const float coh2 =     coh_filt    [window_idx];
+                const float ref2 = ref_filt    [window_idx];
+                const float pha2 = dphase_filt [window_idx];
+                const float coh2 = coh_filt    [window_idx];
 
                 const int idx = hh * search_window_size * height_sim * width_sim \
                               + ww * height_sim * width_sim \

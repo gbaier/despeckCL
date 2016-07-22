@@ -25,14 +25,14 @@
 insar_data_shared::insar_data_shared(float * a1,
                                      float * a2,
                                      float * dp,
-                                     float * amp_filt,
+                                     float * ref_filt,
                                      float * phi_filt,
                                      float * coh_filt,
                                      const int height,
                                      const int width) : a1(a1),
                                                         a2(a2),
                                                         dp(dp),
-                                                        amp_filt(amp_filt),
+                                                        ref_filt(ref_filt),
                                                         phi_filt(phi_filt),
                                                         coh_filt(coh_filt),
                                                         height(height),
@@ -41,7 +41,7 @@ insar_data_shared::insar_data_shared(float * a1,
 insar_data_shared::insar_data_shared(const insar_data_shared &data) : a1(data.a1),
                                                                       a2(data.a2),
                                                                       dp(data.dp),
-                                                                      amp_filt(data.amp_filt),
+                                                                      ref_filt(data.ref_filt),
                                                                       phi_filt(data.phi_filt),
                                                                       coh_filt(data.coh_filt),
                                                                       height(data.height),
@@ -57,7 +57,7 @@ insar_data_shared& insar_data_shared::operator=(const insar_data_shared &data)
     memcpy(a2, data.a2, bytesize);
     memcpy(dp, data.dp, bytesize);
 
-    memcpy(amp_filt, data.amp_filt, bytesize);
+    memcpy(ref_filt, data.ref_filt, bytesize);
     memcpy(phi_filt, data.phi_filt, bytesize);
     memcpy(coh_filt, data.coh_filt, bytesize);
 
@@ -67,11 +67,11 @@ insar_data_shared& insar_data_shared::operator=(const insar_data_shared &data)
 insar_data::insar_data(float * a1,
                        float * a2,
                        float * dp,
-                       float * amp_filt,
+                       float * ref_filt,
                        float * phi_filt,
                        float * coh_filt,
                        const int height,
-                       const int width) : insar_data_shared(a1, a2, dp, amp_filt, phi_filt, coh_filt, height, width)
+                       const int width) : insar_data_shared(a1, a2, dp, ref_filt, phi_filt, coh_filt, height, width)
 {
     const size_t bytesize = height*width*sizeof(float);
 
@@ -84,8 +84,8 @@ insar_data::insar_data(float * a1,
     this->dp = (float *) malloc(bytesize);
     memcpy(this->dp, dp, bytesize);
 
-    this->amp_filt = (float *) malloc(bytesize);
-    memcpy(this->amp_filt, amp_filt, bytesize);
+    this->ref_filt = (float *) malloc(bytesize);
+    memcpy(this->ref_filt, ref_filt, bytesize);
 
     this->phi_filt = (float *) malloc(bytesize);
     memcpy(this->phi_filt, phi_filt, bytesize);
@@ -110,7 +110,7 @@ insar_data::~insar_data()
     free(a1);
     free(a2);
     free(dp);
-    free(amp_filt);
+    free(ref_filt);
     free(phi_filt);
     free(coh_filt);
 }

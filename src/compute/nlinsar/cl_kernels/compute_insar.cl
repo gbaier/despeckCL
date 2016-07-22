@@ -46,7 +46,7 @@ bool is_valid(float number)
 }
 
 __kernel void compute_insar  (__global float * filter_data_a, __global float * filter_data_x_real, __global float * filter_data_x_imag,
-                              __global float * amp_filt, __global float * phi_filt, __global float * coh_filt,
+                              __global float * ref_filt, __global float * phi_filt, __global float * coh_filt,
                               __global float * weights, const int height_ori, const int width_ori,
                               const int search_window_size, const int patch_size)
 {
@@ -107,7 +107,7 @@ __kernel void compute_insar  (__global float * filter_data_a, __global float * f
         // since the weights are zero, due to the Kullback-Leibler-divergence
         // in this case we just keep the previoulsy estimated value
         if (is_valid(reflectivity)) {
-            amp_filt[idx] = sqrt(reflectivity);
+            ref_filt[idx] = reflectivity;
         }
         if (is_valid(interferometric_phase)) {
             phi_filt[idx] = correct_phase_range(interferometric_phase);

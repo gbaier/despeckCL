@@ -183,7 +183,7 @@ timings::map goldstein::filter_sub_image(cl::Context context,
     /* Release clFFT library. */
     clfftTeardown( );
 
-    cmd_queue.enqueueReadBuffer(dev_ampl_master, CL_TRUE, 0, height * width * sizeof(float), sub_insar_data.amp_filt, NULL, NULL);
+    cmd_queue.enqueueReadBuffer(dev_ampl_master, CL_TRUE, 0, height * width * sizeof(float), sub_insar_data.ref_filt, NULL, NULL);
     cmd_queue.enqueueReadBuffer(dev_dphase,      CL_TRUE, 0, height * width * sizeof(float), sub_insar_data.phi_filt, NULL, NULL);
 
     return tm;

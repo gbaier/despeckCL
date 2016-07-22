@@ -49,7 +49,7 @@ void nlinsar::compute_insar::run(cl::CommandQueue cmd_queue,
                                  cl::Buffer device_filter_values_a,
                                  cl::Buffer device_filter_values_x_real,
                                  cl::Buffer device_filter_values_x_imag,
-                                 cl::Buffer device_amp_filt,
+                                 cl::Buffer device_ref_filt,
                                  cl::Buffer device_phi_filt,
                                  cl::Buffer device_coh_filt,
                                  const int height_overlap,
@@ -65,7 +65,7 @@ void nlinsar::compute_insar::run(cl::CommandQueue cmd_queue,
     kernel.setArg(1,  device_filter_values_x_real);
     kernel.setArg(2,  device_filter_values_x_imag);
 
-    kernel.setArg(3,  device_amp_filt);
+    kernel.setArg(3,  device_ref_filt);
     kernel.setArg(4,  device_phi_filt);
     kernel.setArg(5,  device_coh_filt);
     

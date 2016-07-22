@@ -38,7 +38,7 @@
 int despeckcl::nlsar(float* ampl_master,
                      float* ampl_slave,
                      float* dphase,
-                     float* ampl_filt,
+                     float* ref_filt,
                      float* dphase_filt,
                      float* coh_filt,
                      const int height,
@@ -94,7 +94,7 @@ int despeckcl::nlsar(float* ampl_master,
 
     // prepare data
     insar_data_shared total_image{ampl_master, ampl_slave, dphase,
-                                  ampl_filt, dphase_filt, coh_filt,
+                                  ref_filt, dphase_filt, coh_filt,
                                   height, width};
 
     // filtering

@@ -40,7 +40,7 @@
 int despeckcl::nlinsar(float* ampl_master,
                        float* ampl_slave,
                        float* dphase,
-                       float* ampl_filt,
+                       float* ref_filt,
                        float* dphase_filt,
                        float* coh_filt,
                        const int height,
@@ -54,7 +54,7 @@ int despeckcl::nlinsar(float* ampl_master,
     logging_setup(enabled_log_levels);
 
     insar_data_shared total_image{ampl_master, ampl_slave, dphase,
-                                  ampl_filt, dphase_filt, coh_filt,
+                                  ref_filt, dphase_filt, coh_filt,
                                   height, width};
 
     const int overlap = (patch_size - 1)/2 + (search_window_size - 1)/2;
@@ -160,7 +160,7 @@ int despeckcl::nlinsar(float* ampl_master,
 }
     LOG(INFO) << "filtering done";
 
-    memcpy(ampl_filt,   total_image.amp_filt, sizeof(float)*height*width);
+    memcpy(ref_filt,    total_image.ref_filt, sizeof(float)*height*width);
     memcpy(dphase_filt, total_image.phi_filt, sizeof(float)*height*width);
     memcpy(coh_filt,    total_image.coh_filt, sizeof(float)*height*width);
 

@@ -62,7 +62,7 @@ __kernel void boxcar_kernel (__global float * ampl_master, __global float * ampl
             }
         }
         if (out_x < height && out_y < width) {
-            ampl_filt   [out_x*width + out_y] = sqrt(a/N);
+            ampl_filt   [out_x*width + out_y] = a/N;
             dphase_filt [out_x*width + out_y] = atan2(x_imag, x_real);
             coh_filt    [out_x*width + out_y] = sqrt(pow(x_real, 2) + pow(x_imag, 2))/a;
         }

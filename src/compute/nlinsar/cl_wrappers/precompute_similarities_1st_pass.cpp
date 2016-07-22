@@ -23,7 +23,7 @@ void nlinsar::precompute_similarities_1st_pass::run(cl::CommandQueue cmd_queue,
                                                     cl::Buffer device_a1,
                                                     cl::Buffer device_a2,
                                                     cl::Buffer device_dp,
-                                                    cl::Buffer device_amp_filt,
+                                                    cl::Buffer device_ref_filt,
                                                     cl::Buffer device_phi_filt,
                                                     cl::Buffer device_coh_filt,
                                                     const int height_overlap,
@@ -43,7 +43,7 @@ void nlinsar::precompute_similarities_1st_pass::run(cl::CommandQueue cmd_queue,
     kernel.setArg(0,  device_a1);
     kernel.setArg(1,  device_a2);
     kernel.setArg(2,  device_dp);
-    kernel.setArg(3,  device_amp_filt);
+    kernel.setArg(3,  device_ref_filt);
     kernel.setArg(4,  device_phi_filt);
     kernel.setArg(5,  device_coh_filt);
     kernel.setArg(6,  device_similarities);

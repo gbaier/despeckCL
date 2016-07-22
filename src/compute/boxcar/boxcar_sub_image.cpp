@@ -39,7 +39,7 @@ int boxcar_sub_image(cl::Context context,
     cl::Buffer device_raw_a2                  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.a2, NULL};
     cl::Buffer device_raw_dp                  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.dp, NULL};
 
-    cl::Buffer device_amp_filt                {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.amp_filt, NULL};
+    cl::Buffer device_ref_filt                {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.ref_filt, NULL};
     cl::Buffer device_phi_filt                {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.phi_filt, NULL};
     cl::Buffer device_coh_filt                {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.coh_filt, NULL};
 
@@ -54,7 +54,7 @@ int boxcar_sub_image(cl::Context context,
     //***************************************************************************
     boxcar_routine.timed_run(cmd_queue,
                              device_raw_a1, device_raw_a2, device_raw_dp,
-                             device_amp_filt, device_phi_filt, device_coh_filt,
+                             device_ref_filt, device_phi_filt, device_coh_filt,
                              height_overlap, width_overlap);
     
     //***************************************************************************
@@ -62,7 +62,7 @@ int boxcar_sub_image(cl::Context context,
     // copying back result and clean up
     //
     //***************************************************************************
-    cmd_queue.enqueueReadBuffer(device_amp_filt, CL_TRUE, 0, n_elem_overlap*sizeof(float), sub_insar_data.amp_filt, NULL, NULL);
+    cmd_queue.enqueueReadBuffer(device_ref_filt, CL_TRUE, 0, n_elem_overlap*sizeof(float), sub_insar_data.ref_filt, NULL, NULL);
     cmd_queue.enqueueReadBuffer(device_phi_filt, CL_TRUE, 0, n_elem_overlap*sizeof(float), sub_insar_data.phi_filt, NULL, NULL);
     cmd_queue.enqueueReadBuffer(device_coh_filt, CL_TRUE, 0, n_elem_overlap*sizeof(float), sub_insar_data.coh_filt, NULL, NULL);
 

@@ -47,7 +47,7 @@ namespace nlinsar {
                      cl::Buffer device_filter_values_a,
                      cl::Buffer device_filter_values_x_real,
                      cl::Buffer device_filter_values_x_imag,
-                     cl::Buffer device_amp_filt,
+                     cl::Buffer device_ref_filt,
                      cl::Buffer device_phi_filt,
                      cl::Buffer device_coh_filt,
                      const int height_overlap,

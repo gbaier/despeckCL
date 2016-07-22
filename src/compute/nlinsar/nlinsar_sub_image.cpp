@@ -61,7 +61,7 @@ int nlinsar::nlinsar_sub_image(cl::Context context,
     cl::Buffer device_raw_a2                  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.a2, NULL};
     cl::Buffer device_raw_dp                  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.dp, NULL};
 
-    cl::Buffer device_amp_filt                {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.amp_filt, NULL};
+    cl::Buffer device_ref_filt                {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.ref_filt, NULL};
     cl::Buffer device_phi_filt                {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.phi_filt, NULL};
     cl::Buffer device_coh_filt                {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.coh_filt, NULL};
 
@@ -92,7 +92,7 @@ int nlinsar::nlinsar_sub_image(cl::Context context,
     //***************************************************************************
     nl_routines.precompute_similarities_1st_pass_routine.timed_run(cmd_queue,
                                                                    device_raw_a1, device_raw_a2, device_raw_dp,
-                                                                   device_amp_filt, device_phi_filt, device_coh_filt,
+                                                                   device_ref_filt, device_phi_filt, device_coh_filt,
                                                                    height_overlap, width_overlap,
                                                                    search_window_size,
                                                                    device_pixel_similarities, device_pixel_kullback_leiblers);
@@ -147,7 +147,7 @@ int nlinsar::nlinsar_sub_image(cl::Context context,
 
     nl_routines.compute_insar_routine.timed_run(cmd_queue,
                                                 device_filter_values_a, device_filter_values_x_real, device_filter_values_x_imag, 
-                                                device_amp_filt, device_phi_filt, device_coh_filt,
+                                                device_ref_filt, device_phi_filt, device_coh_filt,
                                                 height_overlap, width_overlap,
                                                 device_weights,
                                                 search_window_size, patch_size);
@@ -159,7 +159,7 @@ int nlinsar::nlinsar_sub_image(cl::Context context,
     //
     //***************************************************************************
     const int n_elem = (height_overlap) * (width_overlap);
-    cmd_queue.enqueueReadBuffer(device_amp_filt, CL_TRUE, 0, n_elem*sizeof(float), sub_insar_data.amp_filt, NULL, NULL);
+    cmd_queue.enqueueReadBuffer(device_ref_filt, CL_TRUE, 0, n_elem*sizeof(float), sub_insar_data.ref_filt, NULL, NULL);
     cmd_queue.enqueueReadBuffer(device_phi_filt, CL_TRUE, 0, n_elem*sizeof(float), sub_insar_data.phi_filt, NULL, NULL);
     cmd_queue.enqueueReadBuffer(device_coh_filt, CL_TRUE, 0, n_elem*sizeof(float), sub_insar_data.coh_filt, NULL, NULL);
 

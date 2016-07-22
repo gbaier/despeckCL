@@ -28,7 +28,7 @@ class insar_data_shared
         float * a1;
         float * a2;
         float * dp;
-        float * amp_filt;
+        float * ref_filt;
         float * phi_filt;
         float * coh_filt;
         int height;
@@ -37,7 +37,7 @@ class insar_data_shared
         insar_data_shared(float * a1,
                           float * a2,
                           float * dp,
-                          float * amp_filt,
+                          float * ref_filt,
                           float * phi_filt,
                           float * coh_filt,
                           const int height,
@@ -56,7 +56,7 @@ class insar_data : public insar_data_shared
         insar_data(float * a1,
                    float * a2,
                    float * dp,
-                   float * amp_filt,
+                   float * ref_filt,
                    float * phi_filt,
                    float * coh_filt,
                    const int height,
@@ -82,8 +82,8 @@ class insar_data : public insar_data_shared
             dp = (float *) malloc(bytesize);
             memcpy(dp, data.dp, bytesize);
 
-            amp_filt = (float *) malloc(bytesize);
-            memcpy(amp_filt, data.amp_filt, bytesize);
+            ref_filt = (float *) malloc(bytesize);
+            memcpy(ref_filt, data.ref_filt, bytesize);
 
             phi_filt = (float *) malloc(bytesize);
             memcpy(phi_filt, data.phi_filt, bytesize);

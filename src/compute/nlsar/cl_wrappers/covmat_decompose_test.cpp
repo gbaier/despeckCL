@@ -20,6 +20,7 @@
 #include <CL/cl.hpp>
 
 #include <complex>
+#include <cmath>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -45,7 +46,7 @@ TEST_CASE( "covmat_decompose", "[cl_kernels]" ) {
         std::vector<float> ampl_slave  (                      height*width, 1.0);
         std::vector<float> dphase      (                      height*width, 1.0);
         std::vector<float> covmat      (2*dimension*dimension*height*width, 0.0);
-        std::vector<float> ampl_filt   (                      height*width, 0.0);
+        std::vector<float> ref_filt   (                      height*width, 0.0);
         std::vector<float> dphase_filt (                      height*width, 0.0);
         
         // simulate coherence value
@@ -78,7 +79,7 @@ TEST_CASE( "covmat_decompose", "[cl_kernels]" ) {
         cl::Buffer device_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,                       height*width*sizeof(float), ampl_slave.data(),  NULL};
         cl::Buffer device_dphase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,                       height*width*sizeof(float), dphase.data(),      NULL};
         cl::Buffer device_covmat      {context, CL_MEM_READ_WRITE,                       2*dimension*dimension*height*width*sizeof(float), NULL,               NULL};
-        cl::Buffer device_ampl_filt   {context, CL_MEM_READ_WRITE,                                             height*width*sizeof(float), NULL,               NULL};
+        cl::Buffer device_ref_filt   {context, CL_MEM_READ_WRITE,                                             height*width*sizeof(float), NULL,               NULL};
         cl::Buffer device_dphase_filt {context, CL_MEM_READ_WRITE,                                             height*width*sizeof(float), NULL,               NULL};
         cl::Buffer device_coh_filt    {context, CL_MEM_READ_WRITE,                                             height*width*sizeof(float), NULL,               NULL};
 
@@ -92,19 +93,19 @@ TEST_CASE( "covmat_decompose", "[cl_kernels]" ) {
 
         KUT_decompose.run(cmd_queue, 
                           device_covmat,
-                          device_ampl_filt,
+                          device_ref_filt,
                           device_dphase_filt,
                           device_coh_filt,
                           height,
                           width);
 
-        cmd_queue.enqueueReadBuffer(device_ampl_filt,   CL_TRUE, 0, height*width*sizeof(float), ampl_filt.data(),   NULL, NULL);
+        cmd_queue.enqueueReadBuffer(device_ref_filt,   CL_TRUE, 0, height*width*sizeof(float), ref_filt.data(),   NULL, NULL);
         cmd_queue.enqueueReadBuffer(device_dphase_filt, CL_TRUE, 0, height*width*sizeof(float), dphase_filt.data(), NULL, NULL);
         
         // workaround, since Approx does not work with vectors
         bool flag = true;
-        for(unsigned int i = 0; i < ampl_filt.size(); i++) {
-            flag = flag && (ampl_master[i] == Approx(ampl_filt  [i]).epsilon( 0.0001 ));
+        for(unsigned int i = 0; i < ref_filt.size(); i++) {
+            flag = flag && (std::pow(0.5f*(ampl_master[i]+ampl_slave[i]), 2.0f) == Approx(ref_filt  [i]).epsilon( 0.0001 ));
             flag = flag && (dphase     [i] == Approx(dphase_filt[i]).epsilon( 0.0001 ));
         }
         REQUIRE( (flag) );
