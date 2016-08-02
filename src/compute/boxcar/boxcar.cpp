@@ -63,7 +63,7 @@ void despeckcl::boxcar(float* ampl_master,
     // filtering
     LOG(INFO) << "starting filtering";
     // the sub image size needs to be picked so that all buffers fit in the GPUs memory
-    const int sub_image_size = 150;
+    const int sub_image_size = 512;
 
     // new build kernel interface
     std::chrono::time_point<std::chrono::system_clock> start, end;

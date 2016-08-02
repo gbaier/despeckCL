@@ -34,8 +34,7 @@ __kernel void boxcar_kernel (__global float * ampl_master, __global float * ampl
     __local float ampl_slave_data  [BLOCK_SIZE][BLOCK_SIZE];
     __local float dphase_data      [BLOCK_SIZE][BLOCK_SIZE];
 
-    if ( (0 < in_x) && (in_x < height) &&
-         (0 < in_y) && (in_y < width) ) {
+    if ( (in_x < height) && (in_y < width) ) {
         ampl_master_data [tx][ty] = ampl_master [in_x*width + in_y];
         ampl_slave_data  [tx][ty] = ampl_slave  [in_x*width + in_y];
         dphase_data      [tx][ty] = dphase      [in_x*width + in_y];
