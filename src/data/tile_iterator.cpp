@@ -39,7 +39,7 @@ void tile_iterator::operator++()
 
 bool tile_iterator::operator!=(const tile_iterator&) const
 {
-    return h_low <= data.height;
+    return h_low < data.height;
 }
 
 tile tile_iterator::operator*() const
