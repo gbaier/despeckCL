@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <omp.h>
+#include <cmath>
 
 #include "logging.h"
 #include "easylogging++.h"

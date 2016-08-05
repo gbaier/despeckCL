@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <cmath>
 
 nlsar::stats::stats(std::vector<float> dissims, unsigned int lut_size): lut_size(lut_size)
 {

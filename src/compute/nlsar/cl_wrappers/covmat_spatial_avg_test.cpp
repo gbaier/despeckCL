@@ -28,6 +28,8 @@ INITIALIZE_EASYLOGGINGPP
 #include <string>
 #include <iostream>
 #include <vector>
+#include <numeric>
+#include <random>
 
 #include "covmat_spatial_avg.h"
 

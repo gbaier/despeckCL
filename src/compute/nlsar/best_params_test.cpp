@@ -21,6 +21,8 @@
 
 #include "best_params.h"
 
+#include <random>
+
 using namespace nlsar;
 
 TEST_CASE( "covmat_create", "[cl_kernels]" ) {

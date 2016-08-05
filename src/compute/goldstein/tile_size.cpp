@@ -18,6 +18,8 @@
 
 #include "tile_size.h"
 
+#include <cmath>
+
 #include "easylogging++.h"
 
 int goldstein::round_down(const int num, const int multiple)

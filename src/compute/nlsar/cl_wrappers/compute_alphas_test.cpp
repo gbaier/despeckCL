@@ -27,6 +27,7 @@ INITIALIZE_EASYLOGGINGPP
 
 #include <string>
 #include <iostream>
+#include <random>
 
 #include "compute_alphas.h"
 

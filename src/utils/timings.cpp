@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <iomanip>
+#include <numeric>
 
 #include "easylogging++.h"
 

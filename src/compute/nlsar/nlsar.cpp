@@ -21,6 +21,7 @@
 #include <chrono>
 #include <vector>
 #include <string>
+#include <numeric>
 
 #include "cl_wrappers.h"
 #include "insar_data.h"

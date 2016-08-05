@@ -20,6 +20,7 @@
 #include <CL/cl.hpp>
 
 #include <complex>
+#include <random>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"

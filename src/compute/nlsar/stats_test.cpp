@@ -25,6 +25,8 @@ INITIALIZE_EASYLOGGINGPP
 #define private public
 #include "stats.h"
 
+#include <random>
+
 using namespace nlsar;
 
 TEST_CASE( "max_quantilles_error_1", "[stats]" ) {

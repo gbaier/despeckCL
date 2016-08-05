@@ -21,6 +21,8 @@
 
 #include "best_weights_copy.h"
 
+#include <random>
+
 using namespace nlsar;
 
 TEST_CASE( "beist_weights_copy", "[routines]" ) {

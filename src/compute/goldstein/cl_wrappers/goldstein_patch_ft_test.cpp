@@ -22,6 +22,7 @@
 #include <clFFT.h>
 
 #include <complex>
+#include <random>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"

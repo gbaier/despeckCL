@@ -21,6 +21,7 @@
 
 #include <complex>
 #include <cmath>
+#include <random>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
