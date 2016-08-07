@@ -18,6 +18,8 @@
 
 #include "logging.h"
 
+#define ELPP_DEFAULT_LOG_FILE "/dev/null"
+#define ELPP_NO_LOG_TO_FILE
 #include "easylogging++.h"
 INITIALIZE_EASYLOGGINGPP
 
@@ -37,6 +39,9 @@ void logging_setup(std::vector<std::string> enabled_log_levels)
     el::Configurations log_config;
     log_config.setToDefault();
     log_config.setGlobally(el::ConfigurationType::Enabled, "false");
+    log_config.setGlobally(el::ConfigurationType::ToFile, "false");
+    log_config.setGlobally(el::ConfigurationType::Filename, "/dev/null");
+    log_config.setGlobally(el::ConfigurationType::ToStandardOutput, "true");
 
     log_config.set(el::Level::Info,    el::ConfigurationType::Format, "[%level] %msg");
     log_config.set(el::Level::Verbose, el::ConfigurationType::Format, "[%level] %msg");
