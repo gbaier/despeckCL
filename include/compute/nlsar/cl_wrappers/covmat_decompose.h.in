@@ -35,7 +35,7 @@ namespace nlsar {
         void run(cl::CommandQueue cmd_queue,
                  cl::Buffer covmat,
                  cl::Buffer amplitude,
-                 cl::Buffer dphase,
+                 cl::Buffer phase,
                  cl::Buffer coherence,
                  const int height,
                  const int width);

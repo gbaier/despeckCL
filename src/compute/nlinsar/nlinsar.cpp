@@ -39,9 +39,9 @@
 
 int despeckcl::nlinsar(float* ampl_master,
                        float* ampl_slave,
-                       float* dphase,
+                       float* phase,
                        float* ref_filt,
-                       float* dphase_filt,
+                       float* phase_filt,
                        float* coh_filt,
                        const int height,
                        const int width,
@@ -53,8 +53,8 @@ int despeckcl::nlinsar(float* ampl_master,
 {
     logging_setup(enabled_log_levels);
 
-    insar_data_shared total_image{ampl_master, ampl_slave, dphase,
-                                  ref_filt, dphase_filt, coh_filt,
+    insar_data_shared total_image{ampl_master, ampl_slave, phase,
+                                  ref_filt, phase_filt, coh_filt,
                                   height, width};
 
     const int overlap = (patch_size - 1)/2 + (search_window_size - 1)/2;
@@ -161,7 +161,7 @@ int despeckcl::nlinsar(float* ampl_master,
     LOG(INFO) << "filtering done";
 
     memcpy(ref_filt,    total_image.ref_filt, sizeof(float)*height*width);
-    memcpy(dphase_filt, total_image.phi_filt, sizeof(float)*height*width);
+    memcpy(phase_filt, total_image.phi_filt, sizeof(float)*height*width);
     memcpy(coh_filt,    total_image.coh_filt, sizeof(float)*height*width);
 
     VLOG(0) << "elapsed time for precompute_similarities_1st_pass: " << precompute_similarities_1st_pass_timing << " secs";

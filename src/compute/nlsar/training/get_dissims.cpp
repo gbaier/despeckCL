@@ -69,7 +69,7 @@ std::vector<float> nlsar::training::get_dissims(cl::Context context,
 
     cl::Buffer device_ampl_master {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.a1, NULL};
     cl::Buffer device_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.a2, NULL};
-    cl::Buffer device_dphase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.dp, NULL};
+    cl::Buffer device_phase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.dp, NULL};
 
     cl::Buffer device_covmat              {context, CL_MEM_READ_WRITE, 2 * dimension * dimension * n_elem_overlap_avg * sizeof(float), NULL, NULL};
     cl::Buffer device_covmat_spatial_avg  {context, CL_MEM_READ_WRITE, 2 * dimension * dimension * n_elem_overlap     * sizeof(float), NULL, NULL};
@@ -78,7 +78,7 @@ std::vector<float> nlsar::training::get_dissims(cl::Context context,
     nlsar_cl_wrappers.covmat_create_routine.timed_run(cmd_queue,
                                     device_ampl_master,
                                     device_ampl_slave,
-                                    device_dphase,
+                                    device_phase,
                                     device_covmat,
                                     height_overlap_avg,
                                     width_overlap_avg);

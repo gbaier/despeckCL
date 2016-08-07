@@ -16,7 +16,7 @@
  * along with despeckCL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-__kernel void precompute_filter_values (__global float * ampl_master, __global float * ampl_slave,  __global float * dphase,
+__kernel void precompute_filter_values (__global float * ampl_master, __global float * ampl_slave,  __global float * phase,
                                         __global float * filter_data_a, __global float * filter_data_x_real, __global float * filter_data_x_imag,
                                         const int height_overlap, const int width_overlap, const int patch_size)
 {
@@ -30,7 +30,7 @@ __kernel void precompute_filter_values (__global float * ampl_master, __global f
     if (tx < height_sws && ty < width_sws) {
         const float a1 = ampl_master[ (tx+psh)*width_overlap + (ty+psh) ];
         const float a2 = ampl_slave [ (tx+psh)*width_overlap + (ty+psh) ];
-        const float dp = dphase     [ (tx+psh)*width_overlap + (ty+psh) ];
+        const float dp = phase     [ (tx+psh)*width_overlap + (ty+psh) ];
 
         filter_data_a      [tx*width_sws + ty] = 0.5f * ( pow(a1, 2.0f) + pow(a2, 2.0f) );
         filter_data_x_real [tx*width_sws + ty] = a1 * a2 * cos(-dp);

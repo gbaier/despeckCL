@@ -22,14 +22,14 @@ void goldstein::slc2real::run(cl::CommandQueue cmd_queue,
                               cl::Buffer interf_real,
                               cl::Buffer interf_imag,
                               cl::Buffer ampl,
-                              cl::Buffer dphase,
+                              cl::Buffer phase,
                               const int height,
                               const int width)
 {
     kernel.setArg( 0, interf_real);
     kernel.setArg( 1, interf_imag);
     kernel.setArg( 2, ampl);
-    kernel.setArg( 3, dphase);
+    kernel.setArg( 3, phase);
     kernel.setArg( 4, height);
     kernel.setArg( 5, width);
 

@@ -18,7 +18,7 @@
 
 __kernel void covmat_create (__global float* ampl_master,
                              __global float* ampl_slave,
-                             __global float* dphase,
+                             __global float* phase,
                              __global float* covmat,
                              const int height,
                              const int width)
@@ -32,8 +32,8 @@ __kernel void covmat_create (__global float* ampl_master,
         const float el_00real = ampl_master[idx] * ampl_master[idx];
         const float el_00imag = 0.0f;
 
-        const float el_01real = ampl_master[idx] * ampl_slave [idx] * cos(dphase[idx]);
-        const float el_01imag = ampl_master[idx] * ampl_slave [idx] * sin(dphase[idx]);
+        const float el_01real = ampl_master[idx] * ampl_slave [idx] * cos(phase[idx]);
+        const float el_01imag = ampl_master[idx] * ampl_slave [idx] * sin(phase[idx]);
 
         const float el_10real =   el_01real;
         const float el_10imag = - el_01imag;

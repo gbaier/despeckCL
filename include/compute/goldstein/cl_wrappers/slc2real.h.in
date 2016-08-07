@@ -37,7 +37,7 @@ namespace goldstein
                      cl::Buffer interf_real,
                      cl::Buffer interf_imag,
                      cl::Buffer ampl,
-                     cl::Buffer dphase,
+                     cl::Buffer phase,
                      const int height,
                      const int width);
     };

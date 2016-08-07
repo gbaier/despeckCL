@@ -76,7 +76,7 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     LOG(DEBUG) << "allocating buffers on device";
     cl::Buffer device_ampl_master {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.a1, NULL};
     cl::Buffer device_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.a2, NULL};
-    cl::Buffer device_dphase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.dp, NULL};
+    cl::Buffer device_phase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.dp, NULL};
 
     cl::Buffer covmat_ori      {context, CL_MEM_READ_WRITE, 2*dimensions * dimensions * n_elem_overlap_avg * sizeof(float), NULL, NULL};
     cl::Buffer covmat_rescaled {context, CL_MEM_READ_WRITE, 2*dimensions * dimensions * n_elem_overlap_avg * sizeof(float), NULL, NULL};
@@ -111,8 +111,8 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     cl::Buffer device_best_weights {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
     cl::Buffer device_best_alphas  {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
 
-    cl::Buffer device_ampl_filt   {context, CL_MEM_READ_WRITE,                               n_elem_overlap_avg * sizeof(float), NULL, NULL};
-    cl::Buffer device_dphase_filt {context, CL_MEM_READ_WRITE,                               n_elem_overlap_avg * sizeof(float), NULL, NULL};
+    cl::Buffer device_ref_filt   {context, CL_MEM_READ_WRITE,                               n_elem_overlap_avg * sizeof(float), NULL, NULL};
+    cl::Buffer device_phase_filt {context, CL_MEM_READ_WRITE,                               n_elem_overlap_avg * sizeof(float), NULL, NULL};
     cl::Buffer device_coh_filt    {context, CL_MEM_READ_WRITE,                               n_elem_overlap_avg * sizeof(float), NULL, NULL};
     cl::Buffer covmat_filt        {context, CL_MEM_READ_WRITE, 2 * dimensions * dimensions * n_elem_overlap_avg * sizeof(float), NULL, NULL};
 
@@ -140,7 +140,7 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     tm["covmat_create"] = nl_routines.covmat_create_routine.timed_run(cmd_queue,
                                                                       device_ampl_master,
                                                                       device_ampl_slave,
-                                                                      device_dphase,
+                                                                      device_phase,
                                                                       covmat_ori,
                                                                       height_overlap_avg,
                                                                       width_overlap_avg);
@@ -275,8 +275,8 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     LOG(DEBUG) << "covmat_decompose";
     tm["covmat_decompose"] = nl_routines.covmat_decompose_routine.timed_run(cmd_queue,
                                                                             covmat_filt,
-                                                                            device_ampl_filt,
-                                                                            device_dphase_filt,
+                                                                            device_ref_filt,
+                                                                            device_phase_filt,
                                                                             device_coh_filt,
                                                                             height_overlap_avg,
                                                                             width_overlap_avg);
@@ -288,8 +288,8 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     //***************************************************************************
     LOG(DEBUG) << "copying sub result";
     start = std::chrono::system_clock::now();
-    cmd_queue.enqueueReadBuffer(device_ampl_filt,   CL_TRUE, 0, n_elem_overlap_avg*sizeof(float), sub_insar_data.ref_filt, NULL, NULL);
-    cmd_queue.enqueueReadBuffer(device_dphase_filt, CL_TRUE, 0, n_elem_overlap_avg*sizeof(float), sub_insar_data.phi_filt, NULL, NULL);
+    cmd_queue.enqueueReadBuffer(device_ref_filt,   CL_TRUE, 0, n_elem_overlap_avg*sizeof(float), sub_insar_data.ref_filt, NULL, NULL);
+    cmd_queue.enqueueReadBuffer(device_phase_filt, CL_TRUE, 0, n_elem_overlap_avg*sizeof(float), sub_insar_data.phi_filt, NULL, NULL);
     cmd_queue.enqueueReadBuffer(device_coh_filt,    CL_TRUE, 0, n_elem_overlap_avg*sizeof(float), sub_insar_data.coh_filt, NULL, NULL);
 
     end = std::chrono::system_clock::now();

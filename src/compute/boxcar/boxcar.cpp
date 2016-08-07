@@ -33,9 +33,9 @@
 
 void despeckcl::boxcar(float* ampl_master,
                        float* ampl_slave,
-                       float* dphase,
-                       float* ampl_filt,
-                       float* dphase_filt,
+                       float* phase,
+                       float* ref_filt,
+                       float* phase_filt,
                        float* coh_filt,
                        const int height,
                        const int width,
@@ -44,8 +44,8 @@ void despeckcl::boxcar(float* ampl_master,
 {
     logging_setup(enabled_log_levels);
 
-    insar_data_shared total_image{ampl_master, ampl_slave, dphase,
-                                  ampl_filt, dphase_filt, coh_filt,
+    insar_data_shared total_image{ampl_master, ampl_slave, phase,
+                                  ref_filt, phase_filt, coh_filt,
                                   height, width};
 
     LOG(INFO) << "filter parameters";

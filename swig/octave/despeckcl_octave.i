@@ -49,10 +49,10 @@ namespace std {
 
 %apply (float* in_array, int dim_h, int dim_w) {(float* ampl_master, int h1, int w1)}
 %apply (float* in_array, int dim_h, int dim_w) {(float* ampl_slave,  int h2, int w2)}
-%apply (float* in_array, int dim_h, int dim_w) {(float* dphase,      int h3, int w3)}
+%apply (float* in_array, int dim_h, int dim_w) {(float* phase,      int h3, int w3)}
 
-%apply (float** out_array, int* dim_h, int* dim_w) {(float** ampl_filt,   int* h4, int* w4)}
-%apply (float** out_array, int* dim_h, int* dim_w) {(float** dphase_filt, int* h5, int* w5)}
+%apply (float** out_array, int* dim_h, int* dim_w) {(float** ref_filt,   int* h4, int* w4)}
+%apply (float** out_array, int* dim_h, int* dim_w) {(float** phase_filt, int* h5, int* w5)}
 %apply (float** out_array, int* dim_h, int* dim_w) {(float** coh_filt,    int* h6, int* w6)}
 
 %ignore boxcar_routines;
@@ -60,9 +60,9 @@ namespace std {
 %inline %{
 void boxcar(float* ampl_master,  int h1, int w1,
             float* ampl_slave,   int h2, int w2,
-            float* dphase,       int h3, int w3,
-            float** ampl_filt,   int* h4, int* w4,
-            float** dphase_filt, int* h5, int* w5,
+            float* phase,       int h3, int w3,
+            float** ref_filt,   int* h4, int* w4,
+            float** phase_filt, int* h5, int* w5,
             float** coh_filt,    int* h6, int* w6,
             const int window_width)
 {
@@ -81,9 +81,9 @@ void boxcar(float* ampl_master,  int h1, int w1,
 
     despeckcl::boxcar(ampl_master,
                       ampl_slave,
-                      dphase,
-                      *ampl_filt,
-                      *dphase_filt,
+                      phase,
+                      *ref_filt,
+                      *phase_filt,
                       *coh_filt,
                       height,
                       width,
@@ -95,9 +95,9 @@ void boxcar(float* ampl_master,  int h1, int w1,
 %inline %{
 void nlinsar(float* ampl_master,  int h1, int w1,
              float* ampl_slave,   int h2, int w2,
-             float* dphase,       int h3, int w3,
-             float** ampl_filt,   int* h4, int* w4,
-             float** dphase_filt, int* h5, int* w5,
+             float* phase,       int h3, int w3,
+             float** ref_filt,   int* h4, int* w4,
+             float** phase_filt, int* h5, int* w5,
              float** coh_filt,    int* h6, int* w6,
              const int search_window_size,
              const int patch_size,
@@ -119,9 +119,9 @@ void nlinsar(float* ampl_master,  int h1, int w1,
 
     despeckcl::nlinsar(ampl_master,
                        ampl_slave,
-                       dphase,
-                       *ampl_filt,
-                       *dphase_filt,
+                       phase,
+                       *ref_filt,
+                       *phase_filt,
                        *coh_filt,
                        h1,
                        w1,
@@ -138,9 +138,9 @@ void nlinsar(float* ampl_master,  int h1, int w1,
 %inline %{
 void nlsar(float* ampl_master,  int h1, int w1,
            float* ampl_slave,   int h2, int w2,
-           float* dphase,       int h3, int w3,
-           float** ampl_filt,   int* h4, int* w4,
-           float** dphase_filt, int* h5, int* w5,
+           float* phase,       int h3, int w3,
+           float** ref_filt,   int* h4, int* w4,
+           float** phase_filt, int* h5, int* w5,
            float** coh_filt,    int* h6, int* w6,
            const int search_window_size,
            const std::vector<int> patch_sizes,
@@ -164,9 +164,9 @@ void nlsar(float* ampl_master,  int h1, int w1,
 
     despeckcl::nlsar(ampl_master,
                      ampl_slave,
-                     dphase,
-                     *ampl_filt,
-                     *dphase_filt,
+                     phase,
+                     *ref_filt,
+                     *phase_filt,
                      *coh_filt,
                      h1,
                      w1,

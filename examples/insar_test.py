@@ -17,7 +17,7 @@ print(despeckcl.__file__)
 data = loadmat('insar_test_data.mat')
 ampl_master = np.ascontiguousarray(data['ampl_master'])
 ampl_slave = np.ascontiguousarray(data['ampl_slave'])
-dphase = np.ascontiguousarray(data['dphase'])
+phase = np.ascontiguousarray(data['dphase'])
 
 ampl_plotopts = {'cmap': plt.get_cmap('bone')}
 
@@ -47,7 +47,7 @@ scale_sizes = [1, 3, 5]
 
 nlsar_stats = despeckcl.nlsar_train(ampl_master[0:25, 0:25],
                                     ampl_slave[0:25, 0:25],
-                                    dphase[0:25, 0:25],
+                                    phase[0:25, 0:25],
                                     patch_sizes,
                                     scale_sizes)
 
@@ -110,25 +110,25 @@ im = grid[nw].imshow(20*np.log10(ampl_slave), **ampl_plotopts)
 grid.cbar_axes[nw].colorbar(im)
 grid[nw].set_title('slave amplitude')
 
-im = grid[2*nw].imshow(dphase)
+im = grid[2*nw].imshow(phase)
 grid.cbar_axes[2*nw].colorbar(im)
 grid[2*nw].set_title('phase')
 
 for idx, (method, args) in enumerate(methods.items(), 1):
     print(method.__name__)
-    ampl_filt, dphase_filt, coh_filt = method(ampl_master,
-                                              ampl_slave,
-                                              dphase,
-                                              *args)
+    ref_filt, phase_filt, coh_filt = method(ampl_master,
+                                            ampl_slave,
+                                            phase,
+                                            *args)
 
-    im = grid[idx].imshow(20*np.log10(ampl_filt), **ampl_plotopts)
+    im = grid[idx].imshow(10*np.log10(ref_filt), **ampl_plotopts)
     grid[idx].set_title(method.__name__)
     grid.cbar_axes[idx].colorbar(im)
 
     im = grid[nw+idx].imshow(coh_filt, cmap=plt.get_cmap('gray'))
     grid.cbar_axes[nw+idx].colorbar(im)
 
-    im = grid[2*nw+idx].imshow(dphase_filt)
+    im = grid[2*nw+idx].imshow(phase_filt)
     grid.cbar_axes[2*nw+idx].colorbar(im)
 
 for ax in grid:

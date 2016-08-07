@@ -19,7 +19,7 @@
 __kernel void slc2real(__global float* interf_real, 
                        __global float* interf_imag,
                        __global float* ampl,
-                       __global float* dphase,
+                       __global float* phase,
                        const int height,
                        const int width)
 {
@@ -30,6 +30,6 @@ __kernel void slc2real(__global float* interf_real,
 
     if(tx < height && ty < width) {
         ampl[idx]   = fabs(sqrt(pow(interf_real[idx], 2.0f) + pow(interf_imag[idx], 2.0f)));
-        dphase[idx] = atan2(interf_imag[idx], interf_real[idx]);
+        phase[idx] = atan2(interf_imag[idx], interf_real[idx]);
     }
 } 

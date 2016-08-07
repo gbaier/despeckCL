@@ -21,7 +21,7 @@
 void goldstein::raw_interferogram::run(cl::CommandQueue cmd_queue,
                                        cl::Buffer ampl_master,
                                        cl::Buffer ampl_slave,
-                                       cl::Buffer dphase,
+                                       cl::Buffer phase,
                                        cl::Buffer interf_real,
                                        cl::Buffer interf_imag,
                                        const int height,
@@ -29,7 +29,7 @@ void goldstein::raw_interferogram::run(cl::CommandQueue cmd_queue,
 {
     kernel.setArg( 0, ampl_master);
     kernel.setArg( 1, ampl_slave);
-    kernel.setArg( 2, dphase);
+    kernel.setArg( 2, phase);
     kernel.setArg( 3, interf_real);
     kernel.setArg( 4, interf_imag);
     kernel.setArg( 5, height);

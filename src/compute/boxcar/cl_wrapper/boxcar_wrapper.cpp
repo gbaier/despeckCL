@@ -52,18 +52,18 @@ std::string boxcar_wrapper::build_opts()
 void boxcar_wrapper::run(cl::CommandQueue cmd_queue,
                          cl::Buffer ampl_master,
                          cl::Buffer ampl_slave,
-                         cl::Buffer dphase,
-                         cl::Buffer ampl_filt,
-                         cl::Buffer dphase_filt,
+                         cl::Buffer phase,
+                         cl::Buffer ref_filt,
+                         cl::Buffer phase_filt,
                          cl::Buffer coh_filt,
                          const int height,
                          const int width)
 {
     kernel.setArg(0, ampl_master);
     kernel.setArg(1, ampl_slave);
-    kernel.setArg(2, dphase);
-    kernel.setArg(3, ampl_filt);
-    kernel.setArg(4, dphase_filt);
+    kernel.setArg(2, phase);
+    kernel.setArg(3, ref_filt);
+    kernel.setArg(4, phase_filt);
     kernel.setArg(5, coh_filt);
     kernel.setArg(6, height);
     kernel.setArg(7, width);

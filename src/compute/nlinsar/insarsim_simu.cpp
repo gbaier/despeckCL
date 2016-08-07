@@ -54,9 +54,9 @@ std::tuple<float, float, float> nlinsar::simu::insar_gen(void)
 
     const float ampl_master = std::abs(slc1);
     const float ampl_slave  = std::abs(slc2);
-    const float dphase      = std::arg(slc1*std::conj(slc2));
+    const float phase      = std::arg(slc1*std::conj(slc2));
 
-    return std::make_tuple(ampl_master, ampl_slave, dphase);
+    return std::make_tuple(ampl_master, ampl_slave, phase);
 }
 
 float nlinsar::simu::quantile_insar(int patch_size, float alpha)

@@ -41,7 +41,7 @@ TEST_CASE( "covmat_create", "[cl_kernels]" ) {
 
         std::vector<float> ampl_master (                      height*width, 1.0);
         std::vector<float> ampl_slave  (                      height*width, 2.0);
-        std::vector<float> dphase      (                      height*width, 0.5);
+        std::vector<float> phase      (                      height*width, 0.5);
         std::vector<float> covmat      (2*dimension*dimension*height*width, 1.0);
 
         // opencl setup
@@ -59,13 +59,13 @@ TEST_CASE( "covmat_create", "[cl_kernels]" ) {
         // allocate memory
         cl::Buffer device_ampl_master {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,                       height*width*sizeof(float), ampl_master.data(), NULL};
         cl::Buffer device_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,                       height*width*sizeof(float), ampl_slave.data(),  NULL};
-        cl::Buffer device_dphase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,                       height*width*sizeof(float), dphase.data(),      NULL};
+        cl::Buffer device_phase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,                       height*width*sizeof(float), phase.data(),      NULL};
         cl::Buffer device_covmat      {context, CL_MEM_READ_WRITE,                       2*dimension*dimension*height*width*sizeof(float), NULL,               NULL};
 
         KUT.run(cmd_queue, 
                 device_ampl_master,
                 device_ampl_slave,
-                device_dphase,
+                device_phase,
                 device_covmat,
                 height,
                 width);
@@ -95,17 +95,17 @@ TEST_CASE( "covmat_create sanity check", "[cl_kernels]" ) {
 
         std::vector<float> ampl_master (                      height*width, -1.0);
         std::vector<float> ampl_slave  (                      height*width, -1.0);
-        std::vector<float> dphase      (                      height*width, -1.0);
+        std::vector<float> phase      (                      height*width, -1.0);
         std::vector<float> covmat      (2*dimension*dimension*height*width, -1.0);
 
         static std::default_random_engine rand_eng{};
         static std::gamma_distribution<float>        dist_ampl(1.0, 5.0);
-        static std::uniform_real_distribution<float> dist_dphase(1.0, 5.0);
+        static std::uniform_real_distribution<float> dist_phase(1.0, 5.0);
 
         for(int i = 0; i < height*width; i++) {
             ampl_master[i] = dist_ampl(rand_eng);
             ampl_slave [i] = dist_ampl(rand_eng);
-            dphase     [i] = dist_dphase(rand_eng);
+            phase     [i] = dist_phase(rand_eng);
         }
 
         // opencl setup
@@ -123,13 +123,13 @@ TEST_CASE( "covmat_create sanity check", "[cl_kernels]" ) {
         // allocate memory
         cl::Buffer device_ampl_master {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,                       height*width*sizeof(float), ampl_master.data(), NULL};
         cl::Buffer device_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,                       height*width*sizeof(float), ampl_slave.data(),  NULL};
-        cl::Buffer device_dphase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,                       height*width*sizeof(float), dphase.data(),      NULL};
+        cl::Buffer device_phase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,                       height*width*sizeof(float), phase.data(),      NULL};
         cl::Buffer device_covmat      {context, CL_MEM_READ_WRITE,                       2*dimension*dimension*height*width*sizeof(float), NULL,               NULL};
 
         KUT.run(cmd_queue, 
                 device_ampl_master,
                 device_ampl_slave,
-                device_dphase,
+                device_phase,
                 device_covmat,
                 height,
                 width);

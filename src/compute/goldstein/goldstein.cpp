@@ -36,9 +36,9 @@
 
 int despeckcl::goldstein(float* ampl_master,
                          float* ampl_slave,
-                         float* dphase,
-                         float* ampl_filt,
-                         float* dphase_filt,
+                         float* phase,
+                         float* ref_filt,
+                         float* phase_filt,
                          float* coh_filt,
                          const unsigned int height,
                          const unsigned int width,
@@ -82,8 +82,8 @@ int despeckcl::goldstein(float* ampl_master,
     VLOG(0) << "Time it took to build all kernels: " << elapsed_seconds.count() << "secs";
 
     // prepare data
-    insar_data_shared total_image{ampl_master, ampl_slave, dphase,
-                                  ampl_filt, dphase_filt, coh_filt,
+    insar_data_shared total_image{ampl_master, ampl_slave, phase,
+                                  ref_filt, phase_filt, coh_filt,
                                   (int) height, (int) width};
 
     // filtering

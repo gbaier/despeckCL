@@ -28,7 +28,7 @@
 std::map<nlsar::params, nlsar::stats>
 despeckcl::nlsar_training(float *ampl_master,
                           float *ampl_slave,
-                          float *dphase,
+                          float *phase,
                           const int height,
                           const int width,
                           const std::vector<int> patch_sizes,
@@ -39,7 +39,7 @@ despeckcl::nlsar_training(float *ampl_master,
   float *dummy = (float*) malloc(height*width*sizeof(float));
   insar_data training_data{ampl_master,
                            ampl_slave,
-                           dphase,
+                           phase,
                            dummy,
                            dummy,
                            dummy,

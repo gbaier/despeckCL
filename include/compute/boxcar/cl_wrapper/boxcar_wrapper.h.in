@@ -43,9 +43,9 @@ class boxcar_wrapper : public kernel_env_single<boxcar_wrapper>
         void run(cl::CommandQueue cmd_queue,
                  cl::Buffer ampl_master,
                  cl::Buffer ampl_slave,
-                 cl::Buffer dphase,
-                 cl::Buffer ampl_filt,
-                 cl::Buffer dphase_filt,
+                 cl::Buffer phase,
+                 cl::Buffer ref_filt,
+                 cl::Buffer phase_filt,
                  cl::Buffer coh_filt,
                  const int height,
                  const int width);

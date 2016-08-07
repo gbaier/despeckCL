@@ -59,7 +59,7 @@ timings::map goldstein::filter_sub_image(cl::Context context,
 
     cl::Buffer dev_ampl_master {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), sub_insar_data.a1, NULL};
     cl::Buffer dev_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), sub_insar_data.a2, NULL};
-    cl::Buffer dev_dphase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), sub_insar_data.dp, NULL};
+    cl::Buffer dev_phase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), sub_insar_data.dp, NULL};
 
     // io buffers
     cl::Buffer dev_interf_real {context, CL_MEM_READ_WRITE, height * width * sizeof(float), NULL, NULL};
@@ -112,7 +112,7 @@ timings::map goldstein::filter_sub_image(cl::Context context,
     gs_routines.raw_interferogram_routine.run(cmd_queue,
                                               dev_ampl_master,
                                               dev_ampl_slave,
-                                              dev_dphase,
+                                              dev_phase,
                                               dev_interf_real,
                                               dev_interf_imag,
                                               height,
@@ -173,7 +173,7 @@ timings::map goldstein::filter_sub_image(cl::Context context,
                                      dev_interf_real,
                                      dev_interf_imag,
                                      dev_ampl_master,
-                                     dev_dphase,
+                                     dev_phase,
                                      height,
                                      width);
 
@@ -184,7 +184,7 @@ timings::map goldstein::filter_sub_image(cl::Context context,
     clfftTeardown( );
 
     cmd_queue.enqueueReadBuffer(dev_ampl_master, CL_TRUE, 0, height * width * sizeof(float), sub_insar_data.ref_filt, NULL, NULL);
-    cmd_queue.enqueueReadBuffer(dev_dphase,      CL_TRUE, 0, height * width * sizeof(float), sub_insar_data.phi_filt, NULL, NULL);
+    cmd_queue.enqueueReadBuffer(dev_phase,      CL_TRUE, 0, height * width * sizeof(float), sub_insar_data.phi_filt, NULL, NULL);
 
     return tm;
 }

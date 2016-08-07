@@ -9,7 +9,7 @@ load('insar_test_data.mat')
 window_size = 5;
 [ref_filt_boxcar, phi_filt_boxcar, coh_filt_boxcar] = despeckcl.boxcar(ampl_master,
                                                                        ampl_slave,
-                                                                       dphase,
+                                                                       phase,
                                                                        window_size);
 
 % nlinsar
@@ -19,7 +19,7 @@ niter = 2;
 lmin = 10;
 [ref_filt_nlinsar, phi_filt_nlinsar, coh_filt_nlinsar] = despeckcl.nlinsar(ampl_master,
                                                                            ampl_slave,
-                                                                           dphase,
+                                                                           phase,
                                                                            search_window_size,
                                                                            patch_size,
                                                                            niter,
@@ -38,7 +38,7 @@ scale_sizes(1) = 3;
 scale_sizes(2) = 5;
 [ref_filt_nlsar, phi_filt_nlsar, coh_filt_nlsar] = despeckcl.nlsar(ampl_master,
                                                                    ampl_slave,
-                                                                   dphase,
+                                                                   phase,
                                                                    search_window_size,
                                                                    patch_sizes,
                                                                    scale_sizes,

@@ -36,7 +36,7 @@ namespace goldstein
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer ampl_master,
                      cl::Buffer ampl_slave,
-                     cl::Buffer dphase,
+                     cl::Buffer phase,
                      cl::Buffer interf_real,
                      cl::Buffer interf_imag,
                      const int height,

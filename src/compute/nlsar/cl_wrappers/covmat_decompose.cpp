@@ -21,14 +21,14 @@
 void nlsar::covmat_decompose::run(cl::CommandQueue cmd_queue,
                                   cl::Buffer covmat,
                                   cl::Buffer amplitude,
-                                  cl::Buffer dphase,
+                                  cl::Buffer phase,
                                   cl::Buffer coherence,
                                   const int height,
                                   const int width)
 {
     kernel.setArg(0, covmat);
     kernel.setArg(1, amplitude);
-    kernel.setArg(2, dphase);
+    kernel.setArg(2, phase);
     kernel.setArg(3, coherence);
     kernel.setArg(4, height);
     kernel.setArg(5, width);
