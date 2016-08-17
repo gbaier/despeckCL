@@ -86,3 +86,129 @@ int nlsar::tile_size(cl::Context context,
 
     return safe_tile_size;
 }
+
+size_t nlsar::buffer_sizes::width_overlap(void) const{
+  const int scale_size_max = *std::max_element(scale_sizes.begin(), scale_sizes.end());
+  return data_width - scale_size_max + 1;
+}
+
+size_t nlsar::buffer_sizes::height_overlap(void) const{
+  const int scale_size_max = *std::max_element(scale_sizes.begin(), scale_sizes.end());
+  return data_height - scale_size_max + 1;
+}
+
+size_t nlsar::buffer_sizes::height_pixel_sim_symm(void) const{
+  const int wsh = (search_window_size - 1) / 2;
+  return height_overlap() - wsh;
+}
+
+size_t nlsar::buffer_sizes::width_pixel_sim_symm(void) const{
+  return width_overlap();
+}
+
+size_t nlsar::buffer_sizes::height_patch_sim_symm(void) const{
+  const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
+  return height_pixel_sim_symm() - patch_size_max + 1;
+}
+
+size_t nlsar::buffer_sizes::width_patch_sim_symm(void) const{
+  const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
+  return width_pixel_sim_symm() - patch_size_max + 1;
+}
+
+size_t nlsar::buffer_sizes::height_ori(void) const{
+  const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
+  return height_overlap() - patch_size_max - search_window_size + 2;
+}
+
+size_t nlsar::buffer_sizes::width_ori(void) const{
+  const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
+  return width_overlap() - patch_size_max - search_window_size + 2;
+}
+
+size_t nlsar::buffer_sizes::io_data(void) const{
+  return data_height*data_width*sizeof(float);
+}
+
+size_t nlsar::buffer_sizes::io_data_all(void) const{
+/* input: amplitude master, amplitude slave, interferometric phase
+ * output: reflectivity, interferometric phase, coherence */
+  return 6*io_data();
+}
+
+size_t nlsar::buffer_sizes::io_covmat(void) const{
+/* dim x dim Matrix and real and imaginary part */
+  return 2*data_dimensions*data_dimensions*io_data();
+}
+
+size_t nlsar::buffer_sizes::io_covmat_all(void) const{
+  // input, rescaled, and output covariance matrices
+  return 3*io_covmat();
+}
+
+size_t nlsar::buffer_sizes::work_covmat(void) const{
+    const int scale_size_max = *std::max_element(scale_sizes.begin(), scale_sizes.end());
+    return 2*data_dimensions*data_dimensions*(data_height-scale_size_max+1)*(data_width+scale_size_max+1)*sizeof(float);
+}
+
+// FIXME too small and insignificant
+//size_t nlsar::buffer_sizes::weight_kernel_lut(void) const;
+//size_t nlsar::buffer_sizes::weight_kernel_lut_all(void) const;
+
+size_t nlsar::buffer_sizes::best_idxs(void) const{
+  return height_ori()*width_ori()*sizeof(int);
+}
+
+size_t nlsar::buffer_sizes::weights(void) const{
+  return search_window_size * search_window_size * height_ori() * width_ori() * sizeof(float);
+}
+
+size_t nlsar::buffer_sizes::weights_all(void) const{
+  return patch_sizes.size()*scale_sizes.size()*weights();
+}
+
+size_t nlsar::buffer_sizes::alphas(void) const{
+  return height_ori()*width_ori()*sizeof(float);
+}
+
+size_t nlsar::buffer_sizes::pixel_similarities(void) const{
+  const int wsh = (search_window_size - 1)/2;
+  return (wsh+search_window_size*wsh) * height_pixel_sim_symm() * width_pixel_sim_symm() * sizeof(float);
+}
+
+size_t nlsar::buffer_sizes::patch_similarities(void) const{
+  const int wsh = (search_window_size - 1)/2;
+  return (search_window_size*wsh + wsh) * height_patch_sim_symm() * width_patch_sim_symm() * sizeof(float);
+}
+
+size_t nlsar::buffer_sizes::equivalent_number_of_looks(void) const{
+  return height_ori() * width_ori() * sizeof(float);
+}
+
+size_t nlsar::buffer_sizes::intensities_nl(void) const{
+  return data_dimensions * height_ori() * width_ori() * sizeof(float);
+}
+
+size_t nlsar::buffer_sizes::variances_nl(void) const{
+  return data_dimensions * height_ori() * width_ori() * sizeof(float);
+}
+
+size_t nlsar::buffer_sizes::weight_sums(void) const{
+  return height_ori() * width_ori() * sizeof(float);
+}
+
+size_t nlsar::buffer_sizes::all(void) const{
+  return io_data_all() + \
+         io_covmat_all() + \
+         work_covmat() + \
+         best_idxs() + \
+         pixel_similarities() + \
+         patch_similarities() + \
+         weights() + \
+         weights_all() + \
+         alphas() + \
+         equivalent_number_of_looks() + \
+         intensities_nl() + \
+         variances_nl() + \
+         weight_sums();
+}

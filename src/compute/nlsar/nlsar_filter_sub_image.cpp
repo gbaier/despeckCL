@@ -22,6 +22,7 @@
 #include "best_params.h"
 #include "best_weights_copy.h"
 #include "best_alpha_copy.h"
+#include "tile_size.h"
 
 #include <iostream>
 
@@ -42,6 +43,13 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     timings::map tm;
     std::map<params, int> params2idx;
     start = std::chrono::system_clock::now();
+
+    const buffer_sizes buf_sizes{sub_insar_data.height,
+                                 sub_insar_data.width,
+                                 dimensions,
+                                 search_window_size,
+                                 patch_sizes,
+                                 scale_sizes};
 
     const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
     const int scale_size_max = *std::max_element(scale_sizes.begin(), scale_sizes.end());
@@ -74,12 +82,12 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     //***************************************************************************
 
     LOG(DEBUG) << "allocating buffers on device";
-    cl::Buffer device_ampl_master {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.a1, NULL};
-    cl::Buffer device_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.a2, NULL};
-    cl::Buffer device_phase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.dp, NULL};
+    cl::Buffer device_ampl_master {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, buf_sizes.io_data(), sub_insar_data.a1, NULL};
+    cl::Buffer device_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, buf_sizes.io_data(), sub_insar_data.a2, NULL};
+    cl::Buffer device_phase       {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, buf_sizes.io_data(), sub_insar_data.dp, NULL};
 
-    cl::Buffer covmat_ori      {context, CL_MEM_READ_WRITE, 2*dimensions * dimensions * n_elem_overlap_avg * sizeof(float), NULL, NULL};
-    cl::Buffer covmat_rescaled {context, CL_MEM_READ_WRITE, 2*dimensions * dimensions * n_elem_overlap_avg * sizeof(float), NULL, NULL};
+    cl::Buffer covmat_ori      {context, CL_MEM_READ_WRITE, buf_sizes.io_covmat(), NULL, NULL};
+    cl::Buffer covmat_rescaled {context, CL_MEM_READ_WRITE, buf_sizes.io_covmat(), NULL, NULL};
 
     std::map<params, cl::Buffer> device_lut_dissims2relidx;
     std::map<params, cl::Buffer> device_lut_chi2cdf_inv;
@@ -87,8 +95,8 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     std::map<params, std::vector<float>> enls_nobias;
     std::map<params, std::vector<float>> alphas;
 
-    cl::Buffer device_best_idxs   {context, CL_MEM_READ_WRITE,                                                               n_elem_ori * sizeof(float), NULL, NULL};
-    cl::Buffer device_all_weights {context, CL_MEM_READ_WRITE, dissim_stats.size() * search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
+    cl::Buffer device_best_idxs   {context, CL_MEM_READ_WRITE, buf_sizes.best_idxs(), NULL, NULL};
+    cl::Buffer device_all_weights {context, CL_MEM_READ_WRITE, buf_sizes.weights_all(), NULL, NULL};
 
     for(auto& paramsstats : dissim_stats) {
         params parameter = paramsstats.first;
@@ -108,13 +116,13 @@ timings::map nlsar::filter_sub_image(cl::Context context,
         alphas      [parameter] = std::vector<float> (n_elem_ori);
     }
 
-    cl::Buffer device_best_weights {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
-    cl::Buffer device_best_alphas  {context, CL_MEM_READ_WRITE,                                           n_elem_ori * sizeof(float), NULL, NULL};
+    cl::Buffer device_best_weights {context, CL_MEM_READ_WRITE, buf_sizes.weights(), NULL, NULL};
+    cl::Buffer device_best_alphas  {context, CL_MEM_READ_WRITE, buf_sizes.alphas(), NULL, NULL};
 
-    cl::Buffer device_ref_filt   {context, CL_MEM_READ_WRITE,                               n_elem_overlap_avg * sizeof(float), NULL, NULL};
-    cl::Buffer device_phase_filt {context, CL_MEM_READ_WRITE,                               n_elem_overlap_avg * sizeof(float), NULL, NULL};
-    cl::Buffer device_coh_filt    {context, CL_MEM_READ_WRITE,                               n_elem_overlap_avg * sizeof(float), NULL, NULL};
-    cl::Buffer covmat_filt        {context, CL_MEM_READ_WRITE, 2 * dimensions * dimensions * n_elem_overlap_avg * sizeof(float), NULL, NULL};
+    cl::Buffer device_ref_filt   {context, CL_MEM_READ_WRITE, buf_sizes.io_data(), NULL, NULL};
+    cl::Buffer device_phase_filt {context, CL_MEM_READ_WRITE, buf_sizes.io_data(), NULL, NULL};
+    cl::Buffer device_coh_filt   {context, CL_MEM_READ_WRITE, buf_sizes.io_data(), NULL, NULL};
+    cl::Buffer covmat_filt       {context, CL_MEM_READ_WRITE, buf_sizes.io_covmat(), NULL, NULL};
 
     //***************************************************************************
     //
@@ -158,7 +166,7 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     int idx = 0;
     for(int scale_size : scale_sizes) {
         cl::Buffer device_pixel_similarities {context, CL_MEM_READ_WRITE,
-                                              (wsh+search_window_size*wsh) * (height_overlap-wsh) * width_overlap * sizeof(float),
+                                              buf_sizes.pixel_similarities(),
                                               NULL, NULL};
         timings::map tm_pixel_similarities = routines::get_pixel_similarities(context,
                                                                               covmat_rescaled,
@@ -179,7 +187,7 @@ timings::map nlsar::filter_sub_image(cl::Context context,
             params2idx[parameter] = idx;
             idx++;
 
-            cl::Buffer device_weights {context, CL_MEM_READ_WRITE, search_window_size * search_window_size * n_elem_ori * sizeof(float), NULL, NULL};
+            cl::Buffer device_weights {context, CL_MEM_READ_WRITE, buf_sizes.weights(), NULL, NULL};
 
             timings::map tm_weights = routines::get_weights(context,
                                                             device_pixel_similarities,
@@ -195,12 +203,12 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                                             nl_routines);
             tm = timings::join(tm, tm_weights);
             cmd_queue.enqueueCopyBuffer(device_weights, device_all_weights,
-                                        0, (idx-1)*n_elem_ori*search_window_size*search_window_size*sizeof(float),
-                                        n_elem_ori*search_window_size*search_window_size*sizeof(float),
+                                        0, (idx-1)*buf_sizes.weights(),
+                                        buf_sizes.weights(),
                                         NULL, NULL);
 
-            cl::Buffer device_alphas      {context, CL_MEM_READ_WRITE, n_elem_ori * sizeof(float), NULL, NULL};
-            cl::Buffer device_enls_nobias {context, CL_MEM_READ_WRITE, n_elem_ori * sizeof(float), NULL, NULL};
+            cl::Buffer device_alphas      {context, CL_MEM_READ_WRITE, buf_sizes.weights(), NULL, NULL};
+            cl::Buffer device_enls_nobias {context, CL_MEM_READ_WRITE, buf_sizes.equivalent_number_of_looks(), NULL, NULL};
             timings::map tm_enls_nobias_and_alphas = routines::get_enls_nobias_and_alphas (context,
                                                                                            device_weights,
                                                                                            covmat_ori,
@@ -218,8 +226,8 @@ timings::map nlsar::filter_sub_image(cl::Context context,
             tm = timings::join(tm, tm_enls_nobias_and_alphas);
 
             start = std::chrono::system_clock::now();
-            cmd_copy_queue.enqueueReadBuffer(device_enls_nobias,  CL_FALSE, 0, n_elem_ori * sizeof(float), enls_nobias[parameter].data(), NULL, NULL);
-            cmd_copy_queue.enqueueReadBuffer(device_alphas,       CL_FALSE, 0, n_elem_ori * sizeof(float),      alphas[parameter].data(), NULL, NULL);
+            cmd_copy_queue.enqueueReadBuffer(device_enls_nobias,  CL_FALSE, 0, buf_sizes.equivalent_number_of_looks(), enls_nobias[parameter].data(), NULL, NULL);
+            cmd_copy_queue.enqueueReadBuffer(device_alphas,       CL_FALSE, 0, buf_sizes.alphas(), alphas[parameter].data(), NULL, NULL);
             end = std::chrono::system_clock::now();
             duration = end-start;
 
@@ -244,8 +252,8 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     start = std::chrono::system_clock::now();
     std::vector<float> best_alphas  = best_alpha_copy  (alphas,  best_parameters, height_ori, width_ori);
 
-    cmd_queue.enqueueWriteBuffer(device_best_idxs,    CL_TRUE, 0, n_elem_ori * sizeof(int),   best_idxs.data());
-    cmd_queue.enqueueWriteBuffer(device_best_alphas,  CL_TRUE, 0, n_elem_ori * sizeof(float), best_alphas.data());
+    cmd_queue.enqueueWriteBuffer(device_best_idxs,    CL_TRUE, 0, buf_sizes.best_idxs(), best_idxs.data());
+    cmd_queue.enqueueWriteBuffer(device_best_alphas,  CL_TRUE, 0, buf_sizes.alphas(), best_alphas.data());
 
     end = std::chrono::system_clock::now();
     duration = end-start;
@@ -288,9 +296,9 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     //***************************************************************************
     LOG(DEBUG) << "copying sub result";
     start = std::chrono::system_clock::now();
-    cmd_queue.enqueueReadBuffer(device_ref_filt,   CL_TRUE, 0, n_elem_overlap_avg*sizeof(float), sub_insar_data.ref_filt, NULL, NULL);
-    cmd_queue.enqueueReadBuffer(device_phase_filt, CL_TRUE, 0, n_elem_overlap_avg*sizeof(float), sub_insar_data.phi_filt, NULL, NULL);
-    cmd_queue.enqueueReadBuffer(device_coh_filt,    CL_TRUE, 0, n_elem_overlap_avg*sizeof(float), sub_insar_data.coh_filt, NULL, NULL);
+    cmd_queue.enqueueReadBuffer(device_ref_filt,   CL_TRUE, 0, buf_sizes.io_data(), sub_insar_data.ref_filt, NULL, NULL);
+    cmd_queue.enqueueReadBuffer(device_phase_filt, CL_TRUE, 0, buf_sizes.io_data(), sub_insar_data.phi_filt, NULL, NULL);
+    cmd_queue.enqueueReadBuffer(device_coh_filt,   CL_TRUE, 0, buf_sizes.io_data(), sub_insar_data.coh_filt, NULL, NULL);
 
     end = std::chrono::system_clock::now();
     duration = end-start;
