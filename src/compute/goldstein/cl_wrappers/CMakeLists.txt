@@ -1,8 +1,8 @@
-include_directories(${despeckCL_SOURCE_DIR}/include/clcfg)
-include_directories(${despeckCL_SOURCE_DIR}/include/utils)
-include_directories(${despeckCL_SOURCE_DIR}/include/compute/goldstein/cl_wrappers)
+include_directories(${despeckCL_SOURCE_DIR}/src/clcfg)
+include_directories(${despeckCL_SOURCE_DIR}/src/utils)
+include_directories(${despeckCL_SOURCE_DIR}/src/compute/goldstein/cl_wrappers)
 
-FILE(GLOB infiles "${despeckCL_SOURCE_DIR}/include/compute/goldstein/cl_wrappers/*.in")
+FILE(GLOB infiles "${despeckCL_SOURCE_DIR}/src/compute/goldstein/cl_wrappers/*.in")
 
 function(read_clfile kernel_file)
     FILE(READ ${kernel_file} KERNEL_SOURCE)
