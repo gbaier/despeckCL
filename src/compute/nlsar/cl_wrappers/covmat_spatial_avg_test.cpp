@@ -19,11 +19,9 @@
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
-#include "easylogging++.h"
-INITIALIZE_EASYLOGGINGPP
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include <string>
 #include <iostream>
@@ -34,8 +32,9 @@ INITIALIZE_EASYLOGGINGPP
 #include "covmat_spatial_avg.h"
 
 using namespace nlsar;
+using testing::Pointwise;
 
-TEST_CASE( "covmat_spatial_avg", "[cl_kernels]" ) {
+TEST(covmat_spatial_avg, averaging) {
 
         // data setup
         const int height = 30;
@@ -76,15 +75,10 @@ TEST_CASE( "covmat_spatial_avg", "[cl_kernels]" ) {
 
         cmd_queue.enqueueReadBuffer(device_output, CL_TRUE, 0, 2*dimension*dimension*(height-scale_size+1)*(width-scale_size+1)*sizeof(float), output.data(), NULL, NULL);
 
-        bool flag = true;
-        for(int i = 0; i < (int) output.size(); i++) {
-            flag = flag && (output[i] == Approx(desired_output[i]).epsilon( 0.0001 ));
-        }
-
-        REQUIRE( (flag) );
+        ASSERT_THAT(output, Pointwise(FloatNearPointwise(1e-4), desired_output));
 }
 
-TEST_CASE( "covmat_spatial_avg no averaging", "[cl_kernels]" ) {
+TEST(covmat_spatial_avg,  no_averaging) {
 
         // data setup
         const int height = 30;
@@ -149,12 +143,12 @@ TEST_CASE( "covmat_spatial_avg no averaging", "[cl_kernels]" ) {
 
         cmd_queue.enqueueReadBuffer(device_output, CL_TRUE, 0, 2*dimension*dimension*(height-scale_size_max+1)*(width-scale_size_max+1)*sizeof(float), output.data(), NULL, NULL);
 
-        REQUIRE( ( output == desired_output ) );
+        ASSERT_EQ(output, desired_output);
 }
 
-TEST_CASE( "covmat_spatial_avg gauss", "[cl_kernels]" ) {
+TEST(covmat_spatial_avg, gauss) {
 
-        const int scale_size = 5;
+        const unsigned int scale_size = 5;
         cl::Context context = opencl_setup();
         const int block_size = 16;
         covmat_spatial_avg KUT{block_size, context};
@@ -164,7 +158,7 @@ TEST_CASE( "covmat_spatial_avg gauss", "[cl_kernels]" ) {
 
         std::reverse(gauss_rev.begin(), gauss_rev.end());
 
-        REQUIRE( gauss == gauss_rev );
-        REQUIRE( gauss.size() == scale_size*scale_size );
-        REQUIRE( Approx(std::accumulate(gauss.begin(), gauss.end(), 0.0f)) == 1.0f );
+        ASSERT_EQ(gauss, gauss_rev);
+        ASSERT_EQ(gauss.size(), scale_size*scale_size );
+        ASSERT_FLOAT_EQ( std::accumulate(gauss.begin(), gauss.end(), 0.0f), 1.0f );
 }

@@ -34,6 +34,28 @@ if(GSL_FOUND)
 endif()
 target_link_libraries(stats_test ${GSL_LIBRARIES})
 
+add_executable(nlsar_unit_tests nlsar_unit_test.cpp
+  #$<TARGET_OBJECTS:nlsar_lib>
+  #cl_wrappers/covmat_rescale.cpp
+  cl_wrappers/covmat_rescale_test.cpp
+  #cl_wrappers/covmat_spatial_avg.cpp
+  cl_wrappers/covmat_spatial_avg_test.cpp)
+
+set_property(TARGET nlsar_unit_tests PROPERTY CXX_STANDARD 14)
+
+target_link_libraries(nlsar_unit_tests
+                      despeckcl
+                      clcfg
+                      ${OpenCL_LIBRARIES}
+                      pthread
+                      gtest
+                      gtest_main
+                      gmock
+                      gmock_main)
+
+add_test(NAME NLSAR_unit_tests
+         COMMAND nlsar_unit_tests)
+
 add_test(NAME NLSAR_sim_measures
          COMMAND sim_measures_test)
 

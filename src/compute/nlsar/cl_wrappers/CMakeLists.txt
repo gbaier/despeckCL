@@ -46,17 +46,6 @@ add_library(nlsar_cl_wrappers OBJECT
             weighted_means.cpp
                              )
 # Testing Code
-add_executable(covmat_rescale_test covmat_rescale_test.cpp covmat_rescale.cpp)
-target_link_libraries(covmat_rescale_test clcfg ${OpenCL_LIBRARIES}
-                      pthread
-                      gtest
-                      gtest_main
-                      gmock
-                      gmock_main)
-
-add_executable(covmat_spatial_avg_test covmat_spatial_avg_test.cpp covmat_spatial_avg.cpp)
-target_link_libraries(covmat_spatial_avg_test clcfg ${OpenCL_LIBRARIES})
-
 add_executable(covmat_create_test covmat_create_test.cpp covmat_create.cpp)
 target_link_libraries(covmat_create_test clcfg ${OpenCL_LIBRARIES})
 

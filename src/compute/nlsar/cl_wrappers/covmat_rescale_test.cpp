@@ -23,9 +23,7 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-
-#include "easylogging++.h"
-INITIALIZE_EASYLOGGINGPP
+#include "unit_test_helper.h"
 
 #include <string>
 #include <iostream>
@@ -33,11 +31,8 @@ INITIALIZE_EASYLOGGINGPP
 
 using namespace nlsar;
 using testing::Pointwise;
-MATCHER_P(FloatNearPointwise, tol, "Out of range") {
-    return (std::get<0>(arg)>std::get<1>(arg)-tol && std::get<0>(arg)<std::get<1>(arg)+tol);
-}
 
-TEST(covmat_rescale, io) {
+TEST(covmat_rescale, rescaling) {
 
         // data setup
         const int height = 10;
@@ -89,13 +84,4 @@ TEST(covmat_rescale, io) {
         cmd_queue.enqueueReadBuffer(device_inout_put, CL_TRUE, 0, 2*height*width*dimension*dimension*sizeof(float), inout_put.data(), NULL, NULL);
 
         ASSERT_THAT(inout_put, Pointwise(FloatNearPointwise(1e-4), desired_output));
-}
-
-#include "gtest/gtest.h"
-
-int main(int argc, char **argv)
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    int ret = RUN_ALL_TESTS();
-    return ret;
 }
