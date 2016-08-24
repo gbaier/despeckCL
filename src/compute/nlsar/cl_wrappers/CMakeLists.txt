@@ -46,9 +46,6 @@ add_library(nlsar_cl_wrappers OBJECT
             weighted_means.cpp
                              )
 # Testing Code
-add_executable(compute_patch_similarities_test compute_patch_similarities_test.cpp compute_patch_similarities.cpp)
-target_link_libraries(compute_patch_similarities_test clcfg ${OpenCL_LIBRARIES})
-
 add_executable(compute_nl_statistics_test compute_nl_statistics_test.cpp compute_nl_statistics.cpp)
 target_link_libraries(compute_nl_statistics_test clcfg ${OpenCL_LIBRARIES})
 

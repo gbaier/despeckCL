@@ -19,17 +19,16 @@
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
-#include "easylogging++.h"
-INITIALIZE_EASYLOGGINGPP
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include "compute_patch_similarities.h"
 
 using namespace nlsar;
+using testing::Pointwise;
 
-TEST_CASE( "compute_patch_similarities", "[cl_kernels]" ) {
+TEST(compute_patch_similarities, simple_convolution) {
 
         // data setup
         const int height_sim = 20;
@@ -65,7 +64,7 @@ TEST_CASE( "compute_patch_similarities", "[cl_kernels]" ) {
 
         // kernel setup
         const int block_size = 16;
-        compute_patch_similarities KUT{context, 16, 4, 4, 4};
+        compute_patch_similarities KUT{context, block_size, 4, 4, 4};
 
         // allocate memory
         cl::Buffer device_pixel_similarities{context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, pixel_similarities.size() * sizeof(float), pixel_similarities.data(), NULL};
@@ -81,6 +80,5 @@ TEST_CASE( "compute_patch_similarities", "[cl_kernels]" ) {
                 patch_size_max);
 
         cmd_queue.enqueueReadBuffer(device_patch_similarities, CL_TRUE, 0, patch_similarities.size() * sizeof(float), patch_similarities.data(), NULL, NULL);
-
-        REQUIRE( ( patch_similarities == desired_patch_similarities ) );
+        ASSERT_THAT(patch_similarities, Pointwise(FloatNearPointwise(1e-4), desired_patch_similarities));
 }
