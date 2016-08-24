@@ -30,11 +30,18 @@ if (CLFFT_FOUND)
     link_directories(${CLFFT_LIBRARY_DIR})
 endif()
 
-enable_testing()
+
 
 subdirs(src)
+
+# Python Bindings
 subdirs(swig)
 
+# Unit Testing
+subdirs(ext) # currently only includes googletest
+enable_testing() 
+
+# documentation
 find_package(Sphinx)
 if(Sphinx_FOUND OR SPHINX_FOUND)
     subdirs(doc)

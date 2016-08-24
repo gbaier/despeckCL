@@ -19,8 +19,10 @@
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "covmat_rescale.h"
+
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
 #include "easylogging++.h"
 INITIALIZE_EASYLOGGINGPP
@@ -28,11 +30,14 @@ INITIALIZE_EASYLOGGINGPP
 #include <string>
 #include <iostream>
 
-#include "covmat_rescale.h"
 
 using namespace nlsar;
+using testing::Pointwise;
+MATCHER_P(FloatNearPointwise, tol, "Out of range") {
+    return (std::get<0>(arg)>std::get<1>(arg)-tol && std::get<0>(arg)<std::get<1>(arg)+tol);
+}
 
-TEST_CASE( "covmat_rescale", "[cl_kernels]" ) {
+TEST(covmat_rescale, io) {
 
         // data setup
         const int height = 10;
@@ -83,10 +88,14 @@ TEST_CASE( "covmat_rescale", "[cl_kernels]" ) {
 
         cmd_queue.enqueueReadBuffer(device_inout_put, CL_TRUE, 0, 2*height*width*dimension*dimension*sizeof(float), inout_put.data(), NULL, NULL);
 
-        // workaround, since Approx does not work with vectors
-        bool flag = true;
-        for(int i = 0; i < 2*height*width*dimension*dimension; i++) {
-            flag = flag && (inout_put[i] == Approx(desired_output[i]).epsilon( 0.0001 ));
-        }
-        REQUIRE( ( flag ) );
+        ASSERT_THAT(inout_put, Pointwise(FloatNearPointwise(1e-4), desired_output));
+}
+
+#include "gtest/gtest.h"
+
+int main(int argc, char **argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+    int ret = RUN_ALL_TESTS();
+    return ret;
 }
