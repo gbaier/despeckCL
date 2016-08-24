@@ -22,17 +22,19 @@
 #include <complex>
 #include <random>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
-#include "easylogging++.h"
-INITIALIZE_EASYLOGGINGPP
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include "covmat_create.h"
 
 using namespace nlsar;
+using testing::Each;
+using testing::FloatEq;
+using testing::Gt;
+using testing::Pointwise;
 
-TEST_CASE( "covmat_create", "[cl_kernels]" ) {
+TEST(covmat_create, determinant) {
 
         // data setup
         const int height = 10;
@@ -72,21 +74,23 @@ TEST_CASE( "covmat_create", "[cl_kernels]" ) {
 
         cmd_queue.enqueueReadBuffer(device_covmat, CL_TRUE, 0, 2*height*width*dimension*dimension*sizeof(float), covmat.data(), NULL, NULL);
 
+        const size_t offset = height*width;
+
+        std::vector<float> dets;
+
         // workaround, since Approx does not work with vectors
-        bool flag = true;
-        for(int i = 0; i < height*width; i++) {
-            const int offset = height*width;
+        for(size_t i = 0; i < offset; i++) {
             //std::complex<float> el00 {covmat[i],            covmat[i +   offset]};
             std::complex<float> el00 {covmat[i],            covmat[i +   offset]};
             std::complex<float> el01 {covmat[i + 2*offset], covmat[i + 3*offset]};
             std::complex<float> el10 {covmat[i + 4*offset], covmat[i + 5*offset]};
             std::complex<float> el11 {covmat[i + 6*offset], covmat[i + 7*offset]};
-            flag = flag && (0 == Approx(std::abs(el00*el11 - el01*el10)).epsilon( 0.0001 ));
+            dets.push_back(std::abs(el00*el11 - el01*el10));
         }
-        REQUIRE( ( flag ) );
+        ASSERT_THAT(dets, Each(FloatEq(0.0f)));
 }
 
-TEST_CASE( "covmat_create sanity check", "[cl_kernels]" ) {
+TEST(covmat_create, sanity_check) {
 
         // data setup
         const int height = 40;
@@ -95,7 +99,7 @@ TEST_CASE( "covmat_create sanity check", "[cl_kernels]" ) {
 
         std::vector<float> ampl_master (                      height*width, -1.0);
         std::vector<float> ampl_slave  (                      height*width, -1.0);
-        std::vector<float> phase      (                      height*width, -1.0);
+        std::vector<float> phase       (                      height*width, -1.0);
         std::vector<float> covmat      (2*dimension*dimension*height*width, -1.0);
 
         static std::default_random_engine rand_eng{};
@@ -136,20 +140,38 @@ TEST_CASE( "covmat_create sanity check", "[cl_kernels]" ) {
 
         cmd_queue.enqueueReadBuffer(device_covmat, CL_TRUE, 0, 2*height*width*dimension*dimension*sizeof(float), covmat.data(), NULL, NULL);
 
-        // workaround, since Approx does not work with vectors
-        bool flag = true;
-        for(int i = 0; i < height*width; i++) {
-            const int offset = height*width;
-            //std::complex<float> el00 {covmat[i],            covmat[i +   offset]};
-            std::complex<float> el00 {covmat[i],            covmat[i +   offset]};
-            std::complex<float> el01 {covmat[i + 2*offset], covmat[i + 3*offset]};
-            std::complex<float> el10 {covmat[i + 4*offset], covmat[i + 5*offset]};
-            std::complex<float> el11 {covmat[i + 6*offset], covmat[i + 7*offset]};
-            flag = flag && (0 <= el00.real());
-            flag = flag && (0 == Approx(el00.imag()).epsilon( 0.0001 ));
-            flag = flag && (std::abs(el01) == Approx(std::abs(el10)).epsilon( 0.0001 ));
-            flag = flag && (-el01.imag() == Approx(el10.imag()).epsilon( 0.0001 ));
-            flag = flag && (0 < el11.real());
+        std::vector<std::complex<float>> el00; 
+        std::vector<std::complex<float>> el01; 
+        std::vector<std::complex<float>> el10; 
+        std::vector<std::complex<float>> el11; 
+
+        const size_t offset = height*width;
+
+        for(size_t i = 0; i < offset; i++) {
+            el00.push_back({covmat[i],            covmat[i +   offset]});
+            el01.push_back({covmat[i + 2*offset], covmat[i + 3*offset]});
+            el10.push_back({covmat[i + 4*offset], covmat[i + 5*offset]});
+            el11.push_back({covmat[i + 6*offset], covmat[i + 7*offset]});
         }
-        REQUIRE( ( flag ) );
+
+        // test that real part of reflectivity is greater than 0
+        std::vector<float> el00_real(el00.size());
+        std::vector<float> el11_real(el00.size());
+        std::transform(el00.begin(), el00.end(), el00_real.begin(), [] (std::complex<float> z) { return z.real(); });
+        std::transform(el11.begin(), el11.end(), el11_real.begin(), [] (std::complex<float> z) { return z.real(); });
+
+        ASSERT_THAT(el00_real, Each(Gt(0.0f)));
+        ASSERT_THAT(el11_real, Each(Gt(0.0f)));
+
+        // test that imaginar part of reflectivity is zero
+        std::vector<float> el00_imag(el00.size());
+        std::vector<float> el11_imag(el00.size());
+        std::transform(el00.begin(), el00.end(), el00_imag.begin(), [] (std::complex<float> z) { return z.imag(); });
+        std::transform(el11.begin(), el11.end(), el11_imag.begin(), [] (std::complex<float> z) { return z.imag(); });
+
+        ASSERT_THAT(el00_imag, Each(FloatEq(0.0f)));
+        ASSERT_THAT(el11_imag, Each(FloatEq(0.0f)));
+
+        // test that the off diagonal elements are the complex conjugate
+        ASSERT_THAT(el10, Pointwise(ComplexConjugate(), el01));
 }

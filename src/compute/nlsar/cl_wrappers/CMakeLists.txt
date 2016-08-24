@@ -46,9 +46,6 @@ add_library(nlsar_cl_wrappers OBJECT
             weighted_means.cpp
                              )
 # Testing Code
-add_executable(covmat_create_test covmat_create_test.cpp covmat_create.cpp)
-target_link_libraries(covmat_create_test clcfg ${OpenCL_LIBRARIES})
-
 add_executable(compute_pixel_similarities_2x2_test compute_pixel_similarities_2x2_test.cpp compute_pixel_similarities_2x2.cpp)
 target_link_libraries(compute_pixel_similarities_2x2_test clcfg ${OpenCL_LIBRARIES})
 
