@@ -38,6 +38,7 @@ add_executable(nlsar_unit_tests nlsar_unit_test.cpp
   cl_wrappers/covmat_rescale_test.cpp
   cl_wrappers/covmat_spatial_avg_test.cpp
   cl_wrappers/covmat_create_test.cpp
+  cl_wrappers/compute_pixel_similarities_2x2_test.cpp
   )
 
 set_property(TARGET nlsar_unit_tests PROPERTY CXX_STANDARD 14)
