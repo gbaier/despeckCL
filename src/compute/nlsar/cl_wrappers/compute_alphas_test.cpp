@@ -19,21 +19,20 @@
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
-#include "easylogging++.h"
-INITIALIZE_EASYLOGGINGPP
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include <string>
-#include <iostream>
 #include <random>
 
 #include "compute_alphas.h"
 
 using namespace nlsar;
+using testing::Pointwise;
+using testing::Each;
 
-TEST_CASE( "compute_alphas", "[cl_kernels]" ) {
+TEST(compute_alphas, single_val_check) {
 
         // data setup
         const int height = 50;
@@ -74,10 +73,10 @@ TEST_CASE( "compute_alphas", "[cl_kernels]" ) {
 
         cmd_queue.enqueueReadBuffer(device_alphas, CL_TRUE, 0, height*width*sizeof(float), alphas.data(), NULL, NULL);
 
-        REQUIRE( ( alphas == desired_alphas ) );
+        ASSERT_THAT(alphas, Pointwise(FloatNearPointwise(1e-4), desired_alphas));
 }
 
-TEST_CASE( "compute_alphas_rand", "[cl_kernels]" ) {
+TEST(compute_alphas, range_check) {
 
         // data setup
         const int height = 50;
@@ -88,8 +87,8 @@ TEST_CASE( "compute_alphas_rand", "[cl_kernels]" ) {
         std::vector<float> intensities_nl      (height*width*dimensions,  0.0);
         std::vector<float> weighted_variances  (height*width*dimensions,  2.0);
         std::vector<float> alphas              (height*width,            -1.0);
-        std::vector<float> alphas_lower        (height*width,             0.0);
-        std::vector<float> alphas_upper        (height*width,             1.0);
+        const float alpha_lower = 0.0f;
+        const float alpha_upper = 1.0f;
 
         static std::default_random_engine rand_eng{};
         static std::exponential_distribution<float> dist_intensities_nl(2.0);
@@ -129,6 +128,5 @@ TEST_CASE( "compute_alphas_rand", "[cl_kernels]" ) {
 
         cmd_queue.enqueueReadBuffer(device_alphas, CL_TRUE, 0, height*width*sizeof(float), alphas.data(), NULL, NULL);
 
-        REQUIRE( ( alphas >= alphas_lower ) );
-        REQUIRE( ( alphas <= alphas_upper ) );
+        ASSERT_THAT(alphas, Each(IsBetween(alpha_lower, alpha_upper)));
 }

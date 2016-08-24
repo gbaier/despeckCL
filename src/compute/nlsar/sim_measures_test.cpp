@@ -16,14 +16,17 @@
  * along with despeckCL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
 #include <complex>
+
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include "sim_measures.h"
 
-TEST_CASE( "2x2 matrix determinant", "[similarity_measures]" ) {
+using testing::FloatEq;
+
+TEST(sim_measures, 2x2_mat_determinant) {
 
         std::complex<float> el00{2,  0};
         std::complex<float> el01{4,  3};
@@ -32,7 +35,7 @@ TEST_CASE( "2x2 matrix determinant", "[similarity_measures]" ) {
 
         std::complex<float> det = el00*el11 - el01*el10;
 
-        REQUIRE( ( det_covmat_2x2(1, 0, 0, 1) == 1 ) );
-        REQUIRE( ( 0.0 == Approx(std::imag(det))) );
-        REQUIRE( ( std::real(det) == det_covmat_2x2(std::real(el00), std::real(el01), std::imag(el01), std::real(el11)) ) );
+        ASSERT_THAT(det_covmat_2x2(1, 0, 0, 1), FloatEq(1.0f));
+        ASSERT_THAT(std::imag(det), FloatEq(0.0f));
+        ASSERT_THAT(std::real(det), FloatEq(det_covmat_2x2(std::real(el00), std::real(el01), std::imag(el01), std::real(el11))));
 }

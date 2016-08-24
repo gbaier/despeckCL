@@ -19,19 +19,18 @@
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
-#include "easylogging++.h"
-INITIALIZE_EASYLOGGINGPP
-
-#include <iostream>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include "compute_nl_statistics.h"
 
 using namespace nlsar;
+using testing::Each;
+using testing::FloatEq;
+using testing::Pointwise;
 
-TEST_CASE( "compute_nl_statistics", "[cl_kernels]" ) {
+TEST(compute_nl_statistics, sanity_check) {
 
         // data setup
         const int height_ori = 40;
@@ -100,29 +99,8 @@ TEST_CASE( "compute_nl_statistics", "[cl_kernels]" ) {
         cmd_queue.enqueueReadBuffer(device_intensities_nl,     CL_TRUE, 0,        stats_nelem * sizeof(float), intensities_nl.data(),     NULL, NULL);
         cmd_queue.enqueueReadBuffer(device_weighted_variances, CL_TRUE, 0,        stats_nelem * sizeof(float), weighted_variances.data(), NULL, NULL);
 
-        bool weights_sums_flag = true;
-        for(int i = 0; i < (int) weights_sums.size(); i++) {
-            weights_sums_flag = weights_sums_flag && Approx(weights_sums[i]) == desired_weights_sums[i];
-
-        }
-
-        bool eq_nol_flag = true;
-        for(int i = 0; i < (int) eq_nol.size(); i++) {
-            eq_nol_flag = eq_nol_flag && Approx(eq_nol[i]) == search_window_size*search_window_size;
-        }
-
-        bool intensities_nl_flag = true;
-        for(int i = 0; i < (int) intensities_nl.size(); i++) {
-            intensities_nl_flag = intensities_nl_flag && Approx(intensities_nl[i]) == desired_intensities_nl[i];
-        }
-
-        bool weighted_variances_flag = true;
-        for(int i = 0; i < (int) weighted_variances.size(); i++) {
-            weighted_variances_flag = weighted_variances_flag && Approx(weighted_variances[i]) == desired_weighted_variances[i];
-        }
-
-        REQUIRE( (weights_sums_flag) );
-        REQUIRE( (eq_nol_flag) );
-        REQUIRE( (intensities_nl_flag) );
-        REQUIRE( (weighted_variances_flag) );
+        ASSERT_THAT(weights_sums, Pointwise(FloatNearPointwise(1e-4), desired_weights_sums));
+        ASSERT_THAT(eq_nol, Each(FloatEq(search_window_size*search_window_size)));
+        ASSERT_THAT(intensities_nl, Pointwise(FloatNearPointwise(1e-4), desired_intensities_nl));
+        ASSERT_THAT(weighted_variances, Pointwise(FloatNearPointwise(1e-4), desired_weighted_variances));
 }

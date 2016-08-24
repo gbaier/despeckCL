@@ -19,32 +19,27 @@
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
-#include "easylogging++.h"
-INITIALIZE_EASYLOGGINGPP
-
-#include <string>
-#include <iostream>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include "compute_enls_nobias.h"
 
 using namespace nlsar;
+using testing::FloatEq;
+using testing::Each;
 
-TEST_CASE( "compute_enls_nobias", "[cl_kernels]" ) {
+TEST(compute_enls_nobias, single_val_check) {
 
         // data setup
         const int height = 10;
         const int width = 10;
-        const int dimensions = 2;
-        const int nlooks = 1;
 
         std::vector<float> enls                (height*width,  1.0);
         std::vector<float> alphas              (height*width,  0.5);
         std::vector<float> wsums               (height*width,  2.0);
         std::vector<float> enls_nobias         (height*width, -1.0);
-        std::vector<float> desired_enls_nobias (height*width,  1.33333);
+        const float desired_enl_nobias = 1.333333333;
 
         // opencl setup
         cl::Context context = opencl_setup();
@@ -74,14 +69,5 @@ TEST_CASE( "compute_enls_nobias", "[cl_kernels]" ) {
 
         cmd_queue.enqueueReadBuffer(device_enls_nobias, CL_TRUE, 0, height*width*sizeof(float), enls_nobias.data(), NULL, NULL);
         
-        for(auto x : enls_nobias) {
-            std::cout << x << ",";
-        }
-
-        // workaround, since Approx does not work with vectors
-        bool flag = true;
-        for(int i = 0; i < height*width; i++) {
-            flag = flag && (enls_nobias[i] == Approx(desired_enls_nobias[i]).epsilon( 0.0001 ));
-        }
-        REQUIRE( ( flag ) );
+        ASSERT_THAT(enls_nobias, Each(FloatEq(desired_enl_nobias)));
 }

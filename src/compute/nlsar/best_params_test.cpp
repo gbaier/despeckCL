@@ -16,16 +16,18 @@
  * along with despeckCL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include "best_params.h"
 
 #include <random>
 
 using namespace nlsar;
+using testing::Pointwise;
 
-TEST_CASE( "covmat_create", "[cl_kernels]" ) {
+TEST(best_params, random) {
 
     // data setup
     const int height = 10;
@@ -57,5 +59,5 @@ TEST_CASE( "covmat_create", "[cl_kernels]" ) {
     get_best_params{}.run(enl, &best_ps, height, width);
     std::vector<params> desired_best_ps(height*width, p2);
 
-    REQUIRE( ( best_ps == desired_best_ps ) );
+    ASSERT_THAT(best_ps, Pointwise(testing::Eq(), desired_best_ps));
 }

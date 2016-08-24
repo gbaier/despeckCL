@@ -23,18 +23,17 @@
 #include <cmath>
 #include <random>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
-#include "easylogging++.h"
-INITIALIZE_EASYLOGGINGPP
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include "covmat_decompose.h"
 #include "covmat_create.h"
 
 using namespace nlsar;
+using testing::Pointwise;
 
-TEST_CASE( "covmat_decompose", "[cl_kernels]" ) {
+TEST(covmat_decompose, random_vals) {
 
         // data setup
         const int height = 10;
@@ -104,10 +103,11 @@ TEST_CASE( "covmat_decompose", "[cl_kernels]" ) {
         cmd_queue.enqueueReadBuffer(device_phase_filt, CL_TRUE, 0, height*width*sizeof(float), phase_filt.data(), NULL, NULL);
         
         // workaround, since Approx does not work with vectors
-        bool flag = true;
+        std::vector<float> ref;
         for(unsigned int i = 0; i < ref_filt.size(); i++) {
-            flag = flag && (std::pow(0.5f*(ampl_master[i]+ampl_slave[i]), 2.0f) == Approx(ref_filt  [i]).epsilon( 0.0001 ));
-            flag = flag && (phase     [i] == Approx(phase_filt[i]).epsilon( 0.0001 ));
+            ref.push_back(std::pow(0.5f*(ampl_master[i]+ampl_slave[i]), 2.0f));
         }
-        REQUIRE( (flag) );
+
+        ASSERT_THAT(ref, Pointwise(FloatNearPointwise(1e-4), ref_filt));
+        ASSERT_THAT(phase, Pointwise(FloatNearPointwise(1e-4), phase_filt));
 }

@@ -16,16 +16,18 @@
  * along with despeckCL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include "best_weights_copy.h"
 
 #include <random>
 
 using namespace nlsar;
+using testing::Pointwise;
 
-TEST_CASE( "beist_weights_copy", "[routines]" ) {
+TEST(beist_weights_copy, random) {
 
     // data setup
     const int height = 20;
@@ -77,5 +79,5 @@ TEST_CASE( "beist_weights_copy", "[routines]" ) {
                                                         width,
                                                         search_window_size);
 
-    REQUIRE( ( best_weights == desired_best_weights ) );
+    ASSERT_THAT(best_weights, Pointwise(FloatNearPointwise(1e-4), desired_best_weights));
 }

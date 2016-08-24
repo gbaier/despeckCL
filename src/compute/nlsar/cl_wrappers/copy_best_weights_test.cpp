@@ -22,17 +22,16 @@
 #include <complex>
 #include <random>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
-#include "easylogging++.h"
-INITIALIZE_EASYLOGGINGPP
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include "copy_best_weights.h"
 
 using namespace nlsar;
+using testing::Pointwise;
 
-TEST_CASE( "copy_best_weights", "[cl_kernels]" ) {
+TEST(copy_best_weights, rand_test) {
 
         // data setup
         const int height             = 30;
@@ -86,5 +85,5 @@ TEST_CASE( "copy_best_weights", "[cl_kernels]" ) {
 
         cmd_queue.enqueueReadBuffer(device_best_weights, CL_TRUE, 0, height*width*sizeof(float), best_weights.data(), NULL, NULL);
 
-        REQUIRE( ( best_weights == desired_best_weights ) );
+        ASSERT_THAT(best_weights, Pointwise(FloatNearPointwise(1e-4), desired_best_weights));
 }

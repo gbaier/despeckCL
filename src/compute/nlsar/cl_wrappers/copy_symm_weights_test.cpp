@@ -22,11 +22,9 @@
 #include <complex>
 #include <random>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
-#include "easylogging++.h"
-INITIALIZE_EASYLOGGINGPP
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include "copy_symm_weights.h"
 
@@ -54,8 +52,6 @@ bool check_arr(std::vector<float> weights_symm,
         }
     }
 
-    std::cout << std::endl;
-    std::cout << std::endl;
     //compare symmetric copied values
     for(int hh=wsh; hh < search_window_size; hh++) {
         int ww_start = 0;
@@ -78,7 +74,7 @@ bool check_arr(std::vector<float> weights_symm,
     return flag;
 }
 
-TEST_CASE( "copy_symm_weights", "[cl_kernels]" ) {
+TEST(copy_symm_weights, copy_rand) {
 
         // data setup
         const int height_ori = 70;
@@ -126,34 +122,10 @@ TEST_CASE( "copy_symm_weights", "[cl_kernels]" ) {
 
         cmd_queue.enqueueReadBuffer(device_weights_full, CL_TRUE, 0, weights_full.size() * sizeof(float), weights_full.data(), NULL, NULL);
 
-        /*
-        for(int s=0; s<search_window_size*search_window_size; s++) {
-            for(int h=0; h<height_ori; h++) {
-                for(int w=0; w<width_ori; w++) {
-                    std::cout << weights_full[s*height_ori*width_ori + h*width_ori + w] << ", ";
-                }
-                std::cout << std::endl;
-            }
-            std::cout << std::endl;
-        }
-
-        std::cout << "xxxxxxxx" << std::endl;
-
-        for(int s=0; s<wsh+search_window_size*wsh; s++) {
-            for(int h=0; h<height_symm; h++) {
-                for(int w=0; w<width_symm; w++) {
-                    std::cout << weights_symm[s*height_symm*width_symm + h*width_symm + w] << ", ";
-                }
-                std::cout << std::endl;
-            }
-            std::cout << std::endl;
-        }
-        std::cout << "xxxxxxxx" << std::endl;
-        */
         bool flag = check_arr(weights_symm,
                               weights_full,
                               height_ori,
                               width_ori,
                               search_window_size);
-        REQUIRE( ( flag ) );
+        ASSERT_TRUE(flag);
 }

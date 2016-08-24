@@ -19,20 +19,17 @@
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
-#include "easylogging++.h"
-INITIALIZE_EASYLOGGINGPP
-
-#include <string>
-#include <iostream>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include "weighted_means.h"
 
 using namespace nlsar;
+using testing::Each;
+using testing::FloatEq;
 
-TEST_CASE( "weighted_means", "[cl_kernels]" ) {
+TEST(weighted_means, single_val_check) {
 
         // data setup
         const int height_ori = 10;
@@ -85,15 +82,14 @@ TEST_CASE( "weighted_means", "[cl_kernels]" ) {
 
         cmd_queue.enqueueReadBuffer(device_covmat_out, CL_TRUE, 0, covmat_out_nelem * sizeof(float), covmat_out.data(), NULL, NULL);
 
-        bool flag = true;
+        std::vector<float> covmat_out_nooverlap;
 
         for(int h = overlap_avg; h < height_ori + overlap_avg; h++) {
             for(int w = overlap_avg; w < width_ori + overlap_avg; w++) {
                 for(int d = 0; d < 2*dimension*dimension; d++) {
-                    flag = flag && (Approx(covmat_out[d*(height_ori + 2*overlap_avg)*(width_ori + 2*overlap_avg) + h*(width_ori + 2*overlap_avg) + w]) == 1.0f);
+                    covmat_out_nooverlap.push_back(covmat_out[d*(height_ori + 2*overlap_avg)*(width_ori + 2*overlap_avg) + h*(width_ori + 2*overlap_avg) + w]);
                 }
             }
         }
-
-        REQUIRE( ( flag ) );
+        ASSERT_THAT(covmat_out_nooverlap, Each(FloatEq(1.0f)));
 }
