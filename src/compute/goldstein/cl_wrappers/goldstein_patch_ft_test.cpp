@@ -24,18 +24,18 @@
 #include <complex>
 #include <random>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
-#include "easylogging++.h"
-INITIALIZE_EASYLOGGINGPP
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 //using namespace goldstein;
 
 #include "clcfg.h"
 #include "goldstein_patch_ft.h"
 
-TEST_CASE( "goldstein_patch_ft", "[cl_kernels]" ) {
+using testing::Pointwise;
+
+TEST(goldstein_patch_ft, const2dirac) {
 
         // data setup
         const int height     = 64;
@@ -117,32 +117,22 @@ TEST_CASE( "goldstein_patch_ft", "[cl_kernels]" ) {
         cmd_queue.enqueueReadBuffer(dev_real, CL_TRUE, 0, height*width*sizeof(float), real_out.data(), NULL, NULL);
         cmd_queue.enqueueReadBuffer(dev_imag, CL_TRUE, 0, height*width*sizeof(float), imag_out.data(), NULL, NULL);
 
-        /*
-        for(int y = 0; y < height; y++) {
-            for(int x = 0; x < width; x++) {
-                std::cout << std::setw(2) << imag_out[y*width + x] << ",";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
-        */
+        std::vector<float> desired_real_out (real_out.size(), 0.0f);
+        std::vector<float> desired_imag_out (imag_out.size(), 0.0f);
 
-        bool flag = true;
         for(int h = 0; h < height; h++) {
             for(int w = 0; w < width; w++) {
                 const int i = h*width+w;
-                if( w % patch_size || h % patch_size) {
-                    flag = flag && (0.0f == Approx(real_out[i]).epsilon( 0.0001 ));
-                } else {
-                    flag = flag && (patch_size*patch_size == Approx(real_out[i]).epsilon( 0.0001 ));
+                if ( w % patch_size == 0 && h % patch_size == 0) {
+                    desired_real_out[i] = patch_size*patch_size;
                 }
-                flag = flag && (0.0f == Approx(imag_out[i]).epsilon( 0.0001 ));
             }
         }
-        REQUIRE( flag);
+        ASSERT_THAT(real_out, Pointwise(FloatNearPointwise(1e-4), desired_real_out));
+        ASSERT_THAT(imag_out, Pointwise(FloatNearPointwise(1e-4), desired_imag_out));
 }
 
-TEST_CASE( "goldstein_patch_ft_rand", "[cl_kernels]" ) {
+TEST(goldstein_patch_ft_rand,  ) {
 
         // data setup
         const int height     = 64;
@@ -241,20 +231,6 @@ TEST_CASE( "goldstein_patch_ft_rand", "[cl_kernels]" ) {
         cmd_queue.enqueueReadBuffer(dev_real, CL_TRUE, 0, height*width*sizeof(float), real_out.data(), NULL, NULL);
         cmd_queue.enqueueReadBuffer(dev_imag, CL_TRUE, 0, height*width*sizeof(float), imag_out.data(), NULL, NULL);
 
-        /*
-        for(int y = 0; y < height; y++) {
-            for(int x = 0; x < width; x++) {
-                std::cout << std::setw(1) << real_out[y*width + x] << ":" << real_in[y*width + x] << ", ";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
-        */
-
-        bool flag = true;
-        for(int i = 0; i < height*width; i++) {
-            flag = flag && (real_in[i] == Approx(real_out[i]).epsilon( 0.0001 ));
-            flag = flag && (imag_in[i] == Approx(imag_out[i]).epsilon( 0.0001 ));
-        }
-        REQUIRE( flag);
+        ASSERT_THAT(real_in, Pointwise(FloatNearPointwise(1e-4), real_out));
+        ASSERT_THAT(imag_in, Pointwise(FloatNearPointwise(1e-4), imag_out));
 }

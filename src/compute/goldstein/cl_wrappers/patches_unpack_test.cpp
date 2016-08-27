@@ -22,17 +22,18 @@
 #include <complex>
 #include <random>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
-#include "easylogging++.h"
-INITIALIZE_EASYLOGGINGPP
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include "patches_unpack.h"
 
 using namespace goldstein;
+using testing::Each;
+using testing::FloatEq;
+using testing::Pointwise;
 
-TEST_CASE( "patches_unpack", "[cl_kernels]" ) {
+TEST(patches_unpack, completeness) {
 
         // data setup
         const int height_packed = 72;
@@ -85,24 +86,11 @@ TEST_CASE( "patches_unpack", "[cl_kernels]" ) {
         cmd_queue.enqueueReadBuffer(device_interf_real_unpacked, CL_TRUE, 0, height_unpacked*width_unpacked*sizeof(float), interf_real_unpacked.data(), NULL, NULL);
         cmd_queue.enqueueReadBuffer(device_interf_imag_unpacked, CL_TRUE, 0, height_unpacked*width_unpacked*sizeof(float), interf_imag_unpacked.data(), NULL, NULL);
 
-        /*
-        for(int y = 0; y < height_unpacked; y++) {
-            for(int x = 0; x < width_unpacked; x++) {
-                std::cout << std::setprecision(5) << (float) interf_real_unpacked[y*width_unpacked + x] << ",";
-            }
-            std::cout << std::endl;
-        }
-        */
-
-        bool flag = true;
-        for(int i = 0; i < height_packed*width_packed; i++) {
-            flag = flag && ( 1.0f == Approx(interf_real_unpacked[i]).epsilon( 0.0001 ));
-            flag = flag && ( 1.0f == Approx(interf_imag_unpacked[i]).epsilon( 0.0001 ));
-        }
-        REQUIRE( flag);
+        ASSERT_THAT(interf_real_unpacked, Each(FloatEq(1.0f)));
+        ASSERT_THAT(interf_imag_unpacked, Each(FloatEq(1.0f)));
 }
 
-TEST_CASE( "patches_unpack_rand_big", "[cl_kernels]" ) {
+TEST(patches_unpack, rand_big) {
 
         // data setup
         const int height_packed = 48;
@@ -182,23 +170,6 @@ TEST_CASE( "patches_unpack_rand_big", "[cl_kernels]" ) {
         cmd_queue.enqueueReadBuffer(device_interf_real_unpacked, CL_TRUE, 0, height_unpacked*width_unpacked*sizeof(float), interf_real_unpacked.data(), NULL, NULL);
         cmd_queue.enqueueReadBuffer(device_interf_imag_unpacked, CL_TRUE, 0, height_unpacked*width_unpacked*sizeof(float), interf_imag_unpacked.data(), NULL, NULL);
 
-       /*
-        for(int y = 0; y < height_unpacked; y++) {
-            for(int x = 0; x < width_unpacked; x++) {
-                std::cout << interf_real_unpacked_desired[y*width_unpacked + x] << ",";
-            }
-            for(int x = 0; x < width_unpacked; x++) {
-                std::cout << interf_real_unpacked[y*width_unpacked + x] << ",";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
-        */
-
-        bool flag = true;
-        for(int i = 0; i < height_unpacked*width_unpacked; i++) {
-            flag = flag && ( interf_real_unpacked_desired[i] == Approx(interf_real_unpacked[i]).epsilon( 0.0001 ));
-            flag = flag && ( interf_imag_unpacked_desired[i] == Approx(interf_imag_unpacked[i]).epsilon( 0.0001 ));
-        }
-        REQUIRE( flag);
+        ASSERT_THAT(interf_real_unpacked, Pointwise(FloatNearPointwise(1e-4), interf_real_unpacked_desired));
+        ASSERT_THAT(interf_imag_unpacked, Pointwise(FloatNearPointwise(1e-4), interf_imag_unpacked_desired));
 }

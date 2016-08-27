@@ -22,17 +22,18 @@
 #include <complex>
 #include <random>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
-#include "easylogging++.h"
-INITIALIZE_EASYLOGGINGPP
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include "patches_pack.h"
 
 using namespace goldstein;
+using testing::Each;
+using testing::FloatEq;
+using testing::Pointwise;
 
-TEST_CASE( "patches_pack", "[cl_kernels]" ) {
+TEST(patches_pack, completeness) {
 
         // data setup
         const int height_packed = 48;
@@ -45,8 +46,6 @@ TEST_CASE( "patches_pack", "[cl_kernels]" ) {
 
         const int height_unpacked = n_patches_h * patch_size;
         const int width_unpacked  = n_patches_w * patch_size;
-
-        std::cout << height_unpacked << ":" << width_unpacked << std::endl;
 
         std::vector<float> interf_real_unpacked (height_unpacked*width_unpacked, 1.0);
         std::vector<float> interf_imag_unpacked (height_unpacked*width_unpacked, 1.0);
@@ -86,24 +85,11 @@ TEST_CASE( "patches_pack", "[cl_kernels]" ) {
         cmd_queue.enqueueReadBuffer(device_interf_real_packed, CL_TRUE, 0, height_packed*width_packed*sizeof(float), interf_real_packed.data(), NULL, NULL);
         cmd_queue.enqueueReadBuffer(device_interf_imag_packed, CL_TRUE, 0, height_packed*width_packed*sizeof(float), interf_imag_packed.data(), NULL, NULL);
 
-        /*
-        for(int y = 0; y < height_packed; y++) {
-            for(int x = 0; x < width_packed; x++) {
-                std::cout << std::setprecision(5) << (float) interf_real_packed[y*width_packed + x] << ",";
-            }
-            std::cout << std::endl;
-        }
-        */
-
-        bool flag = true;
-        for(int i = 0; i < height_packed*width_packed; i++) {
-            flag = flag && (1.0f == Approx(interf_real_packed[i]).epsilon( 0.0001 ));
-            flag = flag && (1.0f == Approx(interf_imag_packed[i]).epsilon( 0.0001 ));
-        }
-        REQUIRE( flag);
+        ASSERT_THAT(interf_real_packed, Each(FloatEq(1.0f)));
+        ASSERT_THAT(interf_imag_packed, Each(FloatEq(1.0f)));
 }
 
-TEST_CASE( "patches_pack_rand", "[cl_kernels]" ) {
+TEST(patches_pack, random) {
 
         // data setup
         const int height_packed = 72;
@@ -116,8 +102,6 @@ TEST_CASE( "patches_pack_rand", "[cl_kernels]" ) {
 
         const int height_unpacked = n_patches_h * patch_size;
         const int width_unpacked  = n_patches_w * patch_size;
-
-        std::cout << height_unpacked << ":" << width_unpacked << std::endl;
 
         std::vector<float> interf_real_packed_desired (height_packed*width_packed, 1.0);
         std::vector<float> interf_imag_packed_desired (height_packed*width_packed, 1.0);
@@ -185,36 +169,6 @@ TEST_CASE( "patches_pack_rand", "[cl_kernels]" ) {
         cmd_queue.enqueueReadBuffer(device_interf_real_packed, CL_TRUE, 0, height_packed*width_packed*sizeof(float), interf_real_packed.data(), NULL, NULL);
         cmd_queue.enqueueReadBuffer(device_interf_imag_packed, CL_TRUE, 0, height_packed*width_packed*sizeof(float), interf_imag_packed.data(), NULL, NULL);
 
-        /*
-        for(int y = 0; y < height_packed; y++) {
-            for(int x = 0; x < width_packed; x++) {
-                std::cout << std::setw(1) << (float) interf_real_packed_desired[y*width_packed + x] << ",";
-            }
-            std::cout << std::endl;
-            for(int x = 0; x < width_packed; x++) {
-                std::cout << std::setw(1) << (float) interf_real_packed[y*width_packed + x] << ",";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
-        std::cout << std::endl;
-
-        for(int x = 0; x < width_unpacked; x++) {
-            std::cout << std::setw(1) << x << ",";
-        }
-            std::cout << std::endl;
-        for(int y = 0; y < height_unpacked; y++) {
-            for(int x = 0; x < width_unpacked; x++) {
-                std::cout << std::setw(1) << interf_real_unpacked[y*width_unpacked + x] << ",";
-            }
-            std::cout << std::endl;
-        }
-        */
-
-        bool flag = true;
-        for(int i = 0; i < height_packed*width_packed; i++) {
-            flag = flag && ( interf_real_packed_desired[i] == Approx(interf_real_packed[i]).epsilon( 0.0001 ));
-            //flag = flag && ( interf_imag_packed_desired[i] == Approx(interf_imag_packed[i]).epsilon( 0.0001 ));
-        }
-        REQUIRE( flag);
+        ASSERT_THAT(interf_real_packed, Pointwise(FloatNearPointwise(1e-4), interf_real_packed_desired));
+        ASSERT_THAT(interf_imag_packed, Pointwise(FloatNearPointwise(1e-4), interf_imag_packed_desired));
 }

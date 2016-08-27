@@ -22,18 +22,17 @@
 #include <complex>
 #include <random>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
-
-#include "easylogging++.h"
-INITIALIZE_EASYLOGGINGPP
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "unit_test_helper.h"
 
 #include "patches_pack.h"
 #include "patches_unpack.h"
 
 using namespace goldstein;
+using testing::Pointwise;
 
-TEST_CASE( "patches_packing", "[cl_kernels]" ) {
+TEST(patches_packing, random_unpack_pack) {
 
         // data setup
         const int height_packed = 48;
@@ -107,19 +106,6 @@ TEST_CASE( "patches_packing", "[cl_kernels]" ) {
         cmd_queue.enqueueReadBuffer(device_interf_real_out, CL_TRUE, 0, height_packed*width_packed*sizeof(float), interf_real_out.data(), NULL, NULL);
         cmd_queue.enqueueReadBuffer(device_interf_imag_out, CL_TRUE, 0, height_packed*width_packed*sizeof(float), interf_imag_out.data(), NULL, NULL);
 
-        bool flag = true;
-        for(int y = 0; y < height_packed; y++) {
-            for(int x = 0; x < width_packed; x++) {
-                std::cout << std::setprecision(5) << (float) interf_real    [y*width_packed + x] << ":";
-                std::cout << std::setprecision(5) << (float) interf_real_out[y*width_packed + x] << ", ";
-            }
-            std::cout << std::endl;
-        }
-
-        for(int i = 0; i < height_packed*width_packed; i++) {
-            flag = flag && (interf_real_out[i] == Approx(interf_real[i]).epsilon( 0.0001 ));
-            flag = flag && (interf_imag_out[i] == Approx(interf_imag[i]).epsilon( 0.0001 ));
-        }
-
-        REQUIRE( flag);
+        ASSERT_THAT(interf_real_out, Pointwise(FloatNearPointwise(1e-4), interf_real));
+        ASSERT_THAT(interf_imag_out, Pointwise(FloatNearPointwise(1e-4), interf_imag));
 }
