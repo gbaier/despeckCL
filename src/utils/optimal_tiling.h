@@ -40,4 +40,6 @@ retain_small_offcut_tiles(std::vector<std::pair<int, int>> tiles,
                           size_t img_height, size_t img_width, float offcut=1.1f);
 
 std::pair<int, int> biggest_tile(std::vector<std::pair<int, int>> tiles);
+
+float scale_factor(std::pair<int, int> p);
 #endif

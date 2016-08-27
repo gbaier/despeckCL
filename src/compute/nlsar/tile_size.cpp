@@ -83,9 +83,19 @@ std::pair<int, int> nlsar::tile_size(cl::Context context,
     }
   }
 
-  std::vector<std::pair<int, int>> non_wasteful_pairs = retain_small_offcut_tiles(pairs_fit, img_height, img_width, 1.2);
+  // non wasteful pairs
+  std::vector<std::pair<int, int>> nwp = retain_small_offcut_tiles(pairs_fit, img_height, img_width, 1.5);
 
-  return biggest_tile(non_wasteful_pairs);
+  // sort by scale factor
+  std::sort(nwp.begin(), nwp.end(), [] (auto p1, auto p2) {return scale_factor(p1) > scale_factor(p2);});
+
+  // sort by area but keep order of scale_factors
+  //std::stable_sort(nwp.begin(), nwp.end(), [] (auto p1, auto p2) {return p1.first*p1.second > p2.first*p2.second;});
+  //for(auto x : nwp) {
+  //  std::cout << x.first << ", " << x.second << std::endl;
+  //}
+
+  return nwp[0];
 }
 
 size_t nlsar::buffer_sizes::width_overlap(void) const{

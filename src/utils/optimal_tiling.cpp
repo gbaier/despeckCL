@@ -34,3 +34,9 @@ retain_small_offcut_tiles(std::vector<std::pair<int, int>> tiles,
 std::pair<int, int> biggest_tile(std::vector<std::pair<int, int>> tiles) {
   return *std::max_element(tiles.begin(), tiles.end(), [] (auto t1, auto t2) {return t1.first*t1.second < t2.first*t2.second;});
 }
+
+float scale_factor(std::pair<int, int> p) {
+  const int h = p.first;
+  const int w = p.second;
+  return (static_cast<float> (h*w))/(2*h + 2*w);
+}
