@@ -12,9 +12,10 @@ TEST(OPTIMAL_TILING, range) {
 
 TEST(OPTIMAL_TILING, combinations) {
   std::vector<int> in {4, 8, 12, 16};
-  std::vector<std::pair<int, int>> out{{4, 4},   {4, 8},  {4, 12}, {4, 16},
-                                       {8, 8},   {8, 12}, {8, 16}, {12, 12},
-                                       {12, 16}, {16, 16}};
+  std::vector<std::pair<int, int>> out{ {4, 4},  {4, 8},  {4, 12},  {4, 16},
+                                        {8, 4},  {8, 8},  {8, 12},  {8, 16},
+                                        {12, 4}, {12, 8}, {12, 12}, {12, 16},
+                                        {16, 4}, {16, 8}, {16, 12}, {16, 16} };
   ASSERT_THAT(all_pairs(in), out);
 }
 

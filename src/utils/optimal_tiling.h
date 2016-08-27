@@ -1,3 +1,6 @@
+#ifndef OPTIMAL_TILING_H
+#define OPTIMAL_TILING_H
+
 #include <array>
 #include <vector>
 #include <utility>
@@ -37,3 +40,4 @@ retain_small_offcut_tiles(std::vector<std::pair<int, int>> tiles,
                           size_t img_height, size_t img_width, float offcut=1.1f);
 
 std::pair<int, int> biggest_tile(std::vector<std::pair<int, int>> tiles);
+#endif

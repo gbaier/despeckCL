@@ -5,7 +5,7 @@
 std::vector<std::pair<int, int>> all_pairs(std::vector<int> range) {
   std::vector<std::pair<int, int>> pairs;
   for(auto iter1 = std::begin(range); iter1 != std::end(range); ++iter1) {
-    for(auto iter2 = iter1; iter2 != std::end(range); ++iter2) {
+    for(auto iter2 = std::begin(range); iter2 != std::end(range); ++iter2) {
       pairs.push_back(std::pair<int, int>(*iter1, *iter2));
     }
   }
