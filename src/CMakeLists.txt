@@ -8,6 +8,7 @@ include_directories(${despeckCL_SOURCE_DIR}/src/compute/common/cl_wrappers)
 add_subdirectory(compute)
 add_subdirectory(clcfg)
 add_subdirectory(data)
+add_subdirectory(utils)
 
 find_package(GSL REQUIRED)
 if(GSL_FOUND)
