@@ -49,15 +49,15 @@ nlsar::stats& nlsar::stats::operator=(const nlsar::stats& other)
 
 std::vector<float> nlsar::stats::get_quantilles(std::vector<float> &dissims)
 {
-    const float step_size = (dissims_max - dissims_min)/(lut_size-1);
+    const float step_size = (dissims_max - dissims_min)/lut_size;
     
     std::vector<float> quantilles;
     quantilles.reserve(lut_size);
 
     for(size_t i = 0; i < lut_size; i++) {
         const float dissim = dissims_min + i*step_size;
-        const std::vector<float>::iterator lower_bound = std::lower_bound(dissims.begin(), dissims.end(), dissim);
-        quantilles.push_back( ((float) (lower_bound - dissims.begin()))/dissims.size() );
+        const std::vector<float>::iterator upper_limit = std::lower_bound(dissims.begin(), dissims.end(), dissim);
+        quantilles.push_back(((float) (upper_limit - dissims.begin()))/dissims.size() );
     }
     return quantilles;
 }

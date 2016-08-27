@@ -35,13 +35,13 @@ TEST(stats, max_quantilles_error_1) {
 
     std::vector<float> dissims;
 
-    for(size_t i = 0; i < 10000; i++) {
+    for(size_t i = 0; i <= 10000; i++) {
         dissims.push_back(i);
     }
 
     stats test_stats{dissims, lut_size};
 
-    ASSERT_THAT(test_stats.get_max_quantilles_error(), FloatNear(1.0f/lut_size, 1e-3));
+    ASSERT_THAT(test_stats.get_max_quantilles_error(), FloatNear(1.0f/lut_size, 1e-6));
 }
 
 TEST(stats, max_quantilles_error_2) {
@@ -50,16 +50,16 @@ TEST(stats, max_quantilles_error_2) {
 
     std::vector<float> dissims;
 
-    for(size_t i = 0; i < 10000; i++) {
+    for(size_t i = 0; i <= 10000; i++) {
         dissims.push_back(i);
     }
-    for(size_t i = 4000; i < 10000; i++) {
+    for(size_t i = 4000; i <= 10000; i++) {
         dissims[i] = 2*i;
     }
 
     stats test_stats{dissims, lut_size};
 
-    ASSERT_THAT(test_stats.get_max_quantilles_error(), FloatNear(2.0f/lut_size, 1e-3));
+    ASSERT_THAT(test_stats.get_max_quantilles_error(), FloatNear(2.0f/lut_size, 1e-6));
 }
 
 TEST(stats, quantilles_match) {
@@ -87,5 +87,5 @@ TEST(stats, quantilles_match) {
         flag = flag && (quantille - quantille_lut < test_stats.get_max_quantilles_error());
     }
 
-    ASSERT_FALSE(flag); //FIXME
+    ASSERT_TRUE(flag);
 }
