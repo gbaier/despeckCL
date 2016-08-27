@@ -30,7 +30,7 @@ Requirements
 5. <a href="https://github.com/clMathLibraries/clFFT">clFFT</a> AMD's OpenCL FFT library, which also works on NVIDIA and Intel devices
 6. <a href="http://swig.org/">SWIG</a> for generating Python and Octave bindings (optional)
 7. <a href="http://sphinx-doc.org/">Sphinx</a> for building the documentation (optional)
-8. despeckCL uses <a href="https://github.com/philsquared/Catch">Catch</a> for unit testing and <a href="https://github.com/easylogging/easyloggingpp/">Easylogging++</a> for logging, both are shipped with the source.
+8. despeckCL uses <a href="https://github.com/google/googletest">Google Test</a> for unit testing and <a href="https://github.com/easylogging/easyloggingpp/">Easylogging++</a> for logging. Google Test is automatically checked out from github when building despeckCL and Easylogging++ is shipped directly with the source.
 
 Building, Testing and Installation
 ----------------------------------
