@@ -23,14 +23,18 @@
 #include <CL/cl.hpp>
 
 #include <vector>
+#include <utility>
 
 namespace nlsar {
     int round_down(const int num, const int multiple);
 
-    int tile_size(cl::Context context,
-                  const int search_window_size,
-                  const std::vector<int>& patch_sizes,
-                  const std::vector<int>& scale_sizes);
+    std::pair<int, int> tile_size(cl::Context context,
+        const int img_height,
+        const int img_width,
+        const int dimensions,
+        const int search_window_size,
+        const std::vector<int>& patch_sizes,
+        const std::vector<int>& scale_sizes);
 
     class buffer_sizes {
       private:

@@ -24,67 +24,68 @@
 
 #include "logging.h"
 #include "easylogging++.h"
+#include "optimal_tiling.h"
 
-int nlsar::round_down(const int num, const int multiple)
+std::pair<int, int> nlsar::tile_size(cl::Context context,
+                                     const int img_height,
+                                     const int img_width,
+                                     const int dimensions,
+                                     const int search_window_size,
+                                     const std::vector<int>& patch_sizes,
+                                     const std::vector<int>& scale_sizes)
 {
-     int remainder = num % multiple;
-     return num - remainder;
-}
+  VLOG(0) << "Getting device memory characteristics";
 
-int nlsar::tile_size(cl::Context context,
-                     const int search_window_size,
-                     const std::vector<int>& patch_sizes,
-                     const std::vector<int>& scale_sizes)
-{
-    const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
-    const int scale_size_max = *std::max_element(scale_sizes.begin(), scale_sizes.end());
+  std::vector<cl::Device> devices;
+  context.getInfo(CL_CONTEXT_DEVICES, &devices);
+  cl::Device dev = devices[0];
 
-    const int overlap = search_window_size + patch_size_max + scale_size_max - 3;
+  size_t global_mem_size;
+  dev.getInfo(CL_DEVICE_GLOBAL_MEM_SIZE, &global_mem_size);
+  VLOG(0) << "global memory size = " << global_mem_size;
 
-    const int n_params = patch_sizes.size() * scale_sizes.size();
-    VLOG(0) << "number of parameters = " << n_params;
+  size_t max_mem_alloc_size;
+  dev.getInfo(CL_DEVICE_MAX_MEM_ALLOC_SIZE, &max_mem_alloc_size);
+  VLOG(0) << "maximum memory allocation size = " << max_mem_alloc_size;
 
-    std::vector<cl::Device> devices;
-    context.getInfo(CL_CONTEXT_DEVICES, &devices);
-    cl::Device dev = devices[0];
+  const unsigned int n_threads = omp_get_max_threads();
+  VLOG(0) << "number of threads = " << n_threads;
+  constexpr int step = 32;
+  constexpr int nitems = 64;
 
-    int long global_mem_size;
-    dev.getInfo(CL_DEVICE_GLOBAL_MEM_SIZE, &global_mem_size);
-    VLOG(0) << "global memory size = " << global_mem_size;
+  std::vector<int> dims;
+  for(auto x : range<nitems>(step)) {
+    dims.push_back(x);
+  }
 
-    int long max_mem_alloc_size;
-    dev.getInfo(CL_DEVICE_MAX_MEM_ALLOC_SIZE, &max_mem_alloc_size);
-    VLOG(0) << "maximum memory allocation size = " << max_mem_alloc_size;
+  auto pairs = all_pairs(dims);
 
-    const int n_threads = omp_get_max_threads();
-    VLOG(0) << "number of threads = " << n_threads;
+  // pairs that fit into memory
+  std::vector<std::pair<int, int>> pairs_fit;
 
-    // Most the most memory is required for storing weights, so only this is taken into account.
-    // required bytes per pixel = reg_bpp
-    const int req_bpp = 4 * search_window_size * search_window_size * n_params;
-    const int n_pixels_global = global_mem_size    / (req_bpp * n_threads);
-    const int n_pixels_alloc  = max_mem_alloc_size /  req_bpp;
-    const int n_pixels = std::min(n_pixels_global, n_pixels_alloc);
+  for(const auto p : pairs) {
+    const int tile_height = p.first;
+    const int tile_width = p.second;
 
-    const int tile_size_fit        = std::sqrt(n_pixels);
-    const int tile_size_fit_rounded = round_down(tile_size_fit, 64);
+    const buffer_sizes bs{tile_height,
+                          tile_width,
+                          dimensions,
+                          search_window_size,
+                          patch_sizes,
+                          scale_sizes};
 
-    VLOG(0) << "tile_size_fit = "         << tile_size_fit;
-    VLOG(0) << "tile_size_fit_rounded = " << tile_size_fit_rounded;
+    size_t req_mem = bs.all();
 
-    const float safety_factor = 0.90;
-    int safe_tile_size = 0;
-    if (tile_size_fit_rounded < safety_factor*tile_size_fit) {
-        safe_tile_size = tile_size_fit_rounded;
+    if(req_mem > max_mem_alloc_size || req_mem > (global_mem_size/n_threads) ) {
+      continue;
     } else {
-        safe_tile_size = tile_size_fit_rounded - 64;
+      pairs_fit.push_back(p);
     }
-    VLOG(0) << "safe_sub_image_size = " << safe_tile_size;
-    safe_tile_size += overlap;
-    VLOG(0) << "safe_sub_image_size with overlap = " << safe_tile_size;
+  }
 
+  std::vector<std::pair<int, int>> non_wasteful_pairs = retain_small_offcut_tiles(pairs_fit, img_height, img_width, 1.2);
 
-    return safe_tile_size;
+  return biggest_tile(non_wasteful_pairs);
 }
 
 size_t nlsar::buffer_sizes::width_overlap(void) const{

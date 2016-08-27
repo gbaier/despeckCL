@@ -29,6 +29,7 @@ add_library(despeckcl STATIC
             ${despeckCL_SOURCE_DIR}/src/utils/logging.cpp
             ${despeckCL_SOURCE_DIR}/src/utils/checks.cpp
             ${despeckCL_SOURCE_DIR}/src/utils/timings.cpp
+            ${despeckCL_SOURCE_DIR}/src/utils/optimal_tiling.cpp
             ${despeckCL_SOURCE_DIR}/src/clcfg/clcfg.cpp
             $<TARGET_OBJECTS:common_opencl_wrappers>
            )
