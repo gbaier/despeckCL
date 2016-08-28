@@ -27,7 +27,8 @@ float* get_sub_image(const float * image,
                      const int width,
                      const int h_low,
                      const int w_low,
-                     const int sub_img_size);
+                     const int sub_img_height,
+                     const int sub_img_width);
 
 void write_sub_image(float * image,
                      const int height,
@@ -35,7 +36,8 @@ void write_sub_image(float * image,
                      float * sub_image,
                      const int h_low,
                      const int w_low,
-                     const int sub_img_size,
+                     const int sub_img_height,
+                     const int sub_img_width,
                      const int overlap);
 
 #endif

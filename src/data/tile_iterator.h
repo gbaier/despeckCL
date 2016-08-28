@@ -26,7 +26,8 @@ class tile_iterator
 {
     protected:
         insar_data_shared& data;
-        const int tile_size;
+        const int tile_height;
+        const int tile_width;
         const int overlap_border;
         const int overlap_tile;
 
@@ -37,6 +38,12 @@ class tile_iterator
     public:
         tile_iterator(insar_data_shared& data,
                       const int tile_size,
+                      const int overlap_border,
+                      const int overlap_tile);
+
+        tile_iterator(insar_data_shared& data,
+                      const int tile_height,
+                      const int tile_width,
                       const int overlap_border,
                       const int overlap_tile);
 

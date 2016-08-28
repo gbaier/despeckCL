@@ -81,7 +81,7 @@ int despeckcl::nlsar(float* ampl_master,
     // legacy opencl setup
     cl::Context context = opencl_setup();
 
-    std::pair<int, int> tile_dims = nlsar::tile_size(context, height, width, dimension,  search_window_size, patch_sizes, scale_sizes);
+    std::pair<int, int> tile_dims = nlsar::tile_size(context, height, width, dimension, search_window_size, patch_sizes, scale_sizes);
 
     LOG(INFO) << "tile height: " << tile_dims.first;
     LOG(INFO) << "tile width: " << tile_dims.second;
@@ -108,7 +108,7 @@ int despeckcl::nlsar(float* ampl_master,
 {
 #pragma omp master
     {
-    for( auto imgtile : tile_iterator(total_image, std::min(tile_dims.first, tile_dims.second), overlap, overlap) ) {
+    for( auto imgtile : tile_iterator(total_image, tile_dims.first, tile_dims.second, overlap, overlap) ) {
 #pragma omp task firstprivate(imgtile)
         {
         try {
