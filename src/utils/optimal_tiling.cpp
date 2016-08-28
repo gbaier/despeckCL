@@ -12,19 +12,23 @@ std::vector<std::pair<int, int>> all_pairs(std::vector<int> range) {
   return pairs;
 }
 
-size_t tiled_img_npixels(std::pair<int, int> tile_dim, std::pair<int, int> nm_tiles) {
+size_t tiled_img_npixels(std::pair<int, int> tile_dim, std::pair<int, int> nm_tiles, int overlap) {
   const size_t n_tiles = nm_tiles.first*nm_tiles.second;
-  const size_t n_pixels_per_tile = tile_dim.first*tile_dim.second;
+  const size_t n_pixels_per_tile = (tile_dim.first-2*overlap)*(tile_dim.second-2*overlap);
   return n_tiles*n_pixels_per_tile;
 }
 
 std::vector<std::pair<int, int>>
 retain_small_offcut_tiles(std::vector<std::pair<int, int>> tiles,
-                          size_t img_height, size_t img_width, float offcut) {
-  get_nm_tiles gnmt (img_height, img_width);
+                          size_t img_height,
+                          size_t img_width,
+                          int overlap,
+                          float offcut)
+{
+  get_nm_tiles gnmt (img_height, img_width, overlap);
   tiles.erase(std::remove_if(tiles.begin(), tiles.end(),
                              [&](auto t) {
-                               return tiled_img_npixels(t, gnmt(t)) >
+                               return tiled_img_npixels(t, gnmt(t), overlap) >
                                       offcut * img_height * img_width;
                              }),
               tiles.end());

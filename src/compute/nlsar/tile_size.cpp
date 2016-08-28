@@ -34,6 +34,16 @@ std::pair<int, int> nlsar::tile_size(cl::Context context,
                                      const std::vector<int>& patch_sizes,
                                      const std::vector<int>& scale_sizes)
 {
+  const int patch_size_max =
+      *std::max_element(patch_sizes.begin(), patch_sizes.end());
+  const int scale_size_max =
+      *std::max_element(scale_sizes.begin(), scale_sizes.end());
+
+  // overlap consists of:
+  // - (patch_size_max - 1)/2 + (search_window_size - 1)/2 for similarities
+  // - (window_width - 1)/2 for spatial averaging of covariance matrices
+  const int overlap = (patch_size_max - 1) / 2 + (search_window_size - 1) / 2 +
+                      (scale_size_max - 1) / 2;
   VLOG(0) << "Getting device memory characteristics";
 
   std::vector<cl::Device> devices;
@@ -84,7 +94,12 @@ std::pair<int, int> nlsar::tile_size(cl::Context context,
   }
 
   // non wasteful pairs
-  std::vector<std::pair<int, int>> nwp = retain_small_offcut_tiles(pairs_fit, img_height, img_width, 1.2);
+  std::vector<std::pair<int, int>> nwp =
+      retain_small_offcut_tiles(pairs_fit,
+                                img_height,
+                                img_width,
+                                overlap,
+                                1.2);
 
   // sort by scale factor
   std::sort(nwp.begin(), nwp.end(), [] (auto p1, auto p2) {return scale_factor(p1) > scale_factor(p2);});

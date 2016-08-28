@@ -22,7 +22,8 @@ TEST(OPTIMAL_TILING, combinations) {
 TEST(OPTIMAL_TILING, get_nm_tiles) {
   const int img_height = 11;
   const int img_width = 17;
-  get_nm_tiles gt{img_height, img_width};
+  const int overlap = 0;
+  get_nm_tiles gt{img_height, img_width, overlap};
   std::vector<std::pair<int, int>> in  {{4, 4}, {4, 8}};
   std::vector<std::pair<int, int>> out {{3, 5}, {3, 3}};
   std::transform(std::begin(in), std::end(in), std::begin(in), gt);
@@ -32,15 +33,17 @@ TEST(OPTIMAL_TILING, get_nm_tiles) {
 TEST(OPTIMAL_TILING, tiled_img_npixels) {
   std::pair<int, int> tiles_in_img {4, 5};
   std::pair<int, int> tile_size {10, 10};
-  ASSERT_THAT(tiled_img_npixels(tile_size, tiles_in_img), 2000);
+  const int overlap = 0;
+  ASSERT_THAT(tiled_img_npixels(tile_size, tiles_in_img, overlap), 2000);
 }
 
 TEST(OPTIMAL_TILING, retain_small_offcut_tiles) {
   const int img_height = 12;
   const int img_width = 16;
+  const int overlap = 0;
   std::vector<std::pair<int, int>> in  {{4, 4}, {4, 8}, {8, 4}, {8, 8}};
   std::vector<std::pair<int, int>> out {{4, 4}, {4, 8}};
-  ASSERT_THAT(retain_small_offcut_tiles(in, img_height, img_width), out);
+  ASSERT_THAT(retain_small_offcut_tiles(in, img_height, img_width, overlap), out);
 }
 
 
