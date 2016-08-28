@@ -38,7 +38,7 @@ Building, Testing and Installation
 
 ```shell
 
-$ git clone git@gitlab.lrz.de:gbaier/despeckCL.git
+$ git clone https://github.com/gbaier/despeckCL.git
 
 $ cd despeckCL
 
