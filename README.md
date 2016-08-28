@@ -1,9 +1,10 @@
 despeckCL
 =========
 
-A C++ library for InSAR denoising images using OpenCL with Python and experimental Octave bindings.
+A C++ library for InSAR denoising images using OpenCL with Python bindings.
 The code is developed and tested on an Intel HD4000 and a NVIDIA Tesla K40.
 To get started have a look at the examples directory, build the sphinx documentation or checkout despeckcl.h.
+If you have any comments, questions or suggestions just write me an email.
 
 Implemented Filters
 -------------------
