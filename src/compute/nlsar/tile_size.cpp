@@ -86,7 +86,9 @@ std::pair<int, int> nlsar::tile_size(cl::Context context,
 
     size_t req_mem = bs.all();
 
-    if(req_mem > max_mem_alloc_size || req_mem > (global_mem_size/n_threads) ) {
+    const float safety_factor = 0.8;
+
+    if(req_mem > safety_factor*max_mem_alloc_size || req_mem > safety_factor*(global_mem_size/n_threads) ) {
       continue;
     } else {
       pairs_fit.push_back(p);
