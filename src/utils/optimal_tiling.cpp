@@ -35,6 +35,19 @@ retain_small_offcut_tiles(std::vector<std::pair<int, int>> tiles,
   return tiles;
 }
 
+std::vector<std::pair<int, int>>
+sort_by_offcut(std::vector<std::pair<int, int>> tiles,
+               size_t img_height,
+               size_t img_width,
+               int overlap)
+{
+  get_nm_tiles gnmt (img_height, img_width, overlap);
+  std::sort(tiles.begin(), tiles.end(), [&](auto t1, auto t2) {
+    return tiled_img_npixels(t1, gnmt(t1), overlap) > tiled_img_npixels(t2, gnmt(t2), overlap);
+  });
+  return tiles;
+}
+
 std::pair<int, int> biggest_tile(std::vector<std::pair<int, int>> tiles) {
   return *std::max_element(tiles.begin(), tiles.end(), [] (auto t1, auto t2) {return t1.first*t1.second < t2.first*t2.second;});
 }

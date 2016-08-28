@@ -101,14 +101,11 @@ std::pair<int, int> nlsar::tile_size(cl::Context context,
                                 overlap,
                                 1.2);
 
-  // sort by scale factor
-  std::sort(nwp.begin(), nwp.end(), [] (auto p1, auto p2) {return scale_factor(p1) > scale_factor(p2);});
+  nwp = sort_by_offcut(pairs_fit, img_height, img_width, overlap);
 
-  // sort by area but keep order of scale_factors
-  //std::stable_sort(nwp.begin(), nwp.end(), [] (auto p1, auto p2) {return p1.first*p1.second > p2.first*p2.second;});
-  //for(auto x : nwp) {
-  //  std::cout << x.first << ", " << x.second << std::endl;
-  //}
+  // stable sort by scale factor so that tile sizes (a*b) and (b*a) result in
+  // the one with the lower offcut to get chosen
+  std::stable_sort(nwp.begin(), nwp.end(), [] (auto p1, auto p2) {return scale_factor(p1) > scale_factor(p2);});
 
   return nwp[0];
 }

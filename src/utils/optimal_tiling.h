@@ -43,6 +43,12 @@ std::vector<std::pair<int, int>> retain_small_offcut_tiles(
     int overlap,
     float offcut = 1.1f);
 
+std::vector<std::pair<int, int>>
+sort_by_offcut(std::vector<std::pair<int, int>> tiles,
+               size_t img_height,
+               size_t img_width,
+               int overlap);
+
 std::pair<int, int> biggest_tile(std::vector<std::pair<int, int>> tiles);
 
 float scale_factor(std::pair<int, int> p);
