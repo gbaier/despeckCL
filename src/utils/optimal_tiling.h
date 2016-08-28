@@ -5,6 +5,7 @@
 #include <vector>
 #include <utility>
 #include <math.h>
+#include <cmath>
 
 template<int N>
 constexpr std::array<int, N> range(int step) {
