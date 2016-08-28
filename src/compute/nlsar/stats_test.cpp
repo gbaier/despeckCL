@@ -78,13 +78,20 @@ TEST(stats, quantilles_match) {
 
     stats test_stats{dissims, lut_size};
     std::vector<float> quantilles_lut = test_stats.quantilles;
+    std::cout << "max err" << test_stats.get_max_quantilles_error() << std::endl;
 
     bool flag = true;
     for(size_t i = 0; i < dissims.size(); i++) {
         const float dissim = dissims[i];
         const float quantille = ((float) i)/dissims.size();
-        const float quantille_lut = quantilles_lut[ (dissim - test_stats.dissims_min)/(test_stats.dissims_max-test_stats.dissims_min)*lut_size ];
-        flag = flag && (quantille - quantille_lut < test_stats.get_max_quantilles_error());
+        const size_t lut_idx     = std::min(static_cast<size_t>(
+            (dissim - test_stats.dissims_min) /
+                (test_stats.dissims_max - test_stats.dissims_min) * lut_size),
+            lut_size - 1);
+        const float quantille_lut = quantilles_lut[lut_idx];
+        const bool test = quantille - quantille_lut <= test_stats.get_max_quantilles_error();
+        std::cout << quantille << ", " << quantille_lut << ", " << test << std::endl;
+        flag = flag && test;
     }
 
     ASSERT_TRUE(flag);
