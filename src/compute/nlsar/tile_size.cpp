@@ -50,8 +50,8 @@ std::pair<int, int> nlsar::tile_size(cl::Context context,
 
   const unsigned int n_threads = omp_get_max_threads();
   VLOG(0) << "number of threads = " << n_threads;
-  constexpr int step = 32;
-  constexpr int nitems = 64;
+  constexpr int step = 16;
+  constexpr int nitems = 128;
 
   std::vector<int> dims;
   for(auto x : range<nitems>(step)) {
@@ -84,7 +84,7 @@ std::pair<int, int> nlsar::tile_size(cl::Context context,
   }
 
   // non wasteful pairs
-  std::vector<std::pair<int, int>> nwp = retain_small_offcut_tiles(pairs_fit, img_height, img_width, 1.5);
+  std::vector<std::pair<int, int>> nwp = retain_small_offcut_tiles(pairs_fit, img_height, img_width, 1.2);
 
   // sort by scale factor
   std::sort(nwp.begin(), nwp.end(), [] (auto p1, auto p2) {return scale_factor(p1) > scale_factor(p2);});
