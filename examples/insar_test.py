@@ -2,52 +2,52 @@
 
 import numpy as np
 from scipy.io import loadmat
+from collections import OrderedDict
 
+# use Qt4Agg for X11 forwarding
 import matplotlib
 matplotlib.use('Qt4Agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 
+# add the build directory to the python search paths for finding the module
+# without installing it
 import sys
 sys.path.insert(0, '../build/swig/python')
 import despeckcl
-print(despeckcl.__file__)
 
-
+# read input data
 data = loadmat('insar_test_data.mat')
 ampl_master = np.ascontiguousarray(data['ampl_master'])
 ampl_slave = np.ascontiguousarray(data['ampl_slave'])
 phase = np.ascontiguousarray(data['dphase'])
 
-ampl_plotopts = {'cmap': plt.get_cmap('bone')}
 
-log_levels = ['debug', 'verbose', 'warning', 'fatal', 'error', 'info']
+methods = OrderedDict()
+
 log_levels = ['warning', 'fatal', 'error']
+####################
+#                  #
+# Boxcar Filtering #
+#                  #
+####################
 
-methods = {}
-
-##################################
-#
-# Boxcar Filtering
-#
-#################################
-
-window_size = 3
+window_size = 5
 methods[despeckcl.boxcar] = (window_size,)
 
-##################################
-#
-# NLSAR Filtering
-#
-#################################
+####################
+#                  #
+# NL-SAR Filtering #
+#                  #
+####################
 
 search_window_size = 21
 patch_sizes = [3, 5, 7, 9, 11]
 scale_sizes = [1, 3, 5]
 
-nlsar_stats = despeckcl.nlsar_train(ampl_master[0:25, 0:25],
-                                    ampl_slave[0:25, 0:25],
-                                    phase[0:25, 0:25],
+nlsar_stats = despeckcl.nlsar_train(ampl_master[50:75, 50:75],
+                                    ampl_slave[50:75, 50:75],
+                                    phase[50:75, 50:75],
                                     patch_sizes,
                                     scale_sizes)
 
@@ -57,15 +57,15 @@ methods[despeckcl.nlsar] = (search_window_size,
                             nlsar_stats,
                             log_levels)
 
-##################################
-#
-# NLInSAR Filtering
-#
-#################################
+######################
+#                    #
+# NL-InSAR Filtering #
+#                    #
+######################
 
 search_window_size = 21
 patch_size = 7
-niter = 3
+niter = 5
 lmin = 10
 methods[despeckcl.nlinsar] = (search_window_size,
                               patch_size,
@@ -73,24 +73,29 @@ methods[despeckcl.nlinsar] = (search_window_size,
                               lmin,
                               log_levels)
 
-##################################
-#
-# Goldstein Filtering
-#
-#################################
+#######################
+#                     #
+# Goldstein Filtering #
+#                     #
+#######################
 
 patch_size = 32
 overlap = 4
 alpha = 0.5
 methods[despeckcl.goldstein] = (patch_size, overlap, alpha, log_levels)
 
-##################################
-#
-# Plotting
-#
-#################################
+############
+#          #
+# Plotting #
+#          #
+############
 
 fig = plt.figure(1, (15., 9.))
+
+# plot options for amplitude, coherence, and phase
+ampl_plotopts = {'cmap': plt.get_cmap('bone'), 'vmin': 0, 'vmax': 80}
+coh_plotopts = {'cmap': plt.get_cmap('gray'), 'vmin': 0, 'vmax': 1}
+phi_plotopts = {'cmap': plt.get_cmap('hsv'), 'vmin': -np.pi, 'vmax': np.pi}
 
 nw = len(methods) + 1
 nh = 3
@@ -110,10 +115,12 @@ im = grid[nw].imshow(20*np.log10(ampl_slave), **ampl_plotopts)
 grid.cbar_axes[nw].colorbar(im)
 grid[nw].set_title('slave amplitude')
 
-im = grid[2*nw].imshow(phase)
+im = grid[2*nw].imshow(phase, **phi_plotopts)
 grid.cbar_axes[2*nw].colorbar(im)
 grid[2*nw].set_title('phase')
 
+# filtering results
+print('starting filtering')
 for idx, (method, args) in enumerate(methods.items(), 1):
     print(method.__name__)
     ref_filt, phase_filt, coh_filt = method(ampl_master,
@@ -125,10 +132,10 @@ for idx, (method, args) in enumerate(methods.items(), 1):
     grid[idx].set_title(method.__name__)
     grid.cbar_axes[idx].colorbar(im)
 
-    im = grid[nw+idx].imshow(coh_filt, cmap=plt.get_cmap('gray'))
+    im = grid[nw+idx].imshow(coh_filt, **coh_plotopts)
     grid.cbar_axes[nw+idx].colorbar(im)
 
-    im = grid[2*nw+idx].imshow(phase_filt)
+    im = grid[2*nw+idx].imshow(phase_filt, **phi_plotopts)
     grid.cbar_axes[2*nw+idx].colorbar(im)
 
 for ax in grid:
