@@ -4,6 +4,8 @@ include_directories(${despeckCL_SOURCE_DIR}/src/clcfg)
 include_directories(${despeckCL_SOURCE_DIR}/src/utils)
 include_directories(${despeckCL_SOURCE_DIR}/src/compute)
 include_directories(${despeckCL_SOURCE_DIR}/src/compute/common/cl_wrappers)
+include_directories(${despeckCL_SOURCE_DIR}/include)
+include_directories(${despeckCL_SOURCE_DIR}/include/compute)
 
 add_subdirectory(compute)
 add_subdirectory(clcfg)
@@ -30,7 +32,7 @@ add_library(despeckcl STATIC
             ${despeckCL_SOURCE_DIR}/src/utils/checks.cpp
             ${despeckCL_SOURCE_DIR}/src/utils/timings.cpp
             ${despeckCL_SOURCE_DIR}/src/utils/optimal_tiling.cpp
-            ${despeckCL_SOURCE_DIR}/src/clcfg/clcfg.cpp
+            #${despeckCL_SOURCE_DIR}/src/clcfg/clcfg.cpp
             $<TARGET_OBJECTS:common_opencl_wrappers>
            )
 
