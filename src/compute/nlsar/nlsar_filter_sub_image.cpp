@@ -226,8 +226,9 @@ timings::map nlsar::filter_sub_image(cl::Context context,
             tm = timings::join(tm, tm_enls_nobias_and_alphas);
 
             start = std::chrono::system_clock::now();
-            cmd_copy_queue.enqueueReadBuffer(device_enls_nobias,  CL_FALSE, 0, buf_sizes.equivalent_number_of_looks(), enls_nobias[parameter].data(), NULL, NULL);
-            cmd_copy_queue.enqueueReadBuffer(device_alphas,       CL_FALSE, 0, buf_sizes.alphas(), alphas[parameter].data(), NULL, NULL);
+            cmd_copy_queue.enqueueReadBuffer(device_enls_nobias,  CL_TRUE, 0, buf_sizes.equivalent_number_of_looks(), enls_nobias[parameter].data(), NULL, NULL);
+            cmd_copy_queue.finish(); // without the finish the program gets stuck, at least on and AMD RX480
+            cmd_copy_queue.enqueueReadBuffer(device_alphas,       CL_TRUE, 0, buf_sizes.alphas(), alphas[parameter].data(), NULL, NULL);
             end = std::chrono::system_clock::now();
             duration = end-start;
 
