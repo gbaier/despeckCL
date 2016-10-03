@@ -17,7 +17,7 @@ if(GSL_FOUND)
     include_directories(${GSL_INCLUDE_DIRS})
 endif()
 
-add_library(despeckcl STATIC 
+add_library(despeckcl SHARED
             $<TARGET_OBJECTS:insar_data>
             $<TARGET_OBJECTS:nlsar_lib>
             $<TARGET_OBJECTS:nlsar_training>
