@@ -18,6 +18,14 @@ execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import
                 OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+# get numpy include dir
+execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import numpy as np; print(np.get_include())"
+                OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+include_directories(${NUMPY_INCLUDE_DIR})
+
+
+
 set_source_files_properties(despeckcl_python.i PROPERTIES CPLUSPLUS ON)
 set_source_files_properties(despeckcl_python.i PROPERTIES SWIG_FLAGS "-includeall")
 set_source_files_properties(despeckcl_python.i PROPERTIES SWIG_FLAGS -DSKIP_INCLUDES)
