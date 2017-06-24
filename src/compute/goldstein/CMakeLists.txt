@@ -1,11 +1,13 @@
-add_subdirectory(cl_wrappers)
-
 include_directories(${despeckCL_SOURCE_DIR}/src)
 include_directories(${despeckCL_SOURCE_DIR}/src/data)
 include_directories(${despeckCL_SOURCE_DIR}/src/clcfg)
 include_directories(${despeckCL_SOURCE_DIR}/src/utils)
 include_directories(${despeckCL_SOURCE_DIR}/src/compute/goldstein)
 include_directories(${despeckCL_SOURCE_DIR}/src/compute/goldstein/cl_wrappers)
+include_directories(${CMAKE_BINARY_DIR}/ext/clfft/src/src/include/)
+include_directories(${CMAKE_BINARY_DIR}/ext/clfft/build/include/)
+
+add_subdirectory(cl_wrappers)
 
 add_library(goldstein_lib OBJECT
             goldstein.cpp
