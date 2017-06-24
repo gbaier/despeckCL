@@ -1,1 +1,2 @@
+subdirs(clfft)
 subdirs(googletest)

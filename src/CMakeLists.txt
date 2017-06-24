@@ -36,6 +36,8 @@ add_library(despeckcl SHARED
             $<TARGET_OBJECTS:common_opencl_wrappers>
            )
 
+set(CLFFT_LIBRARIES "${CMAKE_BINARY_DIR}/ext/clfft/build/library/libclFFT.a")
+add_dependencies(despeckcl clfft)
 target_link_libraries(despeckcl ${OpenCL_LIBRARIES}
                                 ${GSL_LIBRARIES}
                                 ${CLFFT_LIBRARIES})

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.7)
 
 ENABLE_LANGUAGE(C)
 
@@ -24,21 +24,13 @@ if (OPENMP_FOUND)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
-find_package(clFFT)
-if (CLFFT_FOUND)
-    include_directories(${CLFFT_INCLUDE_DIRS})
-    link_directories(${CLFFT_LIBRARY_DIR})
-endif()
-
-
-
 subdirs(src)
 
 # Python Bindings
 subdirs(swig)
 
-# Unit Testing
-subdirs(ext) # currently only includes googletest
+# External libraries GoogleTest and clFFT
+subdirs(ext)
 enable_testing() 
 
 # documentation

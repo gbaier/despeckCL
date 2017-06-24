@@ -13,6 +13,8 @@ add_library(goldstein_lib OBJECT
             tile_size.cpp
            )
 
+add_dependencies(goldstein_lib clfft)
+
 # testing code
 add_executable(goldstein_unit_tests goldstein_unit_test.cpp
   cl_wrappers/goldstein_patch_ft_test.cpp
@@ -21,6 +23,7 @@ add_executable(goldstein_unit_tests goldstein_unit_test.cpp
   cl_wrappers/patches_packing_test.cpp
   )
 
+set(CLFFT_LIBRARIES "${CMAKE_BINARY_DIR}/ext/clfft/build/library/libclFFT.a")
 target_link_libraries(goldstein_unit_tests
                       despeckcl
                       clcfg
