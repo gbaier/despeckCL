@@ -33,7 +33,7 @@ set_source_files_properties(despeckcl_python.i PROPERTIES SWIG_FLAGS -DSKIP_INCL
 # setting SWIG_MODULE_NAME prevents the rebuilding of the wrapper every time
 # make is run, even if no changes where made
 set_property(SOURCE despeckcl_python.i PROPERTY SWIG_MODULE_NAME despeckcl)
-swig_add_module(despeckcl_python python despeckcl_python.i)
+swig_add_library(despeckcl_python LANGUAGE python SOURCES despeckcl_python.i)
 swig_link_libraries(despeckcl_python ${PYTHON_LIBRARIES} despeckcl)
 
 set_source_files_properties(${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "-w")
