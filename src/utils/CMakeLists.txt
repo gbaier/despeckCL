@@ -8,7 +8,10 @@ add_executable(utils_unit_tests
                optimal_tiling_test.cpp)
 
 target_link_libraries(utils_unit_tests
-                      gtest_main)
+                      gtest
+                      gtest_main
+                      gmock
+                      gmock_main)
 
 enable_testing()
 add_test(UTILS_UNIT_TESTS utils_unit_tests)

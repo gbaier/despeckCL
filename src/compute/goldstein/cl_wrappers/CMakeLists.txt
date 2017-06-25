@@ -1,6 +1,8 @@
 include_directories(${despeckCL_SOURCE_DIR}/src/clcfg)
 include_directories(${despeckCL_SOURCE_DIR}/src/utils)
 include_directories(${despeckCL_SOURCE_DIR}/src/compute/goldstein/cl_wrappers)
+include_directories(${CMAKE_BINARY_DIR}/ext/clfft/src/src/include)
+include_directories(${CMAKE_BINARY_DIR}/ext/clfft/build/include)
 
 FILE(GLOB infiles "${despeckCL_SOURCE_DIR}/src/compute/goldstein/cl_wrappers/*.in")
 
@@ -29,3 +31,7 @@ add_library(goldstein_cl_wrappers OBJECT
             raw_interferogram.cpp
             slc2real.cpp
            )
+
+target_include_directories(goldstein_cl_wrappers PUBLIC ${CMAKE_BINARY_DIR}/ext/clfft/src/src/include)
+target_include_directories(goldstein_cl_wrappers PUBLIC ${CMAKE_BINARY_DIR}/ext/clfft/build/include)
+add_dependencies(goldstein_cl_wrappers clfft)
