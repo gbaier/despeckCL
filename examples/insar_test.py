@@ -6,7 +6,6 @@ from collections import OrderedDict
 
 # use Qt4Agg for X11 forwarding
 import matplotlib
-matplotlib.use('Qt4Agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 
