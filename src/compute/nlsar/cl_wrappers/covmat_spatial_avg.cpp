@@ -18,6 +18,9 @@
 
 #include "covmat_spatial_avg.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include <cmath>
 #include <numeric>
 
@@ -28,14 +31,13 @@ int nlsar::covmat_spatial_avg::get_output_block_size(const int scale_size)
 
 std::vector<float> nlsar::covmat_spatial_avg::gen_gauss(const int scale_size)
 {
-    constexpr const float pi = std::atan(1)*4;
     std::vector<float> gauss;
     gauss.reserve(scale_size*scale_size);
     const int ssh = (scale_size - 1)/2;
 
     for(int x = -ssh; x <= ssh; x++) {
         for(int y = -ssh; y <= ssh; y++) {
-            gauss.push_back(std::exp(-pi*(x*x + y*y)/std::pow(ssh+0.5f, 2.0f)));
+            gauss.push_back(std::exp(-M_PI*(x*x + y*y)/std::pow(ssh+0.5f, 2.0f)));
         }
     }
     const float K = std::accumulate(gauss.begin(), gauss.end(), 0.0f);
