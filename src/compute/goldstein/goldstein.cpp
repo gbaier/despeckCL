@@ -22,7 +22,6 @@
 #include <chrono>
 #include <vector>
 #include <string>
-#include <omp.h>
 
 #include "cl_wrappers.h"
 #include "insar_data.h"
