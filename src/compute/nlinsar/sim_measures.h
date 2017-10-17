@@ -20,6 +20,7 @@
 #ifndef M_PI_F
 #define _USE_MATH_DEFINES
 #include <math.h>
+using std::isnan;
 #define M_PI_F M_PI
 #endif
 
@@ -31,7 +32,7 @@ float pixel_similarity(float am1, float as1, float dp1,
     const float C = am1*as1*am2*as2;
     const float f_el = pow(C/B, 1.5f) * ( (A+B)/A * sqrt(B/(A-B)) - asin(sqrt(B/A)));
 
-    if (f_el == 0) {
+    if ((f_el == 0) || isnan(f_el)) {
         return 0;
     } else {
         return log(f_el);
