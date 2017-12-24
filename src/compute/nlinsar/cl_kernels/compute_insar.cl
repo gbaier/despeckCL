@@ -100,7 +100,7 @@ __kernel void compute_insar  (__global float * filter_data_a, __global float * f
             }
         }
         const float reflectivity          = a_temp/N_temp;
-        const float interferometric_phase = -atan2(x_imag_temp, x_real_temp);
+        const float interferometric_phase = atan2(x_imag_temp, x_real_temp);
         const float coherence             = sqrt(pow(x_real_temp, 2.0f) + pow(x_imag_temp, 2.0f))/a_temp;
         const int idx = (out_x+wsh+psh)*width_overlap + (out_y+wsh+psh);
         // I noticed that after some iterations, some computed values are invalid, probably
