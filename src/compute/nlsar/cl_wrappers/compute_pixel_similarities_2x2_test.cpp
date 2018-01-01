@@ -47,7 +47,7 @@ TEST(compute_pixel_similarities_2x2, nonzero) {
         const int similarities_nelems = (search_window_size*wsh+wsh) * height_symm * width_symm;
 
         std::vector<float> covmat                 (covmat_nelems, 1.0);
-        std::vector<float> similarities           (similarities_nelems, 0.0);
+        std::vector<float> similarities           (similarities_nelems, -1.0);
 
         // simulate coherence value
         static std::default_random_engine rand_eng{};
@@ -93,12 +93,17 @@ TEST(compute_pixel_similarities_2x2, nonzero) {
         cmd_queue.enqueueReadBuffer(device_similarities, CL_TRUE, 0, similarities_nelems * sizeof(float), similarities.data(), NULL, NULL);
 
         bool flag = true;
+        // check all similarities except the self similarity.
+        // This implementation makes use of the symmetric properties of weights and similarities,
+        // See the corresponding wrapper file for details
+
         // check 2nd quadrant
         for(int hh=0; hh<wsh+1; hh++) {
             for(int ww=0; ww<wsh; ww++) {
                 for(int h=0; h<height_symm; h++) {
-                   for(int w=wsh; w<width_symm; w++) {
-                       flag = flag && similarities[(hh*search_window_size + ww)*height_symm*width_symm + h*width_symm + w] != 0;
+                   for(int w=0; w<width_symm; w++) {
+                       size_t idx = (hh*search_window_size + ww)*height_symm*width_symm + h*width_symm + w;
+                       flag = flag && similarities[idx] >= 0;
                    }
                 }
             }
@@ -109,7 +114,8 @@ TEST(compute_pixel_similarities_2x2, nonzero) {
             for(int ww=wsh; ww<search_window_size; ww++) {
                 for(int h=0; h<height_symm; h++) {
                    for(int w=0; w<width_symm-wsh; w++) {
-                       flag = flag && similarities[(hh*search_window_size + ww)*height_symm*width_symm + h*width_symm + w] != 0;
+                       size_t idx = (hh*search_window_size + ww)*height_symm*width_symm + h*width_symm + w;
+                       flag = flag && similarities[idx] >= 0;
                    }
                 }
             }
