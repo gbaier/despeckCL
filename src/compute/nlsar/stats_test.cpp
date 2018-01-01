@@ -90,7 +90,7 @@ TEST(stats, quantilles_match) {
             lut_size - 1);
         const float quantille_lut = quantilles_lut[lut_idx];
         const bool test = quantille - quantille_lut <= test_stats.get_max_quantilles_error();
-        std::cout << quantille << ", " << quantille_lut << ", " << test << std::endl;
+//        std::cout << quantille << ", " << quantille_lut << ", " << test << std::endl;
         flag = flag && test;
     }
 
