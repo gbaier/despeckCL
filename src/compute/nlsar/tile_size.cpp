@@ -19,8 +19,10 @@
 #include "tile_size.h"
 
 #include <algorithm>
-#include <omp.h>
 #include <cmath>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #include "logging.h"
 #include "easylogging++.h"
@@ -58,7 +60,12 @@ std::pair<int, int> nlsar::tile_size(cl::Context context,
   dev.getInfo(CL_DEVICE_MAX_MEM_ALLOC_SIZE, &max_mem_alloc_size);
   VLOG(0) << "maximum memory allocation size = " << max_mem_alloc_size;
 
+
+#ifdef _OPENMP
   const unsigned int n_threads = omp_get_max_threads();
+#else
+  const unsigned int n_threads = 1;
+#endif
   VLOG(0) << "number of threads = " << n_threads;
   constexpr int step = 16;
   constexpr int nitems = 128;
