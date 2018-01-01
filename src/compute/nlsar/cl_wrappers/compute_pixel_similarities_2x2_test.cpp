@@ -104,6 +104,11 @@ TEST(compute_pixel_similarities_2x2, nonzero) {
                    for(int w=0; w<width_symm; w++) {
                        size_t idx = (hh*search_window_size + ww)*height_symm*width_symm + h*width_symm + w;
                        flag = flag && similarities[idx] >= 0;
+                       std::cout << hh << ',';
+                       std::cout << ww << ',';
+                       std::cout << h << ',';
+                       std::cout << w << ':';
+                       std::cout << similarities[idx] << std::endl;
                    }
                 }
             }
@@ -115,7 +120,7 @@ TEST(compute_pixel_similarities_2x2, nonzero) {
                 for(int h=0; h<height_symm; h++) {
                    for(int w=0; w<width_symm-wsh; w++) {
                        size_t idx = (hh*search_window_size + ww)*height_symm*width_symm + h*width_symm + w;
-                       flag = flag && similarities[idx] >= 0;
+                        flag = flag && similarities[idx] >= 0;
                    }
                 }
             }
