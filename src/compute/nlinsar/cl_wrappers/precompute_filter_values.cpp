@@ -18,6 +18,9 @@
 
 #include "precompute_filter_values.h"
 
+constexpr const char* nlinsar::precompute_filter_values::routine_name;
+constexpr const char* nlinsar::precompute_filter_values::kernel_source;
+
 void nlinsar::precompute_filter_values::run(cl::CommandQueue cmd_queue,
                                             cl::Buffer device_a1,
                                             cl::Buffer device_a2,

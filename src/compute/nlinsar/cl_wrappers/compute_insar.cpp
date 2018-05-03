@@ -21,6 +21,9 @@
 #include <stdio.h>
 #include <sstream>
 
+constexpr const char* nlinsar::compute_insar::routine_name;
+constexpr const char* nlinsar::compute_insar::kernel_source;
+
 nlinsar::compute_insar::compute_insar(const size_t block_size,
                                       cl::Context context,
                                       const int search_window_size) : kernel_env_single<compute_insar>(block_size,

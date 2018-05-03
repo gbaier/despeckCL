@@ -18,6 +18,9 @@
 
 #include "copy_best_weights.h"
 
+constexpr const char* nlsar::copy_best_weights::routine_name;
+constexpr const char* nlsar::copy_best_weights::kernel_source;
+
 void nlsar::copy_best_weights::run(cl::CommandQueue cmd_queue,
                                    cl::Buffer all_weights,
                                    cl::Buffer best_params,

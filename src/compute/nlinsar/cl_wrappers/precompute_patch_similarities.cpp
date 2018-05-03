@@ -24,6 +24,9 @@
 #include <iostream>
 #include <sstream>
 
+constexpr const char* nlinsar::precompute_patch_similarities::routine_name;
+constexpr const char* nlinsar::precompute_patch_similarities::kernel_source;
+
 nlinsar::precompute_patch_similarities::precompute_patch_similarities(const size_t block_size,
                                                                       cl::Context context,
                                                                       const int window_width) : kernel_env_single<precompute_patch_similarities>(block_size, context),

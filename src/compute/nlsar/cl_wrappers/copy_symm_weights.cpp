@@ -18,6 +18,9 @@
 
 #include "copy_symm_weights.h"
 
+constexpr const char* nlsar::copy_symm_weights::routine_name;
+constexpr const char* nlsar::copy_symm_weights::kernel_source;
+
 void nlsar::copy_symm_weights::run(cl::CommandQueue cmd_queue,
                                    cl::Buffer weights_symm,
                                    cl::Buffer weights_full,

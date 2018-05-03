@@ -18,6 +18,9 @@
 
 #include "covmat_create.h"
 
+constexpr const char* nlsar::covmat_create::routine_name;
+constexpr const char* nlsar::covmat_create::kernel_source;
+
 void nlsar::covmat_create::run(cl::CommandQueue cmd_queue,
                                cl::Buffer ampl_master,
                                cl::Buffer ampl_slave,

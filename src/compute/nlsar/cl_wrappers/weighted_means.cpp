@@ -24,6 +24,9 @@
 #include <iostream>
 #include <sstream>
 
+constexpr const char* nlsar::weighted_means::routine_name;
+constexpr const char* nlsar::weighted_means::kernel_source;
+
 nlsar::weighted_means::weighted_means(const size_t block_size,
                                       cl::Context context,
                                       const int search_window_size,

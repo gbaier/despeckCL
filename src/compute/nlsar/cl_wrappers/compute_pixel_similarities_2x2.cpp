@@ -18,6 +18,9 @@
 
 #include "compute_pixel_similarities_2x2.h"
 
+constexpr const char* nlsar::compute_pixel_similarities_2x2::routine_name;
+constexpr const char* nlsar::compute_pixel_similarities_2x2::kernel_source;
+
 void nlsar::compute_pixel_similarities_2x2::run(cl::CommandQueue cmd_queue,
                                                 cl::Buffer covmat,
                                                 cl::Buffer pixel_similarities,

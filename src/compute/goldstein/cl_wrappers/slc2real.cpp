@@ -18,6 +18,9 @@
 
 #include "slc2real.h"
 
+constexpr const char* goldstein::slc2real::routine_name;
+constexpr const char* goldstein::slc2real::kernel_source;
+
 void goldstein::slc2real::run(cl::CommandQueue cmd_queue,
                               cl::Buffer interf_real,
                               cl::Buffer interf_imag,

@@ -18,6 +18,9 @@
 
 #include "covmat_decompose.h"
 
+constexpr const char* nlsar::covmat_decompose::routine_name;
+constexpr const char* nlsar::covmat_decompose::kernel_source;
+
 void nlsar::covmat_decompose::run(cl::CommandQueue cmd_queue,
                                   cl::Buffer covmat,
                                   cl::Buffer amplitude,

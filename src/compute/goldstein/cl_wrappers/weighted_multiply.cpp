@@ -18,6 +18,9 @@
 
 #include "weighted_multiply.h"
 
+constexpr const char* goldstein::weighted_multiply::routine_name;
+constexpr const char* goldstein::weighted_multiply::kernel_source;
+
 void goldstein::weighted_multiply::run(cl::CommandQueue cmd_queue,
                                        cl::Buffer interf_real,
                                        cl::Buffer interf_imag,

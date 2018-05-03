@@ -20,6 +20,9 @@
 
 #include <sstream>
 
+constexpr const char* nlinsar::transpose::routine_name;
+constexpr const char* nlinsar::transpose::kernel_source;
+
 nlinsar::transpose::transpose(const size_t block_size,
                               cl::Context context,
                               const size_t thread_size_row,

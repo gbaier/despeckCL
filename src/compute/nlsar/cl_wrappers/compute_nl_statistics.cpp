@@ -22,6 +22,9 @@
 #include <cstdlib>
 #include <sstream>
 
+constexpr const char* nlsar::compute_nl_statistics::routine_name;
+constexpr const char* nlsar::compute_nl_statistics::kernel_source;
+
 nlsar::compute_nl_statistics::compute_nl_statistics(const size_t block_size,
                                                     cl::Context context,
                                                     const int search_window_size,

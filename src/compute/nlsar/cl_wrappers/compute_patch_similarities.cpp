@@ -18,6 +18,9 @@
 
 #include "compute_patch_similarities.h"
 
+constexpr const char* nlsar::compute_patch_similarities::routine_name;
+constexpr const char* nlsar::compute_patch_similarities::kernel_source;
+
 nlsar::compute_patch_similarities::compute_patch_similarities(cl::Context context,
                                                               const size_t block_size_x,
                                                               const size_t block_size_y,

@@ -24,6 +24,9 @@
 #include <iostream>
 #include <sstream>
 
+constexpr const char* boxcar_wrapper::routine_name;
+constexpr const char* boxcar_wrapper::kernel_source;
+
 boxcar_wrapper::boxcar_wrapper(const size_t block_size,
                                cl::Context context,
                                const int window_width) : kernel_env_single<boxcar_wrapper>(block_size, context),

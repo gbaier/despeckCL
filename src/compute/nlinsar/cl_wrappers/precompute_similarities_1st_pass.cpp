@@ -19,6 +19,9 @@
 #include "precompute_similarities_1st_pass.h"
 #include <iostream>
 
+constexpr const char* nlinsar::precompute_similarities_1st_pass::routine_name;
+constexpr const char* nlinsar::precompute_similarities_1st_pass::kernel_source;
+
 void nlinsar::precompute_similarities_1st_pass::run(cl::CommandQueue cmd_queue,
                                                     cl::Buffer device_a1,
                                                     cl::Buffer device_a2,

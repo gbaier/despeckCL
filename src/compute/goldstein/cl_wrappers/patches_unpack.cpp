@@ -18,6 +18,9 @@
 
 #include "patches_unpack.h"
 
+constexpr const char* goldstein::patches_unpack::routine_name;
+constexpr const char* goldstein::patches_unpack::kernel_source;
+
 void goldstein::patches_unpack::run(cl::CommandQueue cmd_queue,
                                     cl::Buffer interf_real, 
                                     cl::Buffer interf_imag,

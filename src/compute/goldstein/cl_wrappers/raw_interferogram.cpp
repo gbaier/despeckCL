@@ -18,6 +18,9 @@
 
 #include "raw_interferogram.h"
 
+constexpr const char* goldstein::raw_interferogram::routine_name;
+constexpr const char* goldstein::raw_interferogram::kernel_source;
+
 void goldstein::raw_interferogram::run(cl::CommandQueue cmd_queue,
                                        cl::Buffer ampl_master,
                                        cl::Buffer ampl_slave,

@@ -18,6 +18,9 @@
 
 #include "compute_number_of_looks.h"
 
+constexpr const char* compute_number_of_looks::routine_name;
+constexpr const char* compute_number_of_looks::kernel_source;
+
 void compute_number_of_looks::run(cl::CommandQueue cmd_queue,
                                   cl::Buffer weights,
                                   cl::Buffer nols,

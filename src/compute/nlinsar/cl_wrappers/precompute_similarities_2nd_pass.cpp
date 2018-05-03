@@ -18,6 +18,9 @@
 
 #include "precompute_similarities_2nd_pass.h"
 
+constexpr const char* nlinsar::precompute_similarities_2nd_pass::routine_name;
+constexpr const char* nlinsar::precompute_similarities_2nd_pass::kernel_source;
+
 void nlinsar::precompute_similarities_2nd_pass::run(cl::CommandQueue cmd_queue,
                                                     const int height_overlap,
                                                     const int width_overlap,

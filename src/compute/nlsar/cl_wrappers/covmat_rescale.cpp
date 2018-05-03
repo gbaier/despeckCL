@@ -18,6 +18,9 @@
 
 #include "covmat_rescale.h"
 
+constexpr const char* nlsar::covmat_rescale::routine_name;
+constexpr const char* nlsar::covmat_rescale::kernel_source;
+
 void nlsar::covmat_rescale::run(cl::CommandQueue cmd_queue,
                                 cl::Buffer covmat,
                                 const int dimension,

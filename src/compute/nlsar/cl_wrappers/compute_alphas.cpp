@@ -18,6 +18,9 @@
 
 #include "compute_alphas.h"
 
+constexpr const char* nlsar::compute_alphas::routine_name;
+constexpr const char* nlsar::compute_alphas::kernel_source;
+
 void nlsar::compute_alphas::run(cl::CommandQueue cmd_queue,
                                 cl::Buffer intensities_nl,
                                 cl::Buffer weighted_variances,

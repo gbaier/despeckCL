@@ -22,6 +22,9 @@
 
 #include "compute_weights.h"
 
+constexpr const char* nlinsar::compute_weights::routine_name;
+constexpr const char* nlinsar::compute_weights::kernel_source;
+
 void nlinsar::compute_weights::run(cl::CommandQueue cmd_queue,
                                    cl::Buffer patch_similarities,
                                    cl::Buffer patch_kullback_leiblers,

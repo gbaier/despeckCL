@@ -18,6 +18,9 @@
 
 #include "compute_enls_nobias.h"
 
+constexpr const char* nlsar::compute_enls_nobias::routine_name;
+constexpr const char* nlsar::compute_enls_nobias::kernel_source;
+
 void nlsar::compute_enls_nobias::run(cl::CommandQueue cmd_queue,
                                      cl::Buffer enls,
                                      cl::Buffer alphas,
