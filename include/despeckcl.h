@@ -59,7 +59,8 @@ nlsar_training(float *ampl_master,
                const int height,
                const int width,
                const std::vector<int> patch_sizes,
-               const std::vector<int> scale_sizes);
+               const std::vector<int> scale_sizes,
+               std::vector<std::string> enabled_log_levels);
 
 int nlinsar(float* ampl_master,
             float* ampl_slave,

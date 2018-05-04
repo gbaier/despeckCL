@@ -19,6 +19,7 @@ namespace std {
     :param ndarray phase: the interferometric phase of the master and slave images
     :param [int] patch_sizes: widths of the patches, have to be odd numbers
     :param [int] scale_sizes: widths of the scales, have to be odd numbers
+    :param [string] enabled_log_levels: enabled log levels, log levels are: error, fatal, warning, debug, info
     :return: dissimilarity statistics of the homogeneous training area
     :rtype: wrapped std\:\:map of parameters to dissimilarity statistics
     "
@@ -27,7 +28,8 @@ std::map<nlsar::params, nlsar::stats> nlsar_train(float* ampl_master, int h1, in
                                                   float* ampl_slave,  int h2, int w2,
                                                   float* phase,      int h3, int w3,
                                                   const std::vector<int> patch_sizes,
-                                                  const std::vector<int> scale_sizes)
+                                                  const std::vector<int> scale_sizes,
+                                                  const std::vector<std::string> enabled_log_levels = {"error", "warning", "fatal"})
 {
   return despeckcl::nlsar_training(ampl_master,
                                    ampl_slave,
@@ -35,7 +37,8 @@ std::map<nlsar::params, nlsar::stats> nlsar_train(float* ampl_master, int h1, in
                                    h1,
                                    w1,
                                    patch_sizes,
-                                   scale_sizes);
+                                   scale_sizes,
+                                   enabled_log_levels);
 }
 %}
 

@@ -32,9 +32,10 @@ despeckcl::nlsar_training(float *ampl_master,
                           const int height,
                           const int width,
                           const std::vector<int> patch_sizes,
-                          const std::vector<int> scale_sizes)
+                          const std::vector<int> scale_sizes,
+                          std::vector<std::string> enabled_log_levels)
 {
-  logging_setup({});
+  logging_setup(enabled_log_levels);
 
   float *dummy = (float*) malloc(height*width*sizeof(float));
   insar_data training_data{ampl_master,
