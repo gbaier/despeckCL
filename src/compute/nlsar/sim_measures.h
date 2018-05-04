@@ -16,19 +16,21 @@
  * along with despeckCL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef NLSAR_SIM_MEASURES_H
+#define NLSAR_SIM_MEASURES_H
 
 #ifndef __OPENCL_VERSION__
 #include <cmath>
 #endif
 
 
-float det_covmat_2x2(float el_00, float el_01real, float el_01imag, float el_11)
+inline float det_covmat_2x2(float el_00, float el_01real, float el_01imag, float el_11)
 {
     return (el_00*el_11) - (el_01real*el_01real + el_01imag*el_01imag);
 }
 
 
-float pixel_similarity_2x2(float el_00_p1, float el_01real_p1, float el_01imag_p1, float el_11_p1,
+inline float pixel_similarity_2x2(float el_00_p1, float el_01real_p1, float el_01imag_p1, float el_11_p1,
                            float el_00_p2, float el_01real_p2, float el_01imag_p2, float el_11_p2,
                            const int nlooks)
 {
@@ -49,3 +51,4 @@ float pixel_similarity_2x2(float el_00_p1, float el_01real_p1, float el_01imag_p
     }
     return similarity;
 }
+#endif
