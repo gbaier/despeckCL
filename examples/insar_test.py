@@ -44,11 +44,15 @@ search_window_size = 21
 patch_sizes = [3, 5, 7, 9, 11]
 scale_sizes = [1, 3, 5]
 
-nlsar_stats = despeckcl.nlsar_train(ampl_master[50:75, 50:75],
-                                    ampl_slave[50:75, 50:75],
-                                    phase[50:75, 50:75],
+training_area = np.s_[50:75, 50:75]
+
+nlsar_stats = despeckcl.nlsar_train(ampl_master[training_area],
+                                    ampl_slave[training_area],
+                                    phase[training_area],
                                     patch_sizes,
-                                    scale_sizes)
+                                    scale_sizes,
+                                    log_levels)
+
 
 methods[despeckcl.nlsar] = (search_window_size,
                             patch_sizes,
