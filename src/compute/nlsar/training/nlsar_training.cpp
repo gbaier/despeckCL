@@ -69,14 +69,14 @@ despeckcl::nlsar_training(float *ampl_master,
 }
 
 
-void store_nlsar_stats_collection(nlsar_stats_collection nsc, std::string filename)
+void despeckcl::store_nlsar_stats_collection(nlsar_stats_collection nsc, std::string filename)
 {
     std::ofstream ofs(filename);
     boost::archive::text_oarchive oa(ofs);
     oa << nsc;
 }
 
-nlsar_stats_collection load_nlsar_stats_collection(std::string filename)
+nlsar_stats_collection despeckcl::load_nlsar_stats_collection(std::string filename)
 {
     std::map<nlsar::params, nlsar::stats> nsc;
     std::ifstream ifs(filename);

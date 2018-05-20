@@ -26,6 +26,8 @@
 #include "nlsar/parameters.h"
 #include "nlsar/stats.h"
 
+using nlsar_stats_collection = std::map<nlsar::params, nlsar::stats>;
+
 namespace despeckcl {
 void boxcar(float* ampl_master,
             float* ampl_slave,
@@ -52,7 +54,7 @@ int nlsar(float* ampl_master,
           std::map<nlsar::params, nlsar::stats> nlsar_stats,
           std::vector<std::string> enabled_log_levels);
 
-std::map<nlsar::params, nlsar::stats>
+nlsar_stats_collection
 nlsar_training(float *ampl_master,
                float *ampl_slave,
                float *phase,
@@ -61,6 +63,9 @@ nlsar_training(float *ampl_master,
                const std::vector<int> patch_sizes,
                const std::vector<int> scale_sizes,
                std::vector<std::string> enabled_log_levels);
+
+void store_nlsar_stats_collection(nlsar_stats_collection nsc, std::string filename);
+nlsar_stats_collection load_nlsar_stats_collection(std::string filename);
 
 int nlinsar(float* ampl_master,
             float* ampl_slave,

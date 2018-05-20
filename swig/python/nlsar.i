@@ -8,7 +8,7 @@
 %include "stats.h"
 
 namespace std {
-   %template(map_params_stats) map<nlsar::params, nlsar::stats>;
+   %template(nlsar_stats_collections) map<nlsar::params, nlsar::stats>;
 }
 
 %feature("docstring") nlsar_train "
@@ -23,10 +23,26 @@ namespace std {
     :return: dissimilarity statistics of the homogeneous training area
     :rtype: wrapped std\:\:map of parameters to dissimilarity statistics
     "
+
+%feature("docstring") store_nlsar_stats_collection "
+    stores the NL-SAR statistics in a file
+
+    :param nsc: wrapped std\:\:map of parameters to dissimilarity statistics
+    :param [string] filename: filename where to store the NL-SAR dissimilarity statistics
+    "
+
+%feature("docstring") load_nlsar_stats_collection "
+    loads the NL-SAR statistics from a file
+
+    :param [string] filename: filename where to store the NL-SAR dissimilarity statistics
+    :return: dissimilarity statistics
+    :rtype: wrapped std\:\:map of parameters to dissimilarity statistics
+    "
+
 %inline %{
 std::map<nlsar::params, nlsar::stats> nlsar_train(float* ampl_master, int h1, int w1,
                                                   float* ampl_slave,  int h2, int w2,
-                                                  float* phase,      int h3, int w3,
+                                                  float* phase,       int h3, int w3,
                                                   const std::vector<int> patch_sizes,
                                                   const std::vector<int> scale_sizes,
                                                   const std::vector<std::string> enabled_log_levels = {"error", "warning", "fatal"})
@@ -40,10 +56,20 @@ std::map<nlsar::params, nlsar::stats> nlsar_train(float* ampl_master, int h1, in
                                    scale_sizes,
                                    enabled_log_levels);
 }
-%}
+
+void store_nlsar_stats_collection(std::map<nlsar::params, nlsar::stats> nsc, std::string filename)
+{
+   return despeckcl::store_nlsar_stats_collection(nsc, filename);
+
+}
+
+std::map<nlsar::params, nlsar::stats> load_nlsar_stats_collection(std::string filename)
+{
+   return despeckcl::load_nlsar_stats_collection(filename);
+
+}
 
 /* NLSAR declaration and wrap */
-%inline %{
 void _nlsar_c_wrap(float* ampl_master, int h1, int w1,
                    float* ampl_slave,  int h2, int w2,
                    float* phase,      int h3, int w3,

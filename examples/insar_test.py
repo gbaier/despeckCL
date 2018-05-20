@@ -53,11 +53,14 @@ nlsar_stats = despeckcl.nlsar_train(ampl_master[training_area],
                                     scale_sizes,
                                     log_levels)
 
+# store and load NL-SAR statistics
+despeckcl.store_nlsar_stats_collection(nlsar_stats, "nlsar_stats.txt")
+nlsar_stats_res = despeckcl.load_nlsar_stats_collection("nlsar_stats.txt")
 
 methods[despeckcl.nlsar] = (search_window_size,
                             patch_sizes,
                             scale_sizes,
-                            nlsar_stats,
+                            nlsar_stats_res,
                             log_levels)
 
 ######################
