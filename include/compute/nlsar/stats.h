@@ -21,6 +21,9 @@
 
 #include <vector>
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 namespace nlsar {
     class stats
     {
@@ -28,13 +31,24 @@ namespace nlsar {
             stats();
             stats(std::vector<float> dissims, unsigned int lut_size);
             stats& operator=(const stats& other);
-            const unsigned int lut_size;
+            unsigned int lut_size;
             float dissims_min;
             float dissims_max;
             std::vector<float> quantilles;
             std::vector<float> chi2cdf_inv;
 
         private:
+            friend class boost::serialization::access;
+            template<class Archive>
+            void serialize(Archive & ar, const unsigned int version)
+            {
+                ar & lut_size;
+                ar & dissims_min;
+                ar & dissims_max;
+                ar & quantilles;
+                ar & chi2cdf_inv;
+            }
+
             std::vector<float> get_quantilles(std::vector<float> &dissims);
             std::vector<float> get_chi2cdf_inv(void);
             float get_max_quantilles_error();

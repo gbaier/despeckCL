@@ -25,7 +25,14 @@
 
 #include "cl_wrappers.h"
 
-std::map<nlsar::params, nlsar::stats>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/vector.hpp>
+
+using nlsar_stats_collection = std::map<nlsar::params, nlsar::stats>;
+
+nlsar_stats_collection
 despeckcl::nlsar_training(float *ampl_master,
                           float *ampl_slave,
                           float *phase,
@@ -59,4 +66,21 @@ despeckcl::nlsar_training(float *ampl_master,
   VLOG(0) << "Training weighting kernels";
   return nlsar::training::get_stats(
       patch_sizes, scale_sizes, training_data, context, nlsar_cl_wrappers);
+}
+
+
+void store_nlsar_stats_collection(nlsar_stats_collection nsc, std::string filename)
+{
+    std::ofstream ofs(filename);
+    boost::archive::text_oarchive oa(ofs);
+    oa << nsc;
+}
+
+nlsar_stats_collection load_nlsar_stats_collection(std::string filename)
+{
+    std::map<nlsar::params, nlsar::stats> nsc;
+    std::ifstream ifs(filename);
+    boost::archive::text_iarchive ia(ifs);
+    ia >> nsc;
+    return nsc;
 }

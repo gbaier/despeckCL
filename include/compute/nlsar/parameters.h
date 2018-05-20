@@ -19,10 +19,14 @@
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 namespace nlsar {
     struct params {
         int patch_size;
         int scale_size;
+
 
         bool operator== (const params& other) const {
             return (patch_size == other.patch_size) && \
@@ -40,6 +44,15 @@ namespace nlsar {
             scale_size = other.scale_size;
             return *this;
         };
+
+        private:
+            friend class boost::serialization::access;
+            template<class Archive>
+            void serialize(Archive & ar, const unsigned int version)
+            {
+                ar & patch_size;
+                ar & scale_size;
+            }
     };
 }
 

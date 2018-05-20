@@ -17,6 +17,13 @@ if(GSL_FOUND)
     include_directories(${GSL_INCLUDE_DIRS})
 endif()
 
+# serialization of NL-SAR statistics use boost
+find_package(Boost REQUIRED
+    COMPONENTS serialization)
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+endif()
+
 add_library(despeckcl SHARED
             $<TARGET_OBJECTS:insar_data>
             $<TARGET_OBJECTS:nlsar_lib>
@@ -39,6 +46,7 @@ add_library(despeckcl SHARED
 set(CLFFT_LIBRARIES "${CMAKE_BINARY_DIR}/ext/clfft/build/library/libclFFT.a")
 add_dependencies(despeckcl clfft)
 target_link_libraries(despeckcl ${OpenCL_LIBRARIES}
+                                ${Boost_LIBRARIES}
                                 ${GSL_LIBRARIES}
                                 ${CLFFT_LIBRARIES})
 
