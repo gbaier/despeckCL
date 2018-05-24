@@ -62,7 +62,7 @@ methods[despeckcl.nlsar] = (search_window_size,
                             scale_sizes,
                             nlsar_stats_res,
                             log_levels)
-
+#
 ######################
 #                    #
 # NL-InSAR Filtering #

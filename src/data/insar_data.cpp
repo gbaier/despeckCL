@@ -17,6 +17,7 @@
  */
 
 #include "insar_data.h"
+#include "sub_images.h"
 
 #include <string.h> // for memset
 #include <iostream>
@@ -115,3 +116,28 @@ insar_data::~insar_data()
     free(coh_filt);
 }
 
+
+insar_data tileget(const insar_data& img_data, tile<2> sub) {
+    float * const a1_sub       = get_sub_image(img_data.a1,       img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
+    float * const a2_sub       = get_sub_image(img_data.a2,       img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
+    float * const dp_sub       = get_sub_image(img_data.dp,       img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
+    float * const ref_filt_sub = get_sub_image(img_data.ref_filt, img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
+    float * const phi_filt_sub = get_sub_image(img_data.phi_filt, img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
+    float * const coh_filt_sub = get_sub_image(img_data.coh_filt, img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
+    insar_data sub_image{a1_sub, a2_sub, dp_sub, ref_filt_sub, phi_filt_sub, coh_filt_sub, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start};
+    free(a1_sub);
+    free(a2_sub);
+    free(dp_sub);
+    free(ref_filt_sub);
+    free(phi_filt_sub);
+    free(coh_filt_sub);
+    return sub_image;
+}
+
+// copy img_tile to img_data defined by sub
+// akin to memcpy
+void tilecpy(insar_data& img_data, const insar_data& img_tile, tile<2> sub) {
+    write_sub_image(img_data.ref_filt, img_data.height, img_data.width, img_tile.ref_filt, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start, 0);
+    write_sub_image(img_data.phi_filt, img_data.height, img_data.width, img_tile.phi_filt, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start, 0);
+    write_sub_image(img_data.coh_filt, img_data.height, img_data.width, img_tile.coh_filt, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start, 0);
+}

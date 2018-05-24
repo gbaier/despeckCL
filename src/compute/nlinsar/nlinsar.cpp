@@ -53,9 +53,9 @@ int despeckcl::nlinsar(float* ampl_master,
 {
     logging_setup(enabled_log_levels);
 
-    insar_data_shared total_image{ampl_master, ampl_slave, phase,
-                                  ref_filt, phase_filt, coh_filt,
-                                  height, width};
+    insar_data total_image{ampl_master, ampl_slave, phase,
+                           ref_filt, phase_filt, coh_filt,
+                           height, width};
 
     const int overlap = (patch_size - 1)/2 + (search_window_size - 1)/2;
 
@@ -133,13 +133,18 @@ int despeckcl::nlinsar(float* ampl_master,
     for(int n = 0; n<niter; n++) {
         LOG(INFO) << "Iteration " << n + 1 << " of " << niter;
         total_image_temp = total_image;
-        for( auto imgtile : tile_iterator(total_image, sub_image_size, overlap, overlap) ) {
-#pragma omp task firstprivate(imgtile)
+        for( auto t : tile_iterator(total_image.height, total_image.width, sub_image_size, sub_image_size, overlap, overlap) ) {
+#pragma omp task firstprivate(t)
             {
+            insar_data imgtile = tileget(total_image, t);
             nlinsar_sub_image(context, nl_routines, // opencl stuff
-                             imgtile.get(),
+                             imgtile,
                              search_window_size, patch_size, lmin, h_para, T_para); // filter parameters
-            imgtile.write(total_image_temp);
+
+            tile<2> rel_sub {t[0].get_sub(overlap, -overlap), t[1].get_sub(overlap, -overlap)};
+            tile<2> tsub {slice{overlap, imgtile.height-overlap}, slice{overlap, imgtile.width-overlap}};
+            insar_data imgtile_sub = tileget(imgtile, tsub);
+            tilecpy(total_image_temp, imgtile_sub, rel_sub);
             }
         }
 #pragma omp taskwait

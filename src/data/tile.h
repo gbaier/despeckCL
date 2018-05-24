@@ -19,27 +19,38 @@
 #ifndef TILE_H
 #define TILE_H
 
-#include "insar_data.h"
+#include <stdexcept>
+#include <array>
 
-class tile
-{
+class slice {
     public:
-        tile(insar_data_shared& img_data,
-             const int h_low,
-             const int w_low,
-             const int tile_height,
-             const int tile_width,
-             const int overlap);
+        const int start;
+        const int stop;
 
-        void write(insar_data_shared& img_data);
-        insar_data& get();
+        slice(const int start, const int stop) : start(start), stop(stop) {
+            if (not *this) {
+                throw(std::range_error("start must be smaller than stop"));
+            }
+        }
+
+        slice(const slice& other) =default;
+
+        ~slice() =default;
+
+        slice get_sub (const int sub_start, const int sub_stop) const {
+            if (sub_start < 0 || sub_stop > 0) {
+                throw(std::range_error("sub_start must be geq than 0 and sub_stop leq than 0"));
+            }
+            return slice(start + sub_start, stop + sub_stop);
+        }
 
     private:
-        const int h_low;
-        const int w_low;
-        const int overlap;
-        insar_data tile_data;
-        insar_data copy_tile_data(insar_data_shared& img_data, const int tile_height, const int tile_width);
+        explicit operator bool() const {
+            return start < stop;
+        }
 };
+
+template<size_t N>
+using tile = std::array<slice, N>;
 
 #endif

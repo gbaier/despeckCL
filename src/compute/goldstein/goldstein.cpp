@@ -81,18 +81,19 @@ int despeckcl::goldstein(float* ampl_master,
     VLOG(0) << "Time it took to build all kernels: " << elapsed_seconds.count() << "secs";
 
     // prepare data
-    insar_data_shared total_image{ampl_master, ampl_slave, phase,
-                                  ref_filt, phase_filt, coh_filt,
-                                  (int) height, (int) width};
+    insar_data total_image{ampl_master, ampl_slave, phase,
+                           ref_filt, phase_filt, coh_filt,
+                           (int) height, (int) width};
 
     // filtering
     start = std::chrono::system_clock::now();
     LOG(INFO) << "starting filtering";
-    for( auto imgtile : tile_iterator(total_image, sub_image_size, overlap, overlap) ) {
+    for( auto t : tile_iterator(total_image.height, total_image.width, sub_image_size, sub_image_size, overlap, overlap) ) {
+        insar_data imgtile = tileget(total_image, t);
         try {
             timings::map tm_sub = filter_sub_image(context,
                                                    goldstein_cl_wrappers, // opencl stuff
-                                                   imgtile.get(), // data
+                                                   imgtile, // data
                                                    patch_size,
                                                    overlap,
                                                    alpha);
@@ -102,13 +103,20 @@ int despeckcl::goldstein(float* ampl_master,
             LOG(ERROR) << "ERR while filtering sub image";
             std::terminate();
         }
-        imgtile.write(total_image);
+        tile<2> rel_sub {t[0].get_sub(overlap, -overlap), t[1].get_sub(overlap, -overlap)};
+        tile<2> tsub {slice{overlap, imgtile.height-overlap}, slice{overlap, imgtile.width-overlap}};
+        insar_data imgtile_sub = tileget(imgtile, tsub);
+        tilecpy(total_image, imgtile_sub, rel_sub);
     }
     LOG(INFO) << "filtering done";
     timings::print(tm);
     end = std::chrono::system_clock::now();
     std::chrono::duration<double> duration = end-start;
     std::cout << "filtering ran for " << duration.count() << " secs" << std::endl;
+
+    memcpy(ref_filt,    total_image.ref_filt, sizeof(float)*height*width);
+    memcpy(phase_filt, total_image.phi_filt, sizeof(float)*height*width);
+    memcpy(coh_filt,    total_image.coh_filt, sizeof(float)*height*width);
 
     return 0;
 }

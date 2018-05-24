@@ -21,6 +21,29 @@
 
 #include <stdlib.h>
 #include <string.h> // for memset, memcpy
+#include <memory>
+
+#include "tile.h"
+
+
+/*
+template<typename Type, size_t D>
+class sar_data {
+    public:
+        int height;
+        int width;
+        int dim = D;
+
+        sar_data(std::unique_ptr<Type> data, int height, int width, int dim);
+        sar_data(const sar_data<Type, D>& other);
+        sar_data& operator=(const sar_data &other);
+
+        sar_data<Type, D> get_tile(tile t);
+        void write_tile(sar_data<Type, D> other, tile t);
+
+    private:
+        std::unique_ptr<float> data;
+};*/
 
 class insar_data_shared
 {
@@ -92,5 +115,8 @@ class insar_data : public insar_data_shared
             memcpy(coh_filt, data.coh_filt, bytesize);
         };
 };
+
+insar_data tileget(const insar_data& img_data, tile<2> sub);
+void tilecpy(insar_data& img_data, const insar_data& img_tile, tile<2> sub);
 
 #endif

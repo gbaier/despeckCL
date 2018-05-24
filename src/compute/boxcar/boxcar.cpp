@@ -44,9 +44,9 @@ void despeckcl::boxcar(float* ampl_master,
 {
     logging_setup(enabled_log_levels);
 
-    insar_data_shared total_image{ampl_master, ampl_slave, phase,
-                                  ref_filt, phase_filt, coh_filt,
-                                  height, width};
+    insar_data total_image{ampl_master, ampl_slave, phase,
+                           ref_filt, phase_filt, coh_filt,
+                           height, width};
 
     LOG(INFO) << "filter parameters";
     LOG(INFO) << "window width: " << window_width;
@@ -84,12 +84,16 @@ void despeckcl::boxcar(float* ampl_master,
 #pragma omp parallel shared(total_image)
 {
 #pragma omp master
-    for( auto imgtile : tile_iterator(total_image, sub_image_size, overlap, overlap) ) {
-#pragma omp task firstprivate(imgtile)
+    for( auto t : tile_iterator(total_image.height, total_image.width, sub_image_size, sub_image_size, overlap, overlap) ) {
+#pragma omp task firstprivate(t)
         {
-        boxcar_sub_image(context, boxcar_routine, // opencl stuff
-                         imgtile.get()); // data
-        imgtile.write(total_image);
+        insar_data imgtile = tileget(total_image, t);
+        boxcar_sub_image(context, boxcar_routine, imgtile);
+
+        tile<2> rel_sub {t[0].get_sub(overlap, -overlap), t[1].get_sub(overlap, -overlap)};
+        tile<2> tsub {slice{overlap, imgtile.height-overlap}, slice{overlap, imgtile.width-overlap}};
+        insar_data imgtile_sub = tileget(imgtile, tsub);
+        tilecpy(total_image, imgtile_sub, rel_sub);
         }
     }
 #pragma omp taskwait
@@ -97,6 +101,10 @@ void despeckcl::boxcar(float* ampl_master,
     LOG(INFO) << "filtering done";
 
     VLOG(0) << "elapsed time for boxcar: " << boxcar_timing << " secs";
+
+    memcpy(ref_filt, total_image.ref_filt, total_image.height*total_image.width*sizeof(float));
+    memcpy(phase_filt, total_image.phi_filt, total_image.height*total_image.width*sizeof(float));
+    memcpy(coh_filt, total_image.coh_filt, total_image.height*total_image.width*sizeof(float));
 
     return;
 }

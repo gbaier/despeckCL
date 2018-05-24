@@ -97,9 +97,9 @@ int despeckcl::nlsar(float* ampl_master,
     VLOG(0) << "Time it took to build all kernels: " << duration.count() << "secs";
 
     // prepare data
-    insar_data_shared total_image{ampl_master, ampl_slave, phase,
-                                  ref_filt, phase_filt, coh_filt,
-                                  height, width};
+    insar_data total_image{ampl_master, ampl_slave, phase,
+                           ref_filt, phase_filt, coh_filt,
+                           height, width};
 
     // filtering
     start = std::chrono::system_clock::now();
@@ -108,12 +108,13 @@ int despeckcl::nlsar(float* ampl_master,
 {
 #pragma omp master
     {
-    for( auto imgtile : tile_iterator(total_image, tile_dims.first, tile_dims.second, overlap, overlap) ) {
-#pragma omp task firstprivate(imgtile)
+    for( auto t : tile_iterator(total_image.height, total_image.width, tile_dims.first, tile_dims.second, overlap, overlap) ) {
+#pragma omp task firstprivate(t)
         {
+        insar_data imgtile = tileget(total_image, t);
         try {
             timings::map tm_sub = filter_sub_image(context, nlsar_cl_wrappers, // opencl stuff
-                                                   imgtile.get(), // data
+                                                   imgtile, // data
                                                    search_window_size,
                                                    patch_sizes,
                                                    scale_sizes,
@@ -126,7 +127,10 @@ int despeckcl::nlsar(float* ampl_master,
             LOG(ERROR) << "ERR while filtering sub image";
             std::terminate();
         }
-        imgtile.write(total_image);
+        tile<2> rel_sub {t[0].get_sub(overlap, -overlap), t[1].get_sub(overlap, -overlap)};
+        tile<2> tsub {slice{overlap, imgtile.height-overlap}, slice{overlap, imgtile.width-overlap}};
+        insar_data imgtile_sub = tileget(imgtile, tsub);
+        tilecpy(total_image, imgtile_sub, rel_sub);
         }
     }
 #pragma omp taskwait
@@ -137,6 +141,10 @@ int despeckcl::nlsar(float* ampl_master,
     end = std::chrono::system_clock::now();
     duration = end-start;
     std::cout << "filtering ran for " << duration.count() << " secs" << std::endl;
+
+    memcpy(ref_filt, total_image.ref_filt, total_image.height*total_image.width*sizeof(float));
+    memcpy(phase_filt, total_image.phi_filt, total_image.height*total_image.width*sizeof(float));
+    memcpy(coh_filt, total_image.coh_filt, total_image.height*total_image.width*sizeof(float));
 
     return 0;
 }

@@ -19,13 +19,13 @@
 #ifndef TILE_ITERATOR_H
 #define TILE_ITERATOR_H
 
-#include "insar_data.h"
 #include "tile.h"
 
 class tile_iterator
 {
     protected:
-        insar_data_shared& data;
+        const int max_height;
+        const int max_width;
         const int tile_height;
         const int tile_width;
         const int overlap_border;
@@ -36,12 +36,14 @@ class tile_iterator
         int w_low;
 
     public:
-        tile_iterator(insar_data_shared& data,
+        tile_iterator(const int max_height,
+                      const int max_width,
                       const int tile_size,
                       const int overlap_border,
                       const int overlap_tile);
 
-        tile_iterator(insar_data_shared& data,
+        tile_iterator(const int max_height,
+                      const int max_width,
                       const int tile_height,
                       const int tile_width,
                       const int overlap_border,
@@ -51,7 +53,7 @@ class tile_iterator
 
         bool operator!=(const tile_iterator&) const;
 
-        tile operator*() const;
+        tile<2> operator*() const;
 
         const tile_iterator& begin() const;
         const tile_iterator& end() const;

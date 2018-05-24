@@ -18,22 +18,26 @@
 
 #include "tile_iterator.h"
 
-tile_iterator::tile_iterator(insar_data_shared& data,
+tile_iterator::tile_iterator(const int maxh_height,
+                             const int max_width,
                              const int tile_size,
                              const int overlap_border,
-                             const int overlap_tile) : data(data),
-                                                       tile_height(tile_size),
+                             const int overlap_tile) : max_height(max_height),
+                                                       max_width(max_width),
+                                                       tile_height(tile_height),
                                                        tile_width(tile_size),
                                                        overlap_border(overlap_border),
                                                        overlap_tile(overlap_tile),
                                                        h_low(-overlap_border),
                                                        w_low(-overlap_border) {}
 
-tile_iterator::tile_iterator(insar_data_shared& data,
+tile_iterator::tile_iterator(const int max_height,
+                             const int max_width,
                              const int tile_height,
                              const int tile_width,
                              const int overlap_border,
-                             const int overlap_tile) : data(data),
+                             const int overlap_tile) : max_height(max_height),
+                                                       max_width(max_width),
                                                        tile_height(tile_height),
                                                        tile_width(tile_width),
                                                        overlap_border(overlap_border),
@@ -44,7 +48,7 @@ tile_iterator::tile_iterator(insar_data_shared& data,
 void tile_iterator::operator++()
 {
     w_low += tile_width - 2*overlap_tile;
-    if (w_low >= data.width) {
+    if (w_low >= max_width) {
         w_low = -overlap_border;
         h_low += tile_height - 2*overlap_tile;
     }
@@ -52,12 +56,12 @@ void tile_iterator::operator++()
 
 bool tile_iterator::operator!=(const tile_iterator&) const
 {
-    return h_low < data.height;
+    return h_low < max_height;
 }
 
-tile tile_iterator::operator*() const
+tile<2> tile_iterator::operator*() const
 {
-    return tile{data, h_low, w_low, tile_height, tile_width, overlap_tile};
+    return tile<2>{slice{h_low, h_low+tile_height}, slice{w_low, w_low + tile_width}};
 }
 
 const tile_iterator& tile_iterator::begin() const

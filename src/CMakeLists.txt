@@ -25,7 +25,6 @@ if(Boost_FOUND)
 endif()
 
 add_library(despeckcl SHARED
-            $<TARGET_OBJECTS:insar_data>
             $<TARGET_OBJECTS:nlsar_lib>
             $<TARGET_OBJECTS:nlsar_training>
             $<TARGET_OBJECTS:nlsar_cl_wrappers>
@@ -39,6 +38,9 @@ add_library(despeckcl SHARED
             ${despeckCL_SOURCE_DIR}/src/utils/checks.cpp
             ${despeckCL_SOURCE_DIR}/src/utils/timings.cpp
             ${despeckCL_SOURCE_DIR}/src/utils/optimal_tiling.cpp
+            ${despeckCL_SOURCE_DIR}/src/data/insar_data.cpp
+            ${despeckCL_SOURCE_DIR}/src/data/tile_iterator.cpp
+            ${despeckCL_SOURCE_DIR}/src/data/sub_images.cpp
             #${despeckCL_SOURCE_DIR}/src/clcfg/clcfg.cpp
             $<TARGET_OBJECTS:common_opencl_wrappers>
            )
