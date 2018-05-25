@@ -35,6 +35,7 @@
 #include "logging.h"
 #include "best_params.h"
 #include "timings.h"
+#include "map_filter_tiles.h"
 
 int despeckcl::nlsar(float* ampl_master,
                      float* ampl_slave,
@@ -50,8 +51,6 @@ int despeckcl::nlsar(float* ampl_master,
                      std::map<nlsar::params, nlsar::stats> nlsar_stats,
                      std::vector<std::string> enabled_log_levels)
 {
-    timings::map tm;
-
     const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
     const int scale_size_max = *std::max_element(scale_sizes.begin(), scale_sizes.end());
 
@@ -103,40 +102,18 @@ int despeckcl::nlsar(float* ampl_master,
 
     // filtering
     start = std::chrono::system_clock::now();
-    LOG(INFO) << "starting filtering";
-#pragma omp parallel shared(total_image)
-{
-#pragma omp master
-    {
-    for( auto t : tile_iterator(total_image.height, total_image.width, tile_dims.first, tile_dims.second, overlap, overlap) ) {
-#pragma omp task firstprivate(t)
-        {
-        insar_data imgtile = tileget(total_image, t);
-        try {
-            timings::map tm_sub = filter_sub_image(context, nlsar_cl_wrappers, // opencl stuff
-                                                   imgtile, // data
-                                                   search_window_size,
-                                                   patch_sizes,
-                                                   scale_sizes,
-                                                   dimension,
-                                                   nlsar_stats);
-#pragma omp critical
-            tm = timings::join(tm, tm_sub);
-        } catch (cl::Error error) {
-            LOG(ERROR) << error.what() << "(" << error.err() << ")";
-            LOG(ERROR) << "ERR while filtering sub image";
-            std::terminate();
-        }
-        tile<2> rel_sub {t[0].get_sub(overlap, -overlap), t[1].get_sub(overlap, -overlap)};
-        tile<2> tsub {slice{overlap, imgtile.height-overlap}, slice{overlap, imgtile.width-overlap}};
-        insar_data imgtile_sub = tileget(imgtile, tsub);
-        tilecpy(total_image, imgtile_sub, rel_sub);
-        }
-    }
-#pragma omp taskwait
-    }
-}
-    LOG(INFO) << "filtering done";
+    auto tm = map_filter_tiles(nlsar::filter_sub_image,
+                               total_image,
+                               context,
+                               nlsar_cl_wrappers,
+                               tile_dims,
+                               overlap,
+                               search_window_size,
+                               patch_sizes,
+                               scale_sizes,
+                               dimension,
+                               nlsar_stats);
+
     timings::print(tm);
     end = std::chrono::system_clock::now();
     duration = end-start;

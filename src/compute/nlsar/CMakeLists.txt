@@ -8,6 +8,7 @@ include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar)
 include_directories(${despeckCL_SOURCE_DIR}/src/compute/nlsar)
 include_directories(${despeckCL_SOURCE_DIR}/src/compute/nlsar/cl_wrappers)
 include_directories(${despeckCL_SOURCE_DIR}/src/compute/common/cl_wrappers)
+include_directories(${despeckCL_SOURCE_DIR}/src/compute/common)
 include_directories(${despeckCL_SOURCE_DIR}/src/compute/nlsar/routines)
 include_directories(${despeckCL_SOURCE_DIR}/src/compute/nlsar/training)
 

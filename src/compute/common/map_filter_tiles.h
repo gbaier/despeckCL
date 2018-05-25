@@ -1,0 +1,51 @@
+#ifndef MAP_FILTER_TILES_H
+#define MAP_FILTER_TILES_H
+
+#include "insar_data.h"
+#include "logging.h"
+#include "tile_iterator.h"
+#include "tile.h"
+
+template <typename Filter, typename Clroutines, typename... Params>
+timings::map
+map_filter_tiles(Filter func,
+                 insar_data& total_image,
+                 cl::Context context,
+                 const Clroutines& cl_wrappers,
+                 std::pair<int, int> tile_dims,
+                 int overlap,
+                 Params... parameters)
+{
+    timings::map tm;
+    LOG(INFO) << "starting filtering";
+#pragma omp parallel shared(total_image)
+{
+#pragma omp master
+    {
+    for( auto t : tile_iterator(total_image.height, total_image.width, tile_dims.first, tile_dims.second, overlap, overlap) ) {
+#pragma omp task firstprivate(t)
+        {
+        insar_data imgtile = tileget(total_image, t);
+        try {
+            timings::map tm_sub = func(context, cl_wrappers, imgtile, parameters...);
+#pragma omp critical
+            tm = timings::join(tm, tm_sub);
+        } catch (cl::Error error) {
+            LOG(ERROR) << error.what() << "(" << error.err() << ")";
+            LOG(ERROR) << "ERR while filtering sub image";
+            std::terminate();
+        }
+        tile<2> rel_sub {t[0].get_sub(overlap, -overlap), t[1].get_sub(overlap, -overlap)};
+        tile<2> tsub {slice{overlap, imgtile.height-overlap}, slice{overlap, imgtile.width-overlap}};
+        insar_data imgtile_sub = tileget(imgtile, tsub);
+        tilecpy(total_image, imgtile_sub, rel_sub);
+        }
+    }
+#pragma omp taskwait
+    }
+}
+    LOG(INFO) << "filtering done";
+    return tm;
+}
+
+#endif
