@@ -24,16 +24,16 @@
 
 #include "insar_data.h"
 #include "cl_wrappers.h"
+#include "timings.h"
 
 namespace nlinsar {
-    int nlinsar_sub_image(cl::Context context,
-                          cl_wrappers nl_routines,
-                          insar_data& sub_insar_data,
-                          const int search_window_size,
-                          const int patch_size,
-                          const int lmin,
-                          const float h_para,
-                          const float T_para);
-
+timings::map nlinsar_sub_image(cl::Context context,
+                               cl_wrappers nl_routines,
+                               insar_data& sub_insar_data,
+                               const int search_window_size,
+                               const int patch_size,
+                               const int lmin,
+                               const float h_para,
+                               const float T_para);
 }
 #endif

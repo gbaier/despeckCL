@@ -12,4 +12,5 @@ add_library(nlinsar_lib OBJECT
 target_include_directories(nlinsar_lib PUBLIC 
                            ${despeckCL_SOURCE_DIR}/src/compute/nlinsar
                            ${despeckCL_SOURCE_DIR}/src/compute/nlinsar/cl_wrappers
-                           ${despeckCL_SOURCE_DIR}/src/compute/common/cl_wrappers)
+                           ${despeckCL_SOURCE_DIR}/src/compute/common/cl_wrappers
+                           ${despeckCL_SOURCE_DIR}/src/utils)
