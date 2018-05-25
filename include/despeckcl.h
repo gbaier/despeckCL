@@ -29,16 +29,16 @@
 using nlsar_stats_collection = std::map<nlsar::params, nlsar::stats>;
 
 namespace despeckcl {
-void boxcar(float* ampl_master,
-            float* ampl_slave,
-            float* phase,
-            float* ref_filt,
-            float* phase_filt,
-            float* coh_filt,
-            const int height,
-            const int width,
-            const int window_width,
-            std::vector<std::string> enabled_log_levels);
+int boxcar(float* ampl_master,
+           float* ampl_slave,
+           float* phase,
+           float* ref_filt,
+           float* phase_filt,
+           float* coh_filt,
+           const int height,
+           const int width,
+           const int window_width,
+           std::vector<std::string> enabled_log_levels);
 
 int nlsar(float* ampl_master,
           float* ampl_slave,

@@ -1,3 +1,5 @@
+include_directories(${despeckCL_SOURCE_DIR}/src/compute/common)
+
 add_subdirectory(cl_wrapper)
 
 add_library(boxcar_lib OBJECT
