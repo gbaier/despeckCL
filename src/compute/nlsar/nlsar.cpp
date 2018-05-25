@@ -103,6 +103,7 @@ int despeckcl::nlsar(float* ampl_master,
     // filtering
     start = std::chrono::system_clock::now();
     auto tm = map_filter_tiles(nlsar::filter_sub_image,
+                               total_image, // same image can be used as input and output
                                total_image,
                                context,
                                nlsar_cl_wrappers,

@@ -9,7 +9,8 @@
 template <typename Filter, typename Clroutines, typename... Params>
 timings::map
 map_filter_tiles(Filter func,
-                 insar_data& total_image,
+                 insar_data& total_image_in,
+                 insar_data& total_image_out,
                  cl::Context context,
                  const Clroutines& cl_wrappers,
                  std::pair<int, int> tile_dims,
@@ -18,19 +19,19 @@ map_filter_tiles(Filter func,
 {
   timings::map tm;
   LOG(INFO) << "starting filtering";
-#pragma omp parallel shared(total_image)
+#pragma omp parallel shared(total_image_in, total_image_out)
   {
 #pragma omp master
     {
-      for (auto t : tile_iterator(total_image.height,
-                                  total_image.width,
+      for (auto t : tile_iterator(total_image_in.height,
+                                  total_image_in.width,
                                   tile_dims.first,
                                   tile_dims.second,
                                   overlap,
                                   overlap)) {
 #pragma omp task firstprivate(t)
         {
-          insar_data imgtile = tileget(total_image, t);
+          insar_data imgtile = tileget(total_image_in, t);
           try {
             timings::map tm_sub =
                 func(context, cl_wrappers, imgtile, parameters...);
@@ -46,7 +47,7 @@ map_filter_tiles(Filter func,
           tile<2> tsub{slice{overlap, imgtile.height - overlap},
                        slice{overlap, imgtile.width - overlap}};
           insar_data imgtile_sub = tileget(imgtile, tsub);
-          tilecpy(total_image, imgtile_sub, rel_sub);
+          tilecpy(total_image_out, imgtile_sub, rel_sub);
         }
       }
 #pragma omp taskwait

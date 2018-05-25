@@ -33,6 +33,8 @@
 #include "sub_images.h"
 #include "insarsim_simu.h"
 #include "logging.h"
+#include "timings.h"
+#include "map_filter_tiles.h"
 
 #include "clcfg.h"
 #include "cl_wrappers.h"
@@ -51,6 +53,7 @@ int despeckcl::nlinsar(float* ampl_master,
                        const int lmin,
                        std::vector<std::string> enabled_log_levels)
 {
+    timings::map tm_tot;
     logging_setup(enabled_log_levels);
 
     insar_data total_image{ampl_master, ampl_slave, phase,
@@ -100,84 +103,44 @@ int despeckcl::nlinsar(float* ampl_master,
     // similarty, patch_similarity, kullback_leibler, patch_kullback_leibler, weights
     // memory consumption in bytes:
     // sws^2 * sis^2 * n_threads * 4 (float) * 5
-    const int sub_image_size = 80;
+    std::pair<int, int> tile_dims {80, 80};
 
     
     // new build kernel interface
     std::chrono::time_point<std::chrono::system_clock> start, end;
-    std::chrono::duration<double> elapsed_seconds = end-start;
+    std::chrono::duration<double> duration = end-start;
     start = std::chrono::system_clock::now();
     VLOG(0) << "Building kernels";
     nlinsar::cl_wrappers nl_routines_base(context, search_window_size, patch_size, 16);
     end = std::chrono::system_clock::now();
-    elapsed_seconds = end-start;
-    VLOG(0) << "Time it took to build all kernels: " << elapsed_seconds.count() << "secs";
-
-    double precompute_similarities_1st_pass_timing = 0.0;
-    double precompute_similarities_2nd_pass_timing = 0.0;
-    double precompute_patch_similarities_timing = 0.0;
-    double compute_weights_timing = 0.0;
-    double compute_number_of_looks_timing = 0.0;
-    double transpose_timing = 0.0;
-    double precompute_filter_values_timing = 0.0;
-    double compute_insar_timing = 0.0;
-    double smoothing_timing = 0.0;
-
-    insar_data total_image_temp{total_image};
-#pragma omp parallel shared(total_image, total_image_temp)
-{
-// every thread needs its own kernel, in order not to recompile the program again
-// a new kernel is created via the copy constructor
-    nlinsar::cl_wrappers nl_routines(nl_routines_base);
-#pragma omp master
+    duration = end-start;
+    VLOG(0) << "Time it took to build all kernels: " << duration.count() << "secs";
+    
+    // filtering
+    start = std::chrono::system_clock::now();
     for(int n = 0; n<niter; n++) {
         LOG(INFO) << "Iteration " << n + 1 << " of " << niter;
-        total_image_temp = total_image;
-        for( auto t : tile_iterator(total_image.height, total_image.width, sub_image_size, sub_image_size, overlap, overlap) ) {
-#pragma omp task firstprivate(t)
-            {
-            insar_data imgtile = tileget(total_image, t);
-            nlinsar_sub_image(context, nl_routines, // opencl stuff
-                             imgtile,
-                             search_window_size, patch_size, lmin, h_para, T_para); // filter parameters
+        auto total_image_temp = total_image;
+        auto tm = map_filter_tiles(nlinsar::nlinsar_sub_image,
+                                   total_image,
+                                   total_image_temp,
+                                   context,
+                                   nl_routines_base,
+                                   tile_dims,
+                                   overlap,
+                                   search_window_size, patch_size, lmin, h_para, T_para); // filter parameters
 
-            tile<2> rel_sub {t[0].get_sub(overlap, -overlap), t[1].get_sub(overlap, -overlap)};
-            tile<2> tsub {slice{overlap, imgtile.height-overlap}, slice{overlap, imgtile.width-overlap}};
-            insar_data imgtile_sub = tileget(imgtile, tsub);
-            tilecpy(total_image_temp, imgtile_sub, rel_sub);
-            }
-        }
-#pragma omp taskwait
         total_image = total_image_temp;
+        tm_tot = timings::join(tm, tm_tot);
     }
-#pragma omp critical
-    {
-        precompute_similarities_1st_pass_timing += nl_routines.precompute_similarities_1st_pass_routine.elapsed_seconds.count();
-        precompute_similarities_2nd_pass_timing += nl_routines.precompute_similarities_2nd_pass_routine.elapsed_seconds.count();
-        precompute_patch_similarities_timing    += nl_routines.precompute_patch_similarities_routine.elapsed_seconds.count();
-        compute_weights_timing                  += nl_routines.compute_weights_routine.elapsed_seconds.count();
-        compute_number_of_looks_timing          += nl_routines.compute_number_of_looks_routine.elapsed_seconds.count();
-        transpose_timing                        += nl_routines.transpose_routine.elapsed_seconds.count();
-        precompute_filter_values_timing         += nl_routines.precompute_filter_values_routine.elapsed_seconds.count();
-        compute_insar_timing                    += nl_routines.compute_insar_routine.elapsed_seconds.count();
-        smoothing_timing                        += nl_routines.smoothing_routine.elapsed_seconds.count();
-    }
-}
-    LOG(INFO) << "filtering done";
+    timings::print(tm_tot);
+    end = std::chrono::system_clock::now();
+    duration = end-start;
+    VLOG(0) << "filtering ran for " << duration.count() << " secs" << std::endl;
 
     memcpy(ref_filt,    total_image.ref_filt, sizeof(float)*height*width);
     memcpy(phase_filt, total_image.phi_filt, sizeof(float)*height*width);
     memcpy(coh_filt,    total_image.coh_filt, sizeof(float)*height*width);
-
-    VLOG(0) << "elapsed time for precompute_similarities_1st_pass: " << precompute_similarities_1st_pass_timing << " secs";
-    VLOG(0) << "elapsed time for precompute_similarities_2nd_pass: " << precompute_similarities_2nd_pass_timing << " secs";
-    VLOG(0) << "elapsed time for precompute_patch_similarities: "    << precompute_patch_similarities_timing    << " secs";
-    VLOG(0) << "elapsed time for compute_weights: "                  << compute_weights_timing                  << " secs";
-    VLOG(0) << "elapsed time for compute_number_of_looks: "          << compute_number_of_looks_timing          << " secs";
-    VLOG(0) << "elapsed time for transpose: "                        << transpose_timing                        << " secs";
-    VLOG(0) << "elapsed time for precompute_filter_values: "         << precompute_filter_values_timing         << " secs";
-    VLOG(0) << "elapsed time for compute_insar: "                    << compute_insar_timing                    << " secs";
-    VLOG(0) << "elapsed time for smoothing: "                        << smoothing_timing                        << " secs";
 
     return 0;
 }
