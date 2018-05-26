@@ -120,7 +120,16 @@ int despeckcl::nlinsar(float* ampl_master,
     start = std::chrono::system_clock::now();
     for(int n = 0; n<niter; n++) {
         LOG(INFO) << "Iteration " << n + 1 << " of " << niter;
-        auto total_image_temp = total_image;
+        // deep copy is necessary
+        insar_data total_image_temp {total_image.a1.get(),
+                                     total_image.a2.get(),
+                                     total_image.dp.get(),
+                                     total_image.ref_filt.get(),
+                                     total_image.phi_filt.get(),
+                                     total_image.coh_filt.get(),
+                                     total_image.height,
+                                     total_image.width};
+
         auto tm = map_filter_tiles(nlinsar::nlinsar_sub_image,
                                    total_image,
                                    total_image_temp,
@@ -130,7 +139,7 @@ int despeckcl::nlinsar(float* ampl_master,
                                    overlap,
                                    search_window_size, patch_size, lmin, h_para, T_para); // filter parameters
 
-        total_image = total_image_temp;
+        total_image = std::move(total_image_temp);
         tm_tot = timings::join(tm, tm_tot);
     }
     timings::print(tm_tot);
@@ -138,9 +147,9 @@ int despeckcl::nlinsar(float* ampl_master,
     duration = end-start;
     VLOG(0) << "filtering ran for " << duration.count() << " secs" << std::endl;
 
-    memcpy(ref_filt,    total_image.ref_filt, sizeof(float)*height*width);
-    memcpy(phase_filt, total_image.phi_filt, sizeof(float)*height*width);
-    memcpy(coh_filt,    total_image.coh_filt, sizeof(float)*height*width);
+    memcpy(ref_filt,   total_image.ref_filt.get(), total_image.height*total_image.width*sizeof(float));
+    memcpy(phase_filt, total_image.phi_filt.get(), total_image.height*total_image.width*sizeof(float));
+    memcpy(coh_filt,   total_image.coh_filt.get(), total_image.height*total_image.width*sizeof(float));
 
     return 0;
 }

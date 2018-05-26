@@ -18,17 +18,18 @@
 
 #include "sub_images.h"
 
-#include <stdlib.h>
+#include <memory>
 
-float* get_sub_image(const float * image,
-                     const int height,
-                     const int width,
-                     const int h_low,
-                     const int w_low,
-                     const int sub_img_height,
-                     const int sub_img_width)
+std::unique_ptr<float[]>
+get_sub_image(const float* image,
+              const int height,
+              const int width,
+              const int h_low,
+              const int w_low,
+              const int sub_img_height,
+              const int sub_img_width)
 {
-    float* sub_image = (float *) malloc(sub_img_height*sub_img_width*sizeof(float));
+    auto sub_image = std::make_unique<float[]>(sub_img_height*sub_img_width);
     for(int h = 0; h < sub_img_height; h++) {
         for(int w = 0; w < sub_img_width; w++) {
             const int h_img = std::min(height-1, std::max(0, h+h_low));

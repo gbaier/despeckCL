@@ -19,25 +19,26 @@
 #ifndef SUB_IMAGES_H
 #define SUB_IMAGES_H
 
-#include <tuple>
 #include <algorithm>
+#include <memory>
 
-float* get_sub_image(const float * image,
-                     const int height,
-                     const int width,
-                     const int h_low,
-                     const int w_low,
-                     const int sub_img_height,
-                     const int sub_img_width);
+std::unique_ptr<float[]>
+get_sub_image(const float* image,
+              int height,
+              int width,
+              int h_low,
+              int w_low,
+              int sub_img_height,
+              int sub_img_width);
 
 void write_sub_image(float * image,
-                     const int height,
-                     const int width,
+                     int height,
+                     int width,
                      float * sub_image,
-                     const int h_low,
-                     const int w_low,
-                     const int sub_img_height,
-                     const int sub_img_width,
-                     const int overlap);
+                     int h_low,
+                     int w_low,
+                     int sub_img_height,
+                     int sub_img_width,
+                     int overlap);
 
 #endif

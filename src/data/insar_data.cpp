@@ -19,51 +19,26 @@
 #include "insar_data.h"
 #include "sub_images.h"
 
-#include <string.h> // for memset
-#include <iostream>
 #include <algorithm>
 
-insar_data_shared::insar_data_shared(float * a1,
-                                     float * a2,
-                                     float * dp,
-                                     float * ref_filt,
-                                     float * phi_filt,
-                                     float * coh_filt,
-                                     const int height,
-                                     const int width) : a1(a1),
-                                                        a2(a2),
-                                                        dp(dp),
-                                                        ref_filt(ref_filt),
-                                                        phi_filt(phi_filt),
-                                                        coh_filt(coh_filt),
-                                                        height(height),
-                                                        width(width) {}
-
-insar_data_shared::insar_data_shared(const insar_data_shared &data) : a1(data.a1),
-                                                                      a2(data.a2),
-                                                                      dp(data.dp),
-                                                                      ref_filt(data.ref_filt),
-                                                                      phi_filt(data.phi_filt),
-                                                                      coh_filt(data.coh_filt),
-                                                                      height(data.height),
-                                                                      width(data.width) {}
-
-insar_data_shared::~insar_data_shared() {}
-
-insar_data_shared& insar_data_shared::operator=(const insar_data_shared &data)
-{
-    const size_t bytesize = height*width*sizeof(float);
-
-    memcpy(a1, data.a1, bytesize);
-    memcpy(a2, data.a2, bytesize);
-    memcpy(dp, data.dp, bytesize);
-
-    memcpy(ref_filt, data.ref_filt, bytesize);
-    memcpy(phi_filt, data.phi_filt, bytesize);
-    memcpy(coh_filt, data.coh_filt, bytesize);
-
-    return *this;
-}
+insar_data::insar_data(std::unique_ptr<float[]> a1,
+                       std::unique_ptr<float[]> a2,
+                       std::unique_ptr<float[]> dp,
+                       std::unique_ptr<float[]> ref_filt,
+                       std::unique_ptr<float[]> phi_filt,
+                       std::unique_ptr<float[]> coh_filt,
+                       int height,
+                       int width) 
+            : a1(std::move(a1)),
+              a2(std::move(a2)),
+              dp(std::move(dp)),
+              ref_filt(std::move(ref_filt)),
+              phi_filt(std::move(phi_filt)),
+              coh_filt(std::move(coh_filt)),
+              height(height),
+              width(width)
+        {
+        }
 
 insar_data::insar_data(float * a1,
                        float * a2,
@@ -71,73 +46,71 @@ insar_data::insar_data(float * a1,
                        float * ref_filt,
                        float * phi_filt,
                        float * coh_filt,
-                       const int height,
-                       const int width) : insar_data_shared(a1, a2, dp, ref_filt, phi_filt, coh_filt, height, width)
+                       int height,
+                       int width) : height(height), width(width)
 {
-    const size_t bytesize = height*width*sizeof(float);
+    const size_t size = height*width;
 
-    this->a1 = (float *) malloc(bytesize);
-    memcpy(this->a1, a1, bytesize);
+    this->a1 = std::make_unique<float[]>(size);
+    this->a2 = std::make_unique<float[]>(size);
+    this->dp = std::make_unique<float[]>(size);
+    this->ref_filt = std::make_unique<float[]>(size);
+    this->phi_filt = std::make_unique<float[]>(size);
+    this->coh_filt = std::make_unique<float[]>(size);
 
-    this->a2 = (float *) malloc(bytesize);
-    memcpy(this->a2, a2, bytesize);
-
-    this->dp = (float *) malloc(bytesize);
-    memcpy(this->dp, dp, bytesize);
-
-    this->ref_filt = (float *) malloc(bytesize);
-    memcpy(this->ref_filt, ref_filt, bytesize);
-
-    this->phi_filt = (float *) malloc(bytesize);
-    memcpy(this->phi_filt, phi_filt, bytesize);
-
-    this->coh_filt = (float *) malloc(bytesize);
-    memcpy(this->coh_filt, coh_filt, bytesize);
+    std::copy(a1, a1+size, this->a1.get());
+    std::copy(a2, a2+size, this->a2.get());
+    std::copy(dp, dp+size, this->dp.get());
+    std::copy(ref_filt, ref_filt+size, this->ref_filt.get());
+    std::copy(phi_filt, phi_filt+size, this->phi_filt.get());
+    std::copy(coh_filt, coh_filt+size, this->coh_filt.get());
 }
 
-insar_data::insar_data(const insar_data &data) : insar_data_shared(data)
+insar_data::insar_data(insar_data &&other) noexcept
 {
-    copy(data);
-}
-insar_data::insar_data(const insar_data_shared &data) : insar_data_shared(data)
-{
-    copy(data);
-}
-
-
-
-insar_data::~insar_data()
-{
-    free(a1);
-    free(a2);
-    free(dp);
-    free(ref_filt);
-    free(phi_filt);
-    free(coh_filt);
+    std::swap(height, other.height);
+    std::swap(width, other.width);
+    std::swap(a1, other.a1);
+    std::swap(a2, other.a2);
+    std::swap(dp, other.dp);
+    std::swap(ref_filt, other.ref_filt);
+    std::swap(phi_filt, other.phi_filt);
+    std::swap(coh_filt, other.coh_filt);
 }
 
+insar_data& insar_data::operator=(insar_data &&other) noexcept {
+    std::swap(height, other.height);
+    std::swap(width, other.width);
+    std::swap(a1, other.a1);
+    std::swap(a2, other.a2);
+    std::swap(dp, other.dp);
+    std::swap(ref_filt, other.ref_filt);
+    std::swap(phi_filt, other.phi_filt);
+    std::swap(coh_filt, other.coh_filt);
+    return *this;
+}
 
 insar_data tileget(const insar_data& img_data, tile<2> sub) {
-    float * const a1_sub       = get_sub_image(img_data.a1,       img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
-    float * const a2_sub       = get_sub_image(img_data.a2,       img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
-    float * const dp_sub       = get_sub_image(img_data.dp,       img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
-    float * const ref_filt_sub = get_sub_image(img_data.ref_filt, img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
-    float * const phi_filt_sub = get_sub_image(img_data.phi_filt, img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
-    float * const coh_filt_sub = get_sub_image(img_data.coh_filt, img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
-    insar_data sub_image{a1_sub, a2_sub, dp_sub, ref_filt_sub, phi_filt_sub, coh_filt_sub, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start};
-    free(a1_sub);
-    free(a2_sub);
-    free(dp_sub);
-    free(ref_filt_sub);
-    free(phi_filt_sub);
-    free(coh_filt_sub);
-    return sub_image;
+    auto a1_sub       = get_sub_image(img_data.a1.get(),       img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
+    auto a2_sub       = get_sub_image(img_data.a2.get(),       img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
+    auto dp_sub       = get_sub_image(img_data.dp.get(),       img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
+    auto ref_filt_sub = get_sub_image(img_data.ref_filt.get(), img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
+    auto phi_filt_sub = get_sub_image(img_data.phi_filt.get(), img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
+    auto coh_filt_sub = get_sub_image(img_data.coh_filt.get(), img_data.height, img_data.width, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start);
+    return insar_data{std::move(a1_sub),
+                      std::move(a2_sub),
+                      std::move(dp_sub),
+                      std::move(ref_filt_sub),
+                      std::move(phi_filt_sub),
+                      std::move(coh_filt_sub),
+                      sub[0].stop - sub[0].start,
+                      sub[1].stop - sub[1].start};
 }
 
 // copy img_tile to img_data defined by sub
 // akin to memcpy
 void tilecpy(insar_data& img_data, const insar_data& img_tile, tile<2> sub) {
-    write_sub_image(img_data.ref_filt, img_data.height, img_data.width, img_tile.ref_filt, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start, 0);
-    write_sub_image(img_data.phi_filt, img_data.height, img_data.width, img_tile.phi_filt, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start, 0);
-    write_sub_image(img_data.coh_filt, img_data.height, img_data.width, img_tile.coh_filt, sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start, 0);
+    write_sub_image(img_data.ref_filt.get(), img_data.height, img_data.width, img_tile.ref_filt.get(), sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start, 0);
+    write_sub_image(img_data.phi_filt.get(), img_data.height, img_data.width, img_tile.phi_filt.get(), sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start, 0);
+    write_sub_image(img_data.coh_filt.get(), img_data.height, img_data.width, img_tile.coh_filt.get(), sub[0].start, sub[1].start, sub[0].stop-sub[0].start, sub[1].stop-sub[1].start, 0);
 }

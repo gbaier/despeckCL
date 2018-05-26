@@ -45,75 +45,47 @@ class sar_data {
         std::unique_ptr<float> data;
 };*/
 
-class insar_data_shared
+#include <memory>
+
+class insar_data
 {
     public:
-        float * a1;
-        float * a2;
-        float * dp;
-        float * ref_filt;
-        float * phi_filt;
-        float * coh_filt;
+        std::unique_ptr<float[]> a1;
+        std::unique_ptr<float[]> a2;
+        std::unique_ptr<float[]> dp;
+        std::unique_ptr<float[]> ref_filt;
+        std::unique_ptr<float[]> phi_filt;
+        std::unique_ptr<float[]> coh_filt;
         int height;
         int width;
 
-        insar_data_shared(float * a1,
-                          float * a2,
-                          float * dp,
-                          float * ref_filt,
-                          float * phi_filt,
-                          float * coh_filt,
-                          const int height,
-                          const int width);
+        // takes ownership
+        insar_data(std::unique_ptr<float[]> a1,
+                   std::unique_ptr<float[]> a2,
+                   std::unique_ptr<float[]> dp,
+                   std::unique_ptr<float[]> ref_filt,
+                   std::unique_ptr<float[]> phi_filt,
+                   std::unique_ptr<float[]> coh_filt,
+                   int height,
+                   int width);
 
-        insar_data_shared(const insar_data_shared &data);
-
-        ~insar_data_shared();
-
-        insar_data_shared& operator=(const insar_data_shared &data);
-};
-
-class insar_data : public insar_data_shared
-{
-    public:
+        // Allocates memory and copies data.
+        // This is for interfacing with C-libraries/programs
+        // or Python via SWIG.
         insar_data(float * a1,
                    float * a2,
                    float * dp,
                    float * ref_filt,
                    float * phi_filt,
                    float * coh_filt,
-                   const int height,
-                   const int width);
+                   int height,
+                   int width);
 
-        insar_data(const insar_data &data);
-        insar_data(const insar_data_shared &data);
+        insar_data(const insar_data& other) = delete;
+        insar_data(insar_data&& other) noexcept;
+        insar_data& operator=(insar_data &&other) noexcept;
 
-        ~insar_data();
-
-    private:
-        template<class T>
-        void copy(const T& data)
-        {
-            const size_t bytesize = height*width*sizeof(float);
-
-            a1 = (float *) malloc(bytesize);
-            memcpy(a1, data.a1, bytesize);
-
-            a2 = (float *) malloc(bytesize);
-            memcpy(a2, data.a2, bytesize);
-
-            dp = (float *) malloc(bytesize);
-            memcpy(dp, data.dp, bytesize);
-
-            ref_filt = (float *) malloc(bytesize);
-            memcpy(ref_filt, data.ref_filt, bytesize);
-
-            phi_filt = (float *) malloc(bytesize);
-            memcpy(phi_filt, data.phi_filt, bytesize);
-
-            coh_filt = (float *) malloc(bytesize);
-            memcpy(coh_filt, data.coh_filt, bytesize);
-        };
+        ~insar_data() {};
 };
 
 insar_data tileget(const insar_data& img_data, tile<2> sub);

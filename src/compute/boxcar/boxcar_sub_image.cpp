@@ -42,13 +42,13 @@ timings::map boxcar_sub_image(cl::Context context,
     //
     //***************************************************************************
 
-    cl::Buffer device_raw_a1                  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.a1, NULL};
-    cl::Buffer device_raw_a2                  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.a2, NULL};
-    cl::Buffer device_raw_dp                  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.dp, NULL};
+    cl::Buffer device_raw_a1                  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.a1.get(), NULL};
+    cl::Buffer device_raw_a2                  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.a2.get(), NULL};
+    cl::Buffer device_raw_dp                  {context, CL_MEM_READ_ONLY  | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.dp.get(), NULL};
 
-    cl::Buffer device_ref_filt                {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.ref_filt, NULL};
-    cl::Buffer device_phi_filt                {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.phi_filt, NULL};
-    cl::Buffer device_coh_filt                {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, n_elem_overlap*sizeof(float), sub_insar_data.coh_filt, NULL};
+    cl::Buffer device_ref_filt                {context, CL_MEM_READ_WRITE, n_elem_overlap*sizeof(float), NULL, NULL};
+    cl::Buffer device_phi_filt                {context, CL_MEM_READ_WRITE, n_elem_overlap*sizeof(float), NULL, NULL};
+    cl::Buffer device_coh_filt                {context, CL_MEM_READ_WRITE, n_elem_overlap*sizeof(float), NULL, NULL};
 
     std::vector<cl::Device> devices;
     context.getInfo(CL_CONTEXT_DEVICES, &devices);
@@ -75,9 +75,9 @@ timings::map boxcar_sub_image(cl::Context context,
     //***************************************************************************
 
     start = std::chrono::system_clock::now();
-    cmd_queue.enqueueReadBuffer(device_ref_filt, CL_TRUE, 0, n_elem_overlap*sizeof(float), sub_insar_data.ref_filt, NULL, NULL);
-    cmd_queue.enqueueReadBuffer(device_phi_filt, CL_TRUE, 0, n_elem_overlap*sizeof(float), sub_insar_data.phi_filt, NULL, NULL);
-    cmd_queue.enqueueReadBuffer(device_coh_filt, CL_TRUE, 0, n_elem_overlap*sizeof(float), sub_insar_data.coh_filt, NULL, NULL);
+    cmd_queue.enqueueReadBuffer(device_ref_filt, CL_TRUE, 0, n_elem_overlap*sizeof(float), sub_insar_data.ref_filt.get(), NULL, NULL);
+    cmd_queue.enqueueReadBuffer(device_phi_filt, CL_TRUE, 0, n_elem_overlap*sizeof(float), sub_insar_data.phi_filt.get(), NULL, NULL);
+    cmd_queue.enqueueReadBuffer(device_coh_filt, CL_TRUE, 0, n_elem_overlap*sizeof(float), sub_insar_data.coh_filt.get(), NULL, NULL);
     end = std::chrono::system_clock::now();
     duration = end-start;
     tm["copy_sub_result"] = duration.count();

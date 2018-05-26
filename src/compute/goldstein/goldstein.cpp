@@ -105,9 +105,9 @@ int despeckcl::goldstein(float* ampl_master,
     duration = end-start;
     VLOG(0) << "filtering ran for " << duration.count() << " secs" << std::endl;
 
-    memcpy(ref_filt,   total_image.ref_filt, sizeof(float)*height*width);
-    memcpy(phase_filt, total_image.phi_filt, sizeof(float)*height*width);
-    memcpy(coh_filt,   total_image.coh_filt, sizeof(float)*height*width);
+    memcpy(ref_filt,   total_image.ref_filt.get(), total_image.height*total_image.width*sizeof(float));
+    memcpy(phase_filt, total_image.phi_filt.get(), total_image.height*total_image.width*sizeof(float));
+    memcpy(coh_filt,   total_image.coh_filt.get(), total_image.height*total_image.width*sizeof(float));
 
     return 0;
 }

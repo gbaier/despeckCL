@@ -57,9 +57,9 @@ timings::map goldstein::filter_sub_image(cl::Context context,
     context.getInfo(CL_CONTEXT_DEVICES, &devices);
     cl::CommandQueue cmd_queue{context, devices[0]};
 
-    cl::Buffer dev_ampl_master {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), sub_insar_data.a1, NULL};
-    cl::Buffer dev_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), sub_insar_data.a2, NULL};
-    cl::Buffer dev_phase      {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), sub_insar_data.dp, NULL};
+    cl::Buffer dev_ampl_master {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), sub_insar_data.a1.get(), NULL};
+    cl::Buffer dev_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), sub_insar_data.a2.get(), NULL};
+    cl::Buffer dev_phase       {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), sub_insar_data.dp.get(), NULL};
 
     // io buffers
     cl::Buffer dev_interf_real {context, CL_MEM_READ_WRITE, height * width * sizeof(float), NULL, NULL};
@@ -183,8 +183,8 @@ timings::map goldstein::filter_sub_image(cl::Context context,
     /* Release clFFT library. */
     clfftTeardown( );
 
-    cmd_queue.enqueueReadBuffer(dev_ampl_master, CL_TRUE, 0, height * width * sizeof(float), sub_insar_data.ref_filt, NULL, NULL);
-    cmd_queue.enqueueReadBuffer(dev_phase,      CL_TRUE, 0, height * width * sizeof(float), sub_insar_data.phi_filt, NULL, NULL);
+    cmd_queue.enqueueReadBuffer(dev_ampl_master, CL_TRUE, 0, height * width * sizeof(float), sub_insar_data.ref_filt.get(), NULL, NULL);
+    cmd_queue.enqueueReadBuffer(dev_phase,       CL_TRUE, 0, height * width * sizeof(float), sub_insar_data.phi_filt.get(), NULL, NULL);
 
     return tm;
 }

@@ -70,33 +70,33 @@ nlinsar::nlinsar_sub_image(cl::Context context,
   cl::Buffer device_raw_a1{context,
                            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                            n_elem_overlap * sizeof(float),
-                           sub_insar_data.a1,
+                           sub_insar_data.a1.get(),
                            NULL};
   cl::Buffer device_raw_a2{context,
                            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                            n_elem_overlap * sizeof(float),
-                           sub_insar_data.a2,
+                           sub_insar_data.a2.get(),
                            NULL};
   cl::Buffer device_raw_dp{context,
                            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                            n_elem_overlap * sizeof(float),
-                           sub_insar_data.dp,
+                           sub_insar_data.dp.get(),
                            NULL};
 
   cl::Buffer device_ref_filt{context,
                              CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
                              n_elem_overlap * sizeof(float),
-                             sub_insar_data.ref_filt,
+                             sub_insar_data.ref_filt.get(),
                              NULL};
   cl::Buffer device_phi_filt{context,
                              CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
                              n_elem_overlap * sizeof(float),
-                             sub_insar_data.phi_filt,
+                             sub_insar_data.phi_filt.get(),
                              NULL};
   cl::Buffer device_coh_filt{context,
                              CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
                              n_elem_overlap * sizeof(float),
-                             sub_insar_data.coh_filt,
+                             sub_insar_data.coh_filt.get(),
                              NULL};
 
   cl::Buffer device_filter_values_a{
@@ -214,7 +214,7 @@ nlinsar::nlinsar_sub_image(cl::Context context,
       nl_routines.smoothing_routine.timed_run(cmd_queue,
                                               device_weights,
                                               device_number_of_looks,
-                                              sub_insar_data.a1,
+                                              sub_insar_data.a1.get(),
                                               height_ori,
                                               width_ori,
                                               search_window_size,
@@ -254,27 +254,9 @@ nlinsar::nlinsar_sub_image(cl::Context context,
   //
   //***************************************************************************
   const int n_elem = (height_overlap) * (width_overlap);
-  cmd_queue.enqueueReadBuffer(device_ref_filt,
-                              CL_TRUE,
-                              0,
-                              n_elem * sizeof(float),
-                              sub_insar_data.ref_filt,
-                              NULL,
-                              NULL);
-  cmd_queue.enqueueReadBuffer(device_phi_filt,
-                              CL_TRUE,
-                              0,
-                              n_elem * sizeof(float),
-                              sub_insar_data.phi_filt,
-                              NULL,
-                              NULL);
-  cmd_queue.enqueueReadBuffer(device_coh_filt,
-                              CL_TRUE,
-                              0,
-                              n_elem * sizeof(float),
-                              sub_insar_data.coh_filt,
-                              NULL,
-                              NULL);
+  cmd_queue.enqueueReadBuffer(device_ref_filt, CL_TRUE, 0, n_elem*sizeof(float), sub_insar_data.ref_filt.get(), NULL, NULL);
+  cmd_queue.enqueueReadBuffer(device_phi_filt, CL_TRUE, 0, n_elem*sizeof(float), sub_insar_data.phi_filt.get(), NULL, NULL);
+  cmd_queue.enqueueReadBuffer(device_coh_filt, CL_TRUE, 0, n_elem*sizeof(float), sub_insar_data.coh_filt.get(), NULL, NULL);
 
   return tm;
 }
