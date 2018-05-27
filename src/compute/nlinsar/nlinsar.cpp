@@ -121,12 +121,12 @@ int despeckcl::nlinsar(float* ampl_master,
     for(int n = 0; n<niter; n++) {
         LOG(INFO) << "Iteration " << n + 1 << " of " << niter;
         // deep copy is necessary
-        insar_data total_image_temp {total_image.a1.get(),
-                                     total_image.a2.get(),
-                                     total_image.dp.get(),
-                                     total_image.ref_filt.get(),
-                                     total_image.phi_filt.get(),
-                                     total_image.coh_filt.get(),
+        insar_data total_image_temp {total_image.ampl_master(),
+                                     total_image.ampl_slave(),
+                                     total_image.phase(),
+                                     total_image.ref_filt(),
+                                     total_image.phase_filt(),
+                                     total_image.coh_filt(),
                                      total_image.height,
                                      total_image.width};
 
@@ -147,9 +147,9 @@ int despeckcl::nlinsar(float* ampl_master,
     duration = end-start;
     VLOG(0) << "filtering ran for " << duration.count() << " secs" << std::endl;
 
-    memcpy(ref_filt,   total_image.ref_filt.get(), total_image.height*total_image.width*sizeof(float));
-    memcpy(phase_filt, total_image.phi_filt.get(), total_image.height*total_image.width*sizeof(float));
-    memcpy(coh_filt,   total_image.coh_filt.get(), total_image.height*total_image.width*sizeof(float));
+    memcpy(ref_filt,   total_image.ref_filt(), total_image.height*total_image.width*sizeof(float));
+    memcpy(phase_filt, total_image.phase_filt(), total_image.height*total_image.width*sizeof(float));
+    memcpy(coh_filt,   total_image.coh_filt(), total_image.height*total_image.width*sizeof(float));
 
     return 0;
 }

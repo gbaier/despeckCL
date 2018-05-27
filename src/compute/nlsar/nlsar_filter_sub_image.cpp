@@ -82,9 +82,9 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     //***************************************************************************
 
     LOG(DEBUG) << "allocating buffers on device";
-    cl::Buffer device_ampl_master {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, buf_sizes.io_data(), sub_insar_data.a1.get(), NULL};
-    cl::Buffer device_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, buf_sizes.io_data(), sub_insar_data.a2.get(), NULL};
-    cl::Buffer device_phase       {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, buf_sizes.io_data(), sub_insar_data.dp.get(), NULL};
+    cl::Buffer device_ampl_master {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, buf_sizes.io_data(), sub_insar_data.ampl_master(), NULL};
+    cl::Buffer device_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, buf_sizes.io_data(), sub_insar_data.ampl_slave(), NULL};
+    cl::Buffer device_phase       {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, buf_sizes.io_data(), sub_insar_data.phase(), NULL};
 
     cl::Buffer covmat_ori      {context, CL_MEM_READ_WRITE, buf_sizes.io_covmat(), NULL, NULL};
     cl::Buffer covmat_rescaled {context, CL_MEM_READ_WRITE, buf_sizes.io_covmat(), NULL, NULL};
@@ -297,9 +297,9 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     //***************************************************************************
     LOG(DEBUG) << "copying sub result";
     start = std::chrono::system_clock::now();
-    cmd_queue.enqueueReadBuffer(device_ref_filt,   CL_TRUE, 0, buf_sizes.io_data(), sub_insar_data.ref_filt.get(), NULL, NULL);
-    cmd_queue.enqueueReadBuffer(device_phase_filt, CL_TRUE, 0, buf_sizes.io_data(), sub_insar_data.phi_filt.get(), NULL, NULL);
-    cmd_queue.enqueueReadBuffer(device_coh_filt,   CL_TRUE, 0, buf_sizes.io_data(), sub_insar_data.coh_filt.get(), NULL, NULL);
+    cmd_queue.enqueueReadBuffer(device_ref_filt,   CL_TRUE, 0, buf_sizes.io_data(), sub_insar_data.ref_filt(), NULL, NULL);
+    cmd_queue.enqueueReadBuffer(device_phase_filt, CL_TRUE, 0, buf_sizes.io_data(), sub_insar_data.phase_filt(), NULL, NULL);
+    cmd_queue.enqueueReadBuffer(device_coh_filt,   CL_TRUE, 0, buf_sizes.io_data(), sub_insar_data.coh_filt(), NULL, NULL);
 
     end = std::chrono::system_clock::now();
     duration = end-start;
