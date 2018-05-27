@@ -50,24 +50,15 @@ class sar_data {
 class insar_data
 {
     private:
-        std::unique_ptr<float[]> _ampl_master;
-        std::unique_ptr<float[]> _ampl_slave;
-        std::unique_ptr<float[]> _phase;
-        std::unique_ptr<float[]> _ref_filt;
-        std::unique_ptr<float[]> _phase_filt;
-        std::unique_ptr<float[]> _coh_filt;
+        std::unique_ptr<float[]> _data;
 
     public:
         int height;
         int width;
+        const int dim = 6;
 
         // takes ownership
-        insar_data(std::unique_ptr<float[]> ampl_master,
-                   std::unique_ptr<float[]> ampl_slave,
-                   std::unique_ptr<float[]> phase,
-                   std::unique_ptr<float[]> ref_filt,
-                   std::unique_ptr<float[]> phase_filt,
-                   std::unique_ptr<float[]> coh_filt,
+        insar_data(std::unique_ptr<float[]> data,
                    int height,
                    int width);
 
@@ -88,12 +79,13 @@ class insar_data
         insar_data& operator=(insar_data &&other) noexcept;
 
         // pubic interface that abstracts the internel data representation
-        float * ampl_master() const { return _ampl_master.get(); };
-        float * ampl_slave() const { return _ampl_slave.get(); };
-        float * phase() const { return _phase.get(); };
-        float * ref_filt() const { return _ref_filt.get(); };
-        float * phase_filt() const { return _phase_filt.get();} ;
-        float * coh_filt() const { return _coh_filt.get(); };
+        float * data()        const { return _data.get(); };
+        float * ampl_master() const { return _data.get(); };
+        float * ampl_slave()  const { return _data.get() +   height*width; };
+        float * phase()       const { return _data.get() + 2*height*width; };
+        float * ref_filt()    const { return _data.get() + 3*height*width; };
+        float * phase_filt()  const { return _data.get() + 4*height*width; };
+        float * coh_filt()    const { return _data.get() + 5*height*width; };
 
         ~insar_data() {};
 };
