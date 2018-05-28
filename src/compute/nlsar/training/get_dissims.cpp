@@ -45,8 +45,8 @@ std::vector<float> nlsar::training::get_dissims(cl::Context context,
 
     // overlapped dimension, large enough to include the complete padded data to compute the similarities;
     // also includes overlap for spatial averaging
-    const int height_overlap_avg = sub_insar_data.height;
-    const int width_overlap_avg  = sub_insar_data.width;
+    const int height_overlap_avg = sub_insar_data.height();
+    const int width_overlap_avg  = sub_insar_data.width();
     const int n_elem_overlap_avg = height_overlap_avg * width_overlap_avg;
 
     // overlapped dimension, large enough to include the complete padded data to compute the similarities;

@@ -33,8 +33,8 @@ timings::map goldstein::filter_sub_image(cl::Context context,
 {
     timings::map tm;
 
-    const unsigned int height = sub_insar_data.height;
-    const unsigned int width  = sub_insar_data.width;
+    const unsigned int height = sub_insar_data.height();
+    const unsigned int width  = sub_insar_data.width();
 
     const unsigned int n_patches_width  = width  / (patch_size-2*overlap);
     const unsigned int n_patches_height = height / (patch_size-2*overlap);

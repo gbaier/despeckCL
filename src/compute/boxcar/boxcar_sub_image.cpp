@@ -32,8 +32,8 @@ timings::map boxcar_sub_image(cl::Context context,
     start = std::chrono::system_clock::now();
 
     // overlapped dimension, large enough to include the complete padded data to compute the similarities
-    const int height_overlap = sub_insar_data.height;
-    const int width_overlap  = sub_insar_data.width;
+    const int height_overlap = sub_insar_data.height();
+    const int width_overlap  = sub_insar_data.width();
     const int n_elem_overlap = height_overlap*width_overlap;
 
     //***************************************************************************

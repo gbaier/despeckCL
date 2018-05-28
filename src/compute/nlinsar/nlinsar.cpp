@@ -127,8 +127,8 @@ int despeckcl::nlinsar(float* ampl_master,
                                      total_image.ref_filt(),
                                      total_image.phase_filt(),
                                      total_image.coh_filt(),
-                                     total_image.height,
-                                     total_image.width};
+                                     total_image.height(),
+                                     total_image.width()};
 
         auto tm = map_filter_tiles(nlinsar::nlinsar_sub_image,
                                    total_image,
@@ -147,9 +147,9 @@ int despeckcl::nlinsar(float* ampl_master,
     duration = end-start;
     VLOG(0) << "filtering ran for " << duration.count() << " secs" << std::endl;
 
-    memcpy(ref_filt,   total_image.ref_filt(), total_image.height*total_image.width*sizeof(float));
-    memcpy(phase_filt, total_image.phase_filt(), total_image.height*total_image.width*sizeof(float));
-    memcpy(coh_filt,   total_image.coh_filt(), total_image.height*total_image.width*sizeof(float));
+    memcpy(ref_filt,   total_image.ref_filt(), total_image.height()*total_image.width()*sizeof(float));
+    memcpy(phase_filt, total_image.phase_filt(), total_image.height()*total_image.width()*sizeof(float));
+    memcpy(coh_filt,   total_image.coh_filt(), total_image.height()*total_image.width()*sizeof(float));
 
     return 0;
 }

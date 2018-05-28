@@ -23,15 +23,15 @@ map_filter_tiles(Filter func,
   {
 #pragma omp master
     {
-      for (auto t : tile_iterator(total_image_in.height,
-                                  total_image_in.width,
+      for (auto t : tile_iterator(total_image_in.height(),
+                                  total_image_in.width(),
                                   tile_dims.first,
                                   tile_dims.second,
                                   overlap,
                                   overlap)) {
 #pragma omp task firstprivate(t)
         {
-          insar_data imgtile = tileget(total_image_in, t);
+          insar_data imgtile(tileget(total_image_in, t));
           try {
             timings::map tm_sub =
                 func(context, cl_wrappers, imgtile, parameters...);
@@ -44,9 +44,9 @@ map_filter_tiles(Filter func,
           }
           tile<2> rel_sub{t[0].get_sub(overlap, -overlap),
                           t[1].get_sub(overlap, -overlap)};
-          tile<2> tsub{slice{overlap, imgtile.height - overlap},
-                       slice{overlap, imgtile.width - overlap}};
-          insar_data imgtile_sub = tileget(imgtile, tsub);
+          tile<2> tsub{slice{overlap, imgtile.height() - overlap},
+                       slice{overlap, imgtile.width() - overlap}};
+          insar_data imgtile_sub(tileget(imgtile, tsub));
           tilecpy(total_image_out, imgtile_sub, rel_sub);
         }
       }

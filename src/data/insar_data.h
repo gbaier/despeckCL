@@ -19,78 +19,120 @@
 #ifndef INSAR_DATA_H
 #define INSAR_DATA_H
 
-#include <stdlib.h>
-#include <string.h> // for memset, memcpy
+#include <algorithm>
 #include <memory>
 
+#include "sub_images.h"
 #include "tile.h"
 
-
-/*
 template<typename Type, size_t D>
 class sar_data {
     public:
         int height;
         int width;
-        int dim = D;
+        const int dim = D;
+        std::unique_ptr<Type[]> _data;
 
-        sar_data(std::unique_ptr<Type> data, int height, int width, int dim);
-        sar_data(const sar_data<Type, D>& other);
-        sar_data& operator=(const sar_data &other);
+        // takes ownership
+        sar_data(std::unique_ptr<Type[]> data, int height, int width)
+            : _data(std::move(data)), height(height), width(width)
+        {
+        }
 
-        sar_data<Type, D> get_tile(tile t);
-        void write_tile(sar_data<Type, D> other, tile t);
+        sar_data(const sar_data& other) = delete;
 
-    private:
-        std::unique_ptr<float> data;
-};*/
+        sar_data(sar_data&& other) noexcept
+        {
+          std::swap(height, other.height);
+          std::swap(width, other.width);
+          std::swap(_data, other._data);
+        }
+
+        sar_data&
+        operator=(sar_data&& other) noexcept
+        {
+          std::swap(height, other.height);
+          std::swap(width, other.width);
+          std::swap(_data, other._data);
+          return *this;
+        }
+
+        ~sar_data() {};
+
+        float * data()        const { return _data.get(); };
+};
 
 #include <memory>
 
 class insar_data
 {
-    private:
-        std::unique_ptr<float[]> _data;
+ private:
+  sar_data<float, 6> _cont;
 
-    public:
-        int height;
-        int width;
-        const int dim = 6;
+ public:
+  // Allocates memory and copies data.
+  // This is for interfacing with C-libraries/programs
+  // or Python via SWIG.
+  insar_data(float* a1,
+             float* a2,
+             float* dp,
+             float* ref_filt,
+             float* phi_filt,
+             float* coh_filt,
+             int height,
+             int width);
 
-        // takes ownership
-        insar_data(std::unique_ptr<float[]> data,
-                   int height,
-                   int width);
+  explicit insar_data(sar_data<float, 6>&& cont) : _cont(std::move(cont)) {}
+  // takes ownership
+  insar_data(std::unique_ptr<float[]> data, int height, int width)
+      : _cont(std::move(data), height, width)
+  {
+  }
 
-        // Allocates memory and copies data.
-        // This is for interfacing with C-libraries/programs
-        // or Python via SWIG.
-        insar_data(float * a1,
-                   float * a2,
-                   float * dp,
-                   float * ref_filt,
-                   float * phi_filt,
-                   float * coh_filt,
-                   int height,
-                   int width);
+  // pubic interface that abstracts the internel data representation
+  int height() const { return _cont.height; };
+  int width() const  { return _cont.width; };
+  int dim()   const  { return _cont.dim; };
+  float * data()  const  { return _cont.data(); };
 
-        insar_data(const insar_data& other) = delete;
-        insar_data(insar_data&& other) noexcept;
-        insar_data& operator=(insar_data &&other) noexcept;
-
-        // pubic interface that abstracts the internel data representation
-        float * data()        const { return _data.get(); };
-        float * ampl_master() const { return _data.get(); };
-        float * ampl_slave()  const { return _data.get() +   height*width; };
-        float * phase()       const { return _data.get() + 2*height*width; };
-        float * ref_filt()    const { return _data.get() + 3*height*width; };
-        float * phase_filt()  const { return _data.get() + 4*height*width; };
-        float * coh_filt()    const { return _data.get() + 5*height*width; };
-
-        ~insar_data() {};
+  float* ampl_master() const { return _cont._data.get(); };
+  float* ampl_slave() const  { return _cont._data.get() +     height() * width(); };
+  float* phase() const       { return _cont._data.get() + 2 * height() * width(); };
+  
+  float* ref_filt() const    { return _cont._data.get() + 3 * height() * width(); };
+  float* phase_filt() const  { return _cont._data.get() + 4 * height() * width(); };
+  float* coh_filt() const    { return _cont._data.get() + 5 * height() * width(); };
 };
 
-insar_data tileget(const insar_data& img_data, tile<2> sub);
-void tilecpy(insar_data& img_data, const insar_data& img_tile, tile<2> sub);
+template<typename DataType>
+DataType tileget(const DataType& img_data, tile<2> sub) {
+  auto data_sub = get_sub_image(img_data.data(),
+                                img_data.height(),
+                                img_data.width(),
+                                img_data.dim(),
+                                sub[0].start,
+                                sub[1].start,
+                                sub[0].stop - sub[0].start,
+                                sub[1].stop - sub[1].start);
+  return DataType{std::move(data_sub),
+                  sub[0].stop - sub[0].start,
+                  sub[1].stop - sub[1].start};
+}
+
+// copy img_tile to img_data defined by sub
+// akin to memcpy
+template<typename DataType>
+void tilecpy(DataType& img_data, const DataType& img_tile, tile<2> sub) {
+  write_sub_image(img_data.data(),
+                  img_data.height(),
+                  img_data.width(),
+                  img_data.dim(),
+                  img_tile.data(),
+                  sub[0].start,
+                  sub[1].start,
+                  sub[0].stop - sub[0].start,
+                  sub[1].stop - sub[1].start,
+                  0);
+}
 
 #endif
