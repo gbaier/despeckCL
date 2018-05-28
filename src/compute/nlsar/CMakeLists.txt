@@ -15,6 +15,7 @@ include_directories(${despeckCL_SOURCE_DIR}/src/compute/nlsar/training)
 add_library(nlsar_lib OBJECT
             nlsar.cpp
             nlsar_filter_sub_image.cpp
+            conversion.cpp
             stats.cpp
             best_params.cpp
             best_weights_copy.cpp

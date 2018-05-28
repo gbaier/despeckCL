@@ -28,6 +28,7 @@
 
 #include "timings.h"
 #include "routines.h"
+#include "conversion.h"
 
 timings::map nlsar::filter_sub_image(cl::Context context,
                                      cl_wrappers nl_routines,
@@ -77,16 +78,25 @@ timings::map nlsar::filter_sub_image(cl::Context context,
 
     //***************************************************************************
     //
+    // command queue
+    //
+    //***************************************************************************
+
+    std::vector<cl::Device> devices;
+    context.getInfo(CL_CONTEXT_DEVICES, &devices);
+    cl::CommandQueue cmd_queue{context, devices[0]};
+    cl::CommandQueue cmd_copy_queue{context, devices[0]};
+
+    //***************************************************************************
+    //
     // global buffers used by the kernels to exchange data
     //
     //***************************************************************************
 
     LOG(DEBUG) << "allocating buffers on device";
-    cl::Buffer device_ampl_master {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, buf_sizes.io_data(), sub_insar_data.ampl_master(), NULL};
-    cl::Buffer device_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, buf_sizes.io_data(), sub_insar_data.ampl_slave(), NULL};
-    cl::Buffer device_phase       {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, buf_sizes.io_data(), sub_insar_data.phase(), NULL};
 
-    cl::Buffer covmat_ori      {context, CL_MEM_READ_WRITE, buf_sizes.io_covmat(), NULL, NULL};
+    cl::Buffer covmat_ori = nlsar::data_to_covmat(
+        sub_insar_data, context, cmd_queue, nl_routines.covmat_create_routine, buf_sizes);
     cl::Buffer covmat_rescaled {context, CL_MEM_READ_WRITE, buf_sizes.io_covmat(), NULL, NULL};
 
     std::map<params, cl::Buffer> device_lut_dissims2relidx;
@@ -119,21 +129,7 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     cl::Buffer device_best_weights {context, CL_MEM_READ_WRITE, buf_sizes.weights(), NULL, NULL};
     cl::Buffer device_best_alphas  {context, CL_MEM_READ_WRITE, buf_sizes.alphas(), NULL, NULL};
 
-    cl::Buffer device_ref_filt   {context, CL_MEM_READ_WRITE, buf_sizes.io_data(), NULL, NULL};
-    cl::Buffer device_phase_filt {context, CL_MEM_READ_WRITE, buf_sizes.io_data(), NULL, NULL};
-    cl::Buffer device_coh_filt   {context, CL_MEM_READ_WRITE, buf_sizes.io_data(), NULL, NULL};
     cl::Buffer covmat_filt       {context, CL_MEM_READ_WRITE, buf_sizes.io_covmat(), NULL, NULL};
-
-    //***************************************************************************
-    //
-    // command queue
-    //
-    //***************************************************************************
-
-    std::vector<cl::Device> devices;
-    context.getInfo(CL_CONTEXT_DEVICES, &devices);
-    cl::CommandQueue cmd_queue{context, devices[0]};
-    cl::CommandQueue cmd_copy_queue{context, devices[0]};
 
     end = std::chrono::system_clock::now();
     duration = end-start;
@@ -144,18 +140,10 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     // executing routines and kernels
     //
     //***************************************************************************
-    LOG(DEBUG) << "covmat_create";
-    tm["covmat_create"] = nl_routines.covmat_create_routine.timed_run(cmd_queue,
-                                                                      device_ampl_master,
-                                                                      device_ampl_slave,
-                                                                      device_phase,
-                                                                      covmat_ori,
-                                                                      height_overlap_avg,
-                                                                      width_overlap_avg);
-
-    cmd_queue.enqueueCopyBuffer(covmat_ori, covmat_rescaled, 0, 0, 2*dimensions * dimensions * n_elem_overlap_avg * sizeof(float), NULL, NULL);
 
     LOG(DEBUG) << "covmat_rescale";
+
+    cmd_queue.enqueueCopyBuffer(covmat_ori, covmat_rescaled, 0, 0, 2*dimensions * dimensions * n_elem_overlap_avg * sizeof(float), NULL, NULL);
     tm["covmat_rescale"] = nl_routines.covmat_rescale_routine.timed_run(cmd_queue,
                                                                         covmat_rescaled,
                                                                         dimensions,
@@ -282,28 +270,12 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                                                         scale_size_max);
 
     LOG(DEBUG) << "covmat_decompose";
-    tm["covmat_decompose"] = nl_routines.covmat_decompose_routine.timed_run(cmd_queue,
-                                                                            covmat_filt,
-                                                                            device_ref_filt,
-                                                                            device_phase_filt,
-                                                                            device_coh_filt,
-                                                                            height_overlap_avg,
-                                                                            width_overlap_avg);
-    
-    //***************************************************************************
-    //
-    // copying back result and clean up
-    //
-    //***************************************************************************
-    LOG(DEBUG) << "copying sub result";
-    start = std::chrono::system_clock::now();
-    cmd_queue.enqueueReadBuffer(device_ref_filt,   CL_TRUE, 0, buf_sizes.io_data(), sub_insar_data.ref_filt(), NULL, NULL);
-    cmd_queue.enqueueReadBuffer(device_phase_filt, CL_TRUE, 0, buf_sizes.io_data(), sub_insar_data.phase_filt(), NULL, NULL);
-    cmd_queue.enqueueReadBuffer(device_coh_filt,   CL_TRUE, 0, buf_sizes.io_data(), sub_insar_data.coh_filt(), NULL, NULL);
-
-    end = std::chrono::system_clock::now();
-    duration = end-start;
-    tm["copy_sub_result"] = duration.count();
+    covmat_to_data(covmat_filt,
+                   sub_insar_data,
+                   context,
+                   cmd_queue,
+                   nl_routines.covmat_decompose_routine,
+                   buf_sizes);
 
     return tm;
 }

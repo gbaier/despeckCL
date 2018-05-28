@@ -104,6 +104,34 @@ class insar_data
   float* coh_filt() const    { return _cont._data.get() + 5 * height() * width(); };
 };
 
+
+class ampl_data
+{
+ private:
+  sar_data<float, 1> _cont;
+
+ public:
+  // Allocates memory and copies data.
+  // This is for interfacing with C-libraries/programs
+  // or Python via SWIG.
+  ampl_data(float* ampl, int height, int width);
+
+  explicit ampl_data(sar_data<float, 1>&& cont) : _cont(std::move(cont)) {}
+  // takes ownership
+  ampl_data(std::unique_ptr<float[]> data, int height, int width)
+      : _cont(std::move(data), height, width)
+  {
+  }
+
+  // pubic interface that abstracts the internel data representation
+  int height() const { return _cont.height; };
+  int width() const  { return _cont.width; };
+  int dim()   const  { return _cont.dim; };
+  float * data()  const  { return _cont.data(); };
+
+  float* ampl() const { return _cont._data.get(); };
+};
+
 template<typename DataType>
 DataType tileget(const DataType& img_data, tile<2> sub) {
   auto data_sub = get_sub_image(img_data.data(),
