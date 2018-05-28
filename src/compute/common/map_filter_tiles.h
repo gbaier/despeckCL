@@ -37,7 +37,7 @@ map_filter_tiles(Filter func,
                 func(context, cl_wrappers, imgtile, parameters...);
 #pragma omp critical
             tm = timings::join(tm, tm_sub);
-          } catch (cl::Error error) {
+          } catch (cl::Error &error) {
             LOG(ERROR) << error.what() << "(" << error.err() << ")";
             LOG(ERROR) << "ERR while filtering sub image";
             std::terminate();

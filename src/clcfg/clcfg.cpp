@@ -32,7 +32,7 @@ cl::Context opencl_setup(void)
     std::vector<cl::Platform> platforms;
     try {
         cl::Platform::get(&platforms);
-    } catch (cl::Error err) {
+    } catch (cl::Error &err) {
         LOG(FATAL) << err.what() << "(" << err.err() << ")";
     }
 

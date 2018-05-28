@@ -18,13 +18,13 @@
 
 #include "tile_iterator.h"
 
-tile_iterator::tile_iterator(const int maxh_height,
+tile_iterator::tile_iterator(const int max_height,
                              const int max_width,
                              const int tile_size,
                              const int overlap_border,
                              const int overlap_tile) : max_height(max_height),
                                                        max_width(max_width),
-                                                       tile_height(tile_height),
+                                                       tile_height(tile_size),
                                                        tile_width(tile_size),
                                                        overlap_border(overlap_border),
                                                        overlap_tile(overlap_tile),

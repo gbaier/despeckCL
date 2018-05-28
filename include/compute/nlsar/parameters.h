@@ -48,7 +48,7 @@ namespace nlsar {
         private:
             friend class boost::serialization::access;
             template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
+            void serialize(Archive & ar, const unsigned int /* file_version */)
             {
                 ar & patch_size;
                 ar & scale_size;

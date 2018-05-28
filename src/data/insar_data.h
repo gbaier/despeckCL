@@ -28,10 +28,10 @@
 template<typename Type, size_t D>
 class sar_data {
     public:
+        std::unique_ptr<Type[]> _data;
         int height;
         int width;
         const int dim = D;
-        std::unique_ptr<Type[]> _data;
 
         // takes ownership
         sar_data(std::unique_ptr<Type[]> data, int height, int width)

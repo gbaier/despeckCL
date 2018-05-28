@@ -107,7 +107,7 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                                                 lut_size * sizeof(float), (void*) para_stats.quantilles.data(), NULL};
             device_lut_chi2cdf_inv    [parameter] = cl::Buffer {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, \
                                                                 lut_size * sizeof(float), (void*) para_stats.chi2cdf_inv.data(), NULL};
-        } catch (cl::Error error) {
+        } catch (cl::Error &error) {
             LOG(ERROR) << "ERR copying LUT to device";
             LOG(ERROR) << error.what() << "(" << error.err() << ")";
             std::terminate();

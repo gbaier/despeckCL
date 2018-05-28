@@ -70,7 +70,7 @@ class kernel_env : public routine_env<Derived>
             cl::Program program{static_cast<Derived*>(this)->context, kernel_source};
             try {
                 program.build(devices, build_opts.c_str());
-            } catch (cl::Error error) {
+            } catch (cl::Error &error) {
                 LOG(ERROR) << "ERROR";
                 LOG(ERROR) << error.what() << "(" << error.err() << ")";
                 std::string build_log;
@@ -86,7 +86,7 @@ class kernel_env : public routine_env<Derived>
             LOG(DEBUG) << "Building kernel for: " << routine_name;
             try {
                 return cl::Kernel{program, routine_name.c_str()};
-            } catch (cl::Error error) {
+            } catch (cl::Error &error) {
                 LOG(ERROR) << error.what() << "(" << error.err() << ")";
                 std::terminate();
             }
@@ -102,7 +102,7 @@ class kernel_env : public routine_env<Derived>
 
             try {
                 static_cast<Derived*>(this)->run(cmd_queue, args...);
-            } catch (cl::Error error) {
+            } catch (cl::Error &error) {
                 LOG(ERROR) << "ERR while running kernel: " << routine_name;
                 LOG(ERROR) << error.what() << "(" << error.err() << ")";
                 std::terminate();
