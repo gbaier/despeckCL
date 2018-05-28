@@ -26,7 +26,7 @@
 #include "logging.h"
 
 #include "boxcar_sub_image.h"
-#include "insar_data.h"
+#include "data.h"
 #include "tile_iterator.h"
 #include "tile.h"
 #include "map_filter_tiles.h"

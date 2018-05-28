@@ -25,7 +25,7 @@
 #include <omp.h>
 
 #include "cl_wrappers.h"
-#include "insar_data.h"
+#include "data.h"
 #include "tile_iterator.h"
 #include "tile_size.h"
 #include "goldstein_filter_sub_image.h"

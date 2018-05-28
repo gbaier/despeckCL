@@ -20,7 +20,7 @@
 #define GOLDSTEIN_SUB_IMAGE_H
 
 #include "cl_wrappers.h"
-#include "insar_data.h"
+#include "data.h"
 #include "timings.h"
 
 namespace goldstein {

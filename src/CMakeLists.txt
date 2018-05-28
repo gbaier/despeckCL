@@ -38,7 +38,7 @@ add_library(despeckcl SHARED
             ${despeckCL_SOURCE_DIR}/src/utils/checks.cpp
             ${despeckCL_SOURCE_DIR}/src/utils/timings.cpp
             ${despeckCL_SOURCE_DIR}/src/utils/optimal_tiling.cpp
-            ${despeckCL_SOURCE_DIR}/src/data/insar_data.cpp
+            ${despeckCL_SOURCE_DIR}/src/data/data.cpp
             ${despeckCL_SOURCE_DIR}/src/data/tile_iterator.cpp
             ${despeckCL_SOURCE_DIR}/src/data/sub_images.cpp
             #${despeckCL_SOURCE_DIR}/src/clcfg/clcfg.cpp

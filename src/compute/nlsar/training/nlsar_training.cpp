@@ -20,7 +20,7 @@
 
 #include "logging.h"
 #include "clcfg.h"
-#include "insar_data.h"
+#include "data.h"
 #include "get_stats.h"
 
 #include "cl_wrappers.h"

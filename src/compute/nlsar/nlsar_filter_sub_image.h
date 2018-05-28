@@ -20,7 +20,7 @@
 #define NLSAR_SUB_IMAGE_H
 
 #include "cl_wrappers.h"
-#include "insar_data.h"
+#include "data.h"
 #include "stats.h"
 #include "best_params.h"
 #include "timings.h"

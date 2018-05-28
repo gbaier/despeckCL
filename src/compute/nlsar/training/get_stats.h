@@ -25,7 +25,7 @@
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 
-#include "insar_data.h"
+#include "data.h"
 #include "stats.h"
 #include "parameters.h"
 #include "cl_wrappers.h"

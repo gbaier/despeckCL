@@ -27,7 +27,7 @@
 #include <vector>
 #include <string>
 
-#include "insar_data.h"
+#include "data.h"
 #include "tile_iterator.h"
 #include "nlinsar_sub_image.h"
 #include "sub_images.h"

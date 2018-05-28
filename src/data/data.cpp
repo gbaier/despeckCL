@@ -16,7 +16,7 @@
  * along with despeckCL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "insar_data.h"
+#include "data.h"
 
 insar_data::insar_data(float * a1,
                        float * a2,
