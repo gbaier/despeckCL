@@ -82,7 +82,6 @@ class insar_data
              int height,
              int width);
 
-  explicit insar_data(sar_data<float, 6>&& cont) : _cont(std::move(cont)) {}
   // takes ownership
   insar_data(std::unique_ptr<float[]> data, int height, int width)
       : _cont(std::move(data), height, width)
@@ -104,19 +103,17 @@ class insar_data
   float* coh_filt() const    { return _cont._data.get() + 5 * height() * width(); };
 };
 
-
 class ampl_data
 {
  private:
-  sar_data<float, 1> _cont;
+  sar_data<float, 2> _cont;
 
  public:
   // Allocates memory and copies data.
   // This is for interfacing with C-libraries/programs
   // or Python via SWIG.
-  ampl_data(float* ampl, int height, int width);
+  ampl_data(float* ampl, float* ref_filt, int height, int width);
 
-  explicit ampl_data(sar_data<float, 1>&& cont) : _cont(std::move(cont)) {}
   // takes ownership
   ampl_data(std::unique_ptr<float[]> data, int height, int width)
       : _cont(std::move(data), height, width)
@@ -129,7 +126,8 @@ class ampl_data
   int dim()   const  { return _cont.dim; };
   float * data()  const  { return _cont.data(); };
 
-  float* ampl() const { return _cont._data.get(); };
+  float* ampl()     const { return _cont._data.get(); };
+  float* ref_filt() const { return _cont._data.get() + height() * width(); };
 };
 
 template<typename DataType>

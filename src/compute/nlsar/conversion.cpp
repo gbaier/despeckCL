@@ -61,6 +61,31 @@ nlsar::data_to_covmat(const insar_data& sub_insar_data,
   return covmat;
 }
 
+
+/*
+cl::Buffer
+nlsar::data_to_covmat(const ampl_data& sub_data,
+                      const cl::Context& context,
+                      const cl::CommandQueue& cmd_queue,
+                      const buffer_sizes& buf_sizes)
+{
+  cl::Buffer covmat{context, CL_MEM_READ_WRITE, buf_sizes.io_covmat(), NULL, NULL};
+
+  // copy amplitude as real part
+  cmd_queue.enqueueWriteBuffer(
+      covmat, CL_TRUE, 0, buf_sizes.io_data(), sub_data.ampl());
+  // set imaginary part to 0.0f
+  cmd_queue.enqueueFillBuffer(covmat,
+                              0.0f,
+                              buf_sizes.io_data(), // offset
+                              buf_sizes.io_data(),
+                              NULL,
+                              NULL);
+
+  return covmat;
+}*/
+
+
 void
 nlsar::covmat_to_data(const cl::Buffer& covmat_filt,
                       insar_data& sub_insar_data,
@@ -116,3 +141,15 @@ nlsar::covmat_to_data(const cl::Buffer& covmat_filt,
                               NULL,
                               NULL);
 }
+
+/*
+void
+nlsar::covmat_to_data(const cl::Buffer& covmat_filt,
+                      ampl_data& sub_data,
+                      const cl::CommandQueue& cmd_queue,
+                      const buffer_sizes& buf_sizes)
+{
+  // copy amplitude as real part
+  cmd_queue.enqueueReadBuffer(
+      covmat_filt, CL_TRUE, 0, buf_sizes.io_data(), sub_data.ampl());
+}*/

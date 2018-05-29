@@ -37,10 +37,11 @@ insar_data::insar_data(float * a1,
     std::copy(coh_filt, coh_filt+size, this->coh_filt());
 }
 
-ampl_data::ampl_data(float* ampl, int height, int width)
-    : _cont(std::make_unique<float[]>(height * width), height, width)
+ampl_data::ampl_data(float* ampl, float* ref_filt, int height, int width)
+    : _cont(std::make_unique<float[]>(2 * height * width), height, width)
 {
     const size_t size = height*width;
 
     std::copy(ampl, ampl+size, this->ampl());
+    std::copy(ref_filt, ref_filt+size, this->ref_filt());
 }
