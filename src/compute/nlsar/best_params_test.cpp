@@ -55,8 +55,7 @@ TEST(best_params, random) {
     enl[p1] = enl1;
     enl[p2] = enl2;
 
-    std::vector<params> best_ps;
-    get_best_params{}.run(enl, &best_ps, height, width);
+    std::vector<params> best_ps = get_best_params(enl);
     std::vector<params> desired_best_ps(height*width, p2);
 
     ASSERT_THAT(best_ps, Pointwise(testing::Eq(), desired_best_ps));

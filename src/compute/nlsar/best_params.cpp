@@ -19,25 +19,36 @@
 #include "best_params.h"
 
 #include <algorithm>
+#include <numeric>
+#include <iterator>     // std::back_inserter
 
 using nlsar::params;
 
-void nlsar::get_best_params::run(std::map<params, std::vector<float>> &enl,
-                                 std::vector<params>* best_parameters,
-                                 const int height,
-                                 const int width)
+std::vector<params> nlsar::get_best_params(const std::map<params, std::vector<float>> &enl)
 {
-    for(int h = 0; h < height; h++) {
-        for(int w = 0; w < width; w++) {
-            std::pair<params, float> best_param {{0,0}, -1.0f};
-            // get best parameter for a single pixel
-            for(auto const& param_and_enl : enl) {
-                if(param_and_enl.second[h*width+w] > best_param.second) {
-                    best_param.first  = param_and_enl.first;
-                    best_param.second = param_and_enl.second[h*width+w];
-                }
-            }
-            best_parameters->push_back(best_param.first);
-        }
+  size_t nelem_ori = (*enl.begin()).second.size();
+
+  std::vector<float> best_enl(nelem_ori, -1.0f);
+  std::vector<params> best_parameters(nelem_ori, params{0, 0});
+
+  // can possibly be written more succinctly using std::reduce, which needs
+  // C++17
+  for (auto const& param_and_enl : enl) {
+    std::vector<bool> mask;
+    std::transform(std::begin(best_enl),
+                   std::end(best_enl),
+                   std::begin(param_and_enl.second),
+                   std::back_inserter(mask),
+                   [](float enl1, float enl2) { return enl2 > enl1; });
+
+    auto cbp     = std::begin(best_parameters);
+    auto mask_it = std::begin(mask);
+
+    while (cbp != std::end(best_parameters)) {
+      if (*mask_it++) {
+        *cbp++ = param_and_enl.first;
+      }
     }
+  }
+  return best_parameters;
 }
