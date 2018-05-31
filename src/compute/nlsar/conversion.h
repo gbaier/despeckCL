@@ -32,11 +32,10 @@ cl::Buffer data_to_covmat(const insar_data& sub_insar_data,
                           covmat_create& cl_routine,
                           const buffer_sizes& buf_sizes);
 
-/*
 cl::Buffer data_to_covmat(const ampl_data& sub_data,
                           const cl::Context& context,
                           const cl::CommandQueue& cmd_queue,
-                          const buffer_sizes& buf_sizes);*/
+                          const buffer_sizes& buf_sizes);
 
 void covmat_to_data(const cl::Buffer& covmat_filt,
                     insar_data& sub_insar_data,
@@ -45,9 +44,8 @@ void covmat_to_data(const cl::Buffer& covmat_filt,
                     covmat_decompose& cl_routine,
                     const buffer_sizes& buf_sizes);
 
-/*
 void covmat_to_data(const cl::Buffer& covmat_filt,
                     ampl_data& sub_data,
                     const cl::CommandQueue& cmd_queue,
-                    const buffer_sizes& buf_sizes);*/
+                    const buffer_sizes& buf_sizes);
 }  // namespace nlsar

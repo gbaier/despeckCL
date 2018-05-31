@@ -62,7 +62,6 @@ nlsar::data_to_covmat(const insar_data& sub_insar_data,
 }
 
 
-/*
 cl::Buffer
 nlsar::data_to_covmat(const ampl_data& sub_data,
                       const cl::Context& context,
@@ -83,7 +82,7 @@ nlsar::data_to_covmat(const ampl_data& sub_data,
                               NULL);
 
   return covmat;
-}*/
+}
 
 
 void
@@ -142,7 +141,6 @@ nlsar::covmat_to_data(const cl::Buffer& covmat_filt,
                               NULL);
 }
 
-/*
 void
 nlsar::covmat_to_data(const cl::Buffer& covmat_filt,
                       ampl_data& sub_data,
@@ -152,4 +150,4 @@ nlsar::covmat_to_data(const cl::Buffer& covmat_filt,
   // copy amplitude as real part
   cmd_queue.enqueueReadBuffer(
       covmat_filt, CL_TRUE, 0, buf_sizes.io_data(), sub_data.ampl());
-}*/
+}
