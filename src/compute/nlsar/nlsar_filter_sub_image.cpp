@@ -30,6 +30,7 @@
 #include "routines.h"
 #include "conversion.h"
 
+
 timings::map nlsar::filter_sub_image(cl::Context context,
                                      cl_wrappers nl_routines,
                                      insar_data& sub_insar_data,
@@ -39,14 +40,71 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                      const int dimensions,
                                      std::map<params, stats> &dissim_stats)
 {
+
+    const buffer_sizes buf_sizes{sub_insar_data.height(),
+                                 sub_insar_data.width(),
+                                 dimensions,
+                                 search_window_size,
+                                 patch_sizes,
+                                 scale_sizes};
+
+    std::vector<cl::Device> devices;
+    context.getInfo(CL_CONTEXT_DEVICES, &devices);
+
+    cl::CommandQueue cmd_queue{context, devices[0]};
+
+    cl::Buffer covmat_ori =
+        nlsar::data_to_covmat(sub_insar_data,
+                              context,
+                              cmd_queue,
+                              nl_routines.covmat_create_routine,
+                              buf_sizes);
+    cl::Buffer covmat_filt{
+        context, CL_MEM_READ_WRITE, buf_sizes.io_covmat(), NULL, NULL};
+
+    auto tm = nlsar::filter_sub_image_gpu(context,
+                                          nl_routines,
+                                          covmat_ori,
+                                          covmat_filt,
+                                          sub_insar_data.height(),
+                                          sub_insar_data.width(),
+                                          search_window_size,
+                                          patch_sizes,
+                                          scale_sizes,
+                                          dimensions,
+                                          dissim_stats);
+
+    covmat_to_data(covmat_filt,
+                   sub_insar_data,
+                   context,
+                   cmd_queue,
+                   nl_routines.covmat_decompose_routine,
+                   buf_sizes);
+
+    return tm;
+}
+
+timings::map
+nlsar::filter_sub_image_gpu(cl::Context context,
+                            cl_wrappers nl_routines,
+                            cl::Buffer& covmat_ori,
+                            cl::Buffer& covmat_filt,
+                            const int height,
+                            const int width,
+                            const int search_window_size,
+                            const std::vector<int> patch_sizes,
+                            const std::vector<int> scale_sizes,
+                            const int dimensions,
+                            std::map<params, stats>& dissim_stats)
+{
     std::chrono::time_point<std::chrono::system_clock> start, end;
     std::chrono::duration<double> duration;
     timings::map tm;
     std::map<params, int> params2idx;
     start = std::chrono::system_clock::now();
 
-    const buffer_sizes buf_sizes{sub_insar_data.height(),
-                                 sub_insar_data.width(),
+    const buffer_sizes buf_sizes{height,
+                                 width,
                                  dimensions,
                                  search_window_size,
                                  patch_sizes,
@@ -63,8 +121,8 @@ timings::map nlsar::filter_sub_image(cl::Context context,
 
     // overlapped dimension, large enough to include the complete padded data to compute the similarities;
     // also includes overlap for spatial averaging
-    const int height_overlap_avg = sub_insar_data.height();
-    const int width_overlap_avg  = sub_insar_data.width();
+    const int height_overlap_avg = height;
+    const int width_overlap_avg  = width;
     const int n_elem_overlap_avg = height_overlap_avg * width_overlap_avg;
 
     // overlapped dimension, large enough to include the complete padded data to compute the similarities;
@@ -95,8 +153,6 @@ timings::map nlsar::filter_sub_image(cl::Context context,
 
     LOG(DEBUG) << "allocating buffers on device";
 
-    cl::Buffer covmat_ori = nlsar::data_to_covmat(
-        sub_insar_data, context, cmd_queue, nl_routines.covmat_create_routine, buf_sizes);
     cl::Buffer covmat_rescaled {context, CL_MEM_READ_WRITE, buf_sizes.io_covmat(), NULL, NULL};
 
     std::map<params, cl::Buffer> device_lut_dissims2relidx;
@@ -117,7 +173,6 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     cl::Buffer device_best_weights {context, CL_MEM_READ_WRITE, buf_sizes.weights(), NULL, NULL};
     cl::Buffer device_best_alphas  {context, CL_MEM_READ_WRITE, buf_sizes.alphas(), NULL, NULL};
 
-    cl::Buffer covmat_filt       {context, CL_MEM_READ_WRITE, buf_sizes.io_covmat(), NULL, NULL};
 
     end = std::chrono::system_clock::now();
     duration = end-start;
@@ -259,14 +314,6 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                                                         search_window_size,
                                                                         patch_size_max,
                                                                         scale_size_max);
-
-    LOG(DEBUG) << "covmat_decompose";
-    covmat_to_data(covmat_filt,
-                   sub_insar_data,
-                   context,
-                   cmd_queue,
-                   nl_routines.covmat_decompose_routine,
-                   buf_sizes);
 
     return tm;
 }
