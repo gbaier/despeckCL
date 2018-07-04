@@ -76,19 +76,15 @@ void print_params(const int height,
     LOG(INFO) << "tile width: " << tile_dims.second;
 }
 
-int despeckcl::nlsar(float* ampl_master,
-                     float* ampl_slave,
-                     float* phase,
-                     float* ref_filt,
-                     float* phase_filt,
-                     float* coh_filt,
-                     const int height,
-                     const int width,
-                     const int search_window_size,
-                     const std::vector<int> patch_sizes,
-                     const std::vector<int> scale_sizes,
-                     std::map<nlsar::params, nlsar::stats> nlsar_stats,
-                     std::vector<std::string> enabled_log_levels)
+
+// generic data-agnostic implementation
+template<typename Data>
+int nlsar_gen(Data& data,
+              const int search_window_size,
+              const std::vector<int> patch_sizes,
+              const std::vector<int> scale_sizes,
+              std::map<nlsar::params, nlsar::stats> nlsar_stats,
+              std::vector<std::string> enabled_log_levels)
 {
     logging_setup(enabled_log_levels);
 
@@ -101,10 +97,16 @@ int despeckcl::nlsar(float* ampl_master,
     const int overlap = get_overlap(search_window_size, patch_sizes, scale_sizes);
 
     // compute maximum tile size that fits into the GPU's VRAM
-    const std::pair<int, int> tile_dims = nlsar::tile_size(context, height, width, dimension, search_window_size, patch_sizes, scale_sizes);
+    const std::pair<int, int> tile_dims = nlsar::tile_size(context,
+                                                           data.height(),
+                                                           data.width(),
+                                                           dimension,
+                                                           search_window_size,
+                                                           patch_sizes,
+                                                           scale_sizes);
 
-    print_params(height,
-                 width,
+    print_params(data.height(),
+                 data.width(),
                  search_window_size,
                  patch_sizes,
                  scale_sizes,
@@ -121,16 +123,12 @@ int despeckcl::nlsar(float* ampl_master,
     duration = end-start;
     VLOG(0) << "Time it took to build all kernels: " << duration.count() << "secs";
 
-    // prepare data
-    insar_data total_image{ampl_master, ampl_slave, phase,
-                           ref_filt, phase_filt, coh_filt,
-                           height, width};
 
     // filtering
     start = std::chrono::system_clock::now();
     auto tm = map_filter_tiles(nlsar::filter_sub_image,
-                               total_image, // same image can be used as input and output
-                               total_image,
+                               data, // same image can be used as input and output
+                               data,
                                context,
                                nlsar_cl_wrappers,
                                tile_dims,
@@ -146,9 +144,35 @@ int despeckcl::nlsar(float* ampl_master,
     duration = end-start;
     VLOG(0) << "filtering ran for " << duration.count() << " secs" << std::endl;
 
+
+    return 0;
+}
+
+// specialized wrapper using insar_data
+int despeckcl::nlsar(float* ampl_master,
+                     float* ampl_slave,
+                     float* phase,
+                     float* ref_filt,
+                     float* phase_filt,
+                     float* coh_filt,
+                     const int height,
+                     const int width,
+                     const int search_window_size,
+                     const std::vector<int> patch_sizes,
+                     const std::vector<int> scale_sizes,
+                     std::map<nlsar::params, nlsar::stats> nlsar_stats,
+                     std::vector<std::string> enabled_log_levels) {
+
+    // prepare data
+    insar_data total_image{ampl_master, ampl_slave, phase,
+                           ref_filt, phase_filt, coh_filt,
+                           height, width};
+
+    int retval = nlsar_gen(total_image, search_window_size, patch_sizes, scale_sizes, nlsar_stats, enabled_log_levels);
+
     memcpy(ref_filt,   total_image.ref_filt(), total_image.height()*total_image.width()*sizeof(float));
     memcpy(phase_filt, total_image.phase_filt(), total_image.height()*total_image.width()*sizeof(float));
     memcpy(coh_filt,   total_image.coh_filt(), total_image.height()*total_image.width()*sizeof(float));
 
-    return 0;
+    return retval;
 }
