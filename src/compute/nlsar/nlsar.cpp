@@ -37,31 +37,26 @@
 #include "timings.h"
 #include "map_filter_tiles.h"
 
-int despeckcl::nlsar(float* ampl_master,
-                     float* ampl_slave,
-                     float* phase,
-                     float* ref_filt,
-                     float* phase_filt,
-                     float* coh_filt,
-                     const int height,
-                     const int width,
-                     const int search_window_size,
-                     const std::vector<int> patch_sizes,
-                     const std::vector<int> scale_sizes,
-                     std::map<nlsar::params, nlsar::stats> nlsar_stats,
-                     std::vector<std::string> enabled_log_levels)
-{
+
+int get_overlap(const int search_window_size,
+                const std::vector<int>& patch_sizes,
+                const std::vector<int>& scale_sizes) {
     const int patch_size_max = *std::max_element(patch_sizes.begin(), patch_sizes.end());
     const int scale_size_max = *std::max_element(scale_sizes.begin(), scale_sizes.end());
 
-    // FIXME
-    const int dimension = 2;
     // overlap consists of:
     // - (patch_size_max - 1)/2 + (search_window_size - 1)/2 for similarities
     // - (window_width - 1)/2 for spatial averaging of covariance matrices
-    const int overlap = (patch_size_max - 1)/2 + (search_window_size - 1)/2 + (scale_size_max - 1)/2;
+    return (patch_size_max - 1)/2 + (search_window_size - 1)/2 + (scale_size_max - 1)/2;
+}
 
-    logging_setup(enabled_log_levels);
+void print_params(const int height,
+                  const int width,
+                  const int search_window_size,
+                  const std::vector<int>& patch_sizes,
+                  const std::vector<int>& scale_sizes,
+                  const int overlap,
+                  const std::pair<int, int> tile_dims) {
 
     LOG(INFO) << "filter parameters";
     LOG(INFO) << "search window size: " << search_window_size;
@@ -77,13 +72,44 @@ int despeckcl::nlsar(float* ampl_master,
     LOG(INFO) << "height: " << height;
     LOG(INFO) << "width: " << width;
 
+    LOG(INFO) << "tile height: " << tile_dims.first;
+    LOG(INFO) << "tile width: " << tile_dims.second;
+}
+
+int despeckcl::nlsar(float* ampl_master,
+                     float* ampl_slave,
+                     float* phase,
+                     float* ref_filt,
+                     float* phase_filt,
+                     float* coh_filt,
+                     const int height,
+                     const int width,
+                     const int search_window_size,
+                     const std::vector<int> patch_sizes,
+                     const std::vector<int> scale_sizes,
+                     std::map<nlsar::params, nlsar::stats> nlsar_stats,
+                     std::vector<std::string> enabled_log_levels)
+{
+    logging_setup(enabled_log_levels);
+
+    // FIXME
+    const int dimension = 2;
+
     // legacy opencl setup
     cl::Context context = opencl_setup();
 
-    std::pair<int, int> tile_dims = nlsar::tile_size(context, height, width, dimension, search_window_size, patch_sizes, scale_sizes);
+    const int overlap = get_overlap(search_window_size, patch_sizes, scale_sizes);
 
-    LOG(INFO) << "tile height: " << tile_dims.first;
-    LOG(INFO) << "tile width: " << tile_dims.second;
+    // compute maximum tile size that fits into the GPU's VRAM
+    const std::pair<int, int> tile_dims = nlsar::tile_size(context, height, width, dimension, search_window_size, patch_sizes, scale_sizes);
+
+    print_params(height,
+                 width,
+                 search_window_size,
+                 patch_sizes,
+                 scale_sizes,
+                 overlap,
+                 tile_dims);
 
     // new build kernel interface
     std::chrono::time_point<std::chrono::system_clock> start, end;
@@ -118,7 +144,7 @@ int despeckcl::nlsar(float* ampl_master,
     timings::print(tm);
     end = std::chrono::system_clock::now();
     duration = end-start;
-    std::cout << "filtering ran for " << duration.count() << " secs" << std::endl;
+    VLOG(0) << "filtering ran for " << duration.count() << " secs" << std::endl;
 
     memcpy(ref_filt,   total_image.ref_filt(), total_image.height()*total_image.width()*sizeof(float));
     memcpy(phase_filt, total_image.phase_filt(), total_image.height()*total_image.width()*sizeof(float));
