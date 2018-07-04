@@ -51,9 +51,9 @@ $ cmake ../
 
 The Python version can also be selected manually in case multiple versions are installed.
 ```shell
-$ cmake ../ -DPYTHON_LIBRARY=~/anaconda3/lib/libpython3.5m.so \
-            -DPYTHON_INCLUDE_DIR=~/anaconda3/include/python3.5m/ \
-            -DPYTHON_EXECUTABLE=~/anaconda3/bin/python3.5
+$ cmake ../ -DPYTHON_LIBRARY=~/anaconda3/lib/libpython3.6m.so \
+            -DPYTHON_INCLUDE_DIR=~/anaconda3/include/python3.6m/ \
+            -DPYTHON_EXECUTABLE=~/anaconda3/bin/python3.6
 ```
 
 ```shell
