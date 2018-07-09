@@ -6,11 +6,11 @@
 #include "tile_iterator.h"
 #include "tile.h"
 
-template <typename Filter, typename Clroutines, typename... Params>
+template <typename Type, typename Filter, typename Clroutines, typename... Params>
 timings::map
 map_filter_tiles(Filter func,
-                 insar_data& total_image_in,
-                 insar_data& total_image_out,
+                 Type& total_image_in,
+                 Type& total_image_out,
                  cl::Context context,
                  const Clroutines& cl_wrappers,
                  std::pair<int, int> tile_dims,
@@ -31,7 +31,7 @@ map_filter_tiles(Filter func,
                                   overlap)) {
 #pragma omp task firstprivate(t)
         {
-          insar_data imgtile(tileget(total_image_in, t));
+          Type imgtile(tileget(total_image_in, t));
           try {
             timings::map tm_sub =
                 func(context, cl_wrappers, imgtile, parameters...);
@@ -46,7 +46,7 @@ map_filter_tiles(Filter func,
                           t[1].get_sub(overlap, -overlap)};
           tile<2> tsub{slice{overlap, imgtile.height() - overlap},
                        slice{overlap, imgtile.width() - overlap}};
-          insar_data imgtile_sub(tileget(imgtile, tsub));
+          Type imgtile_sub(tileget(imgtile, tsub));
           tilecpy(total_image_out, imgtile_sub, rel_sub);
         }
       }
