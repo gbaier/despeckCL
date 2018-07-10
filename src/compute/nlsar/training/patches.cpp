@@ -107,25 +107,28 @@ std::vector<nlsar::training::data> nlsar::training::data::get_all_patches(const 
     return all_patches;
 }
 
-float nlsar::training::data::dissimilarity(const data& other)
+float nlsar::training::dissimilarity(const data& first, const data& second)
 {
-    if (height != other.get_height() || width != other.get_width()) {
-        std::cout << height << ", " << other.get_height() << std::endl;
-        std::cout << width << ", " << other.get_width() << std::endl;
+    if (first.get_height() != second.get_height() || first.get_width() != second.get_width()) {
+        std::cout << first.get_height() << ", " << second.get_height() << std::endl;
+        std::cout << first.get_width()  << ", " << second.get_width()  << std::endl;
         throw std::out_of_range("patch sizes do not match");
     }
     float sum = 0.0f;
-    const float * const otherptr = other.get_covmats();
-    for(uint32_t i=0; i<height*width; i++) {
-        const float el_00_p1     = covmats[i];
-        const float el_01real_p1 = covmats[i + 2*height*width];
-        const float el_01imag_p1 = covmats[i + 3*height*width];
-        const float el_11_p1     = covmats[i + 6*height*width];
+    const float * const firstptr  = first.get_covmats();
+    const float * const secondptr = second.get_covmats();
+    const size_t offset = first.get_height()*first.get_width();
 
-        const float el_00_p2     = otherptr[i];
-        const float el_01real_p2 = otherptr[i + 2*height*width];
-        const float el_01imag_p2 = otherptr[i + 3*height*width];
-        const float el_11_p2     = otherptr[i + 6*height*width];
+    for(uint32_t i=0; i<offset; i++) {
+        const float el_00_p1     = firstptr[i];
+        const float el_01real_p1 = firstptr[i + 2*offset];
+        const float el_01imag_p1 = firstptr[i + 3*offset];
+        const float el_11_p1     = firstptr[i + 6*offset];
+
+        const float el_00_p2     = secondptr[i];
+        const float el_01real_p2 = secondptr[i + 2*offset];
+        const float el_01imag_p2 = secondptr[i + 3*offset];
+        const float el_11_p2     = secondptr[i + 6*offset];
 
         const int nlooks = 1;
 

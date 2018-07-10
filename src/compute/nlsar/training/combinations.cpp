@@ -34,7 +34,7 @@ std::vector<float> nlsar::training::get_all_dissim_combs(std::vector<data> patch
         std::transform(patches.begin(),
                        patches.end(),
                        std::back_inserter(dissims),
-                       [&head] (data& x) { return head.dissimilarity(x); });
+                       [&head] (data& x) { return dissimilarity(head, x); });
         acc.insert(acc.end(), dissims.begin(), dissims.end());
         return get_all_dissim_combs(patches, acc);
     }
