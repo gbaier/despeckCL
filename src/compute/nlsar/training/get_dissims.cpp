@@ -105,14 +105,15 @@ std::vector<float> nlsar::training::get_dissims(cl::Context context,
     cmd_queue.enqueueReadBuffer(device_covmat_spatial_avg, CL_TRUE, 0, covmat_spatial_avg.size() * sizeof(float), covmat_spatial_avg.data(), NULL, NULL);
 
     LOG(DEBUG) << "setting up training data";
-    training::data covmat_spatial_avg_c {covmat_spatial_avg.data(),
-                                         (uint32_t) height_overlap,
-                                         (uint32_t) width_overlap,
-                                         dimension};
+    covmat_data covmat_spatial_avg_c{covmat_spatial_avg.data(),
+                                     covmat_spatial_avg.data(),
+                                     height_overlap,
+                                     width_overlap,
+                                     dimension};
 
     LOG(DEBUG) << "get all patches inside training data";
-    std::vector<training::data> all_patches = training::get_all_patches(covmat_spatial_avg_c, patch_size);
+    std::vector<covmat_data> all_patches = training::get_all_patches(covmat_spatial_avg_c, patch_size);
 
     LOG(DEBUG) << "computing all patch dissimilarity combinations";
-    return get_all_dissim_combs(all_patches);
+    return get_all_dissim_combs(std::move(all_patches));
 }

@@ -22,42 +22,22 @@
 #include <vector>
 #include <cstdint>
 
-namespace nlsar {
-    namespace training {
-        class data
-        {
-            private:
-                const uint32_t _height;
-                const uint32_t _width;
-                const uint32_t _dimension;
-                float * const covmats;
+#include "data.h"
 
-            public:
-                data(const float * const covmats,
-                        const uint32_t height,
-                        const uint32_t width,
-                        const uint32_t dimension);
+namespace nlsar
+{
+namespace training
+{
+covmat_data get_patch(const covmat_data& training_data,
+                      int upper_h,
+                      int left_w,
+                      int patch_size);
 
-                data(const data& other);
+std::vector<covmat_data> get_all_patches(const covmat_data& training_data,
+                                         int patch_size);
 
-                ~data();
-
-                uint32_t height(void) const;
-                uint32_t width(void) const;
-                uint32_t dim(void) const;
-                float * get_covmats(void) const;
-
-        };
-
-        data get_patch(const data& training_data,
-                       uint32_t upper_h,
-                       uint32_t left_w,
-                       uint32_t patch_size);
-
-        std::vector<data> get_all_patches(const data& training_data,
-                                          uint32_t patch_size);
-        float dissimilarity(const data& first, const data& second);
-    }
-}
+float dissimilarity(const covmat_data& first, const covmat_data& second);
+}  // namespace training
+}  // namespace nlsar
 
 #endif
