@@ -111,7 +111,7 @@ std::vector<float> nlsar::training::get_dissims(cl::Context context,
                                          dimension};
 
     LOG(DEBUG) << "get all patches inside training data";
-    std::vector<training::data> all_patches = covmat_spatial_avg_c.get_all_patches(patch_size);
+    std::vector<training::data> all_patches = training::get_all_patches(covmat_spatial_avg_c, patch_size);
 
     LOG(DEBUG) << "computing all patch dissimilarity combinations";
     return get_all_dissim_combs(all_patches);

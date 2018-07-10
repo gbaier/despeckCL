@@ -47,16 +47,16 @@ namespace nlsar {
                 uint32_t get_dimension(void) const;
                 float * get_covmats(void) const;
 
-                std::vector<data> get_all_patches(const uint32_t patch_size);
-
-            private:
-                data get_patch(const uint32_t upper_h,
-                        const uint32_t left_w,
-                        const uint32_t patch_size);
         };
 
-        float dissimilarity(const data& first, const data& second);
+        data get_patch(const data& training_data,
+                       uint32_t upper_h,
+                       uint32_t left_w,
+                       uint32_t patch_size);
 
+        std::vector<data> get_all_patches(const data& training_data,
+                                          uint32_t patch_size);
+        float dissimilarity(const data& first, const data& second);
     }
 }
 

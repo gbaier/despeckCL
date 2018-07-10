@@ -72,36 +72,41 @@ float * nlsar::training::data::get_covmats(void) const
     return covmats;
 }
 
-nlsar::training::data nlsar::training::data::get_patch(const uint32_t upper_h,
-                                                       const uint32_t left_w,
-                                                       const uint32_t patch_size)
+nlsar::training::data nlsar::training::get_patch(const data& training_data,
+                                                 const uint32_t upper_h,
+                                                 const uint32_t left_w,
+                                                 const uint32_t patch_size)
 {
     assert(odd(patch_size) && (patch_size > 0));
-    if (upper_h + patch_size > height || left_w + patch_size > width) {
+    if (upper_h + patch_size > training_data.get_height() || left_w + patch_size > training_data.get_width()) {
         throw std::out_of_range("patch does not lie inside data");
     }
 
-    float * temp = (float*) malloc(2*patch_size*patch_size*dimension*dimension*sizeof(float));
-    for(uint32_t d=0; d<2*dimension*dimension; d++) {
+    float* temp = (float*)malloc(2 * patch_size * patch_size *
+                                 training_data.get_dimension() *
+                                 training_data.get_dimension() * sizeof(float));
+    for(uint32_t d=0; d<2*training_data.get_dimension()*training_data.get_dimension(); d++) {
         for(uint32_t h=0; h<patch_size; h++) {
             for(uint32_t w=0; w<patch_size; w++) {
                 const uint32_t odx = d*patch_size*patch_size + h*patch_size + w;
-                const uint32_t idx = d*height*width + (upper_h+h)*width + left_w+w;
-                temp[odx] = covmats[idx];
+                const uint32_t idx =
+                    d * training_data.get_height() * training_data.get_width() +
+                    (upper_h + h) * training_data.get_width() + left_w + w;
+                temp[odx] = training_data.get_covmats()[idx];
             }
         }
     }
-    data patch(temp, patch_size, patch_size, dimension);
+    data patch(temp, patch_size, patch_size, training_data.get_dimension());
     free(temp);
     return patch;
 }
 
-std::vector<nlsar::training::data> nlsar::training::data::get_all_patches(const uint32_t patch_size)
+std::vector<nlsar::training::data> nlsar::training::get_all_patches(const data& training_data, const uint32_t patch_size)
 {
     std::vector<data> all_patches;
-    for(uint32_t h=0; h<height-patch_size; h++) {
-        for(uint32_t w=0; w<width-patch_size; w++) {
-            all_patches.push_back(get_patch(h, w, patch_size));
+    for(uint32_t h=0; h<training_data.get_height()-patch_size; h++) {
+        for(uint32_t w=0; w<training_data.get_width()-patch_size; w++) {
+            all_patches.push_back(get_patch(training_data, h, w, patch_size));
         }
     }
     return all_patches;
