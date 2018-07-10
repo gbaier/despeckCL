@@ -37,13 +37,12 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                      const int search_window_size,
                                      const std::vector<int> patch_sizes,
                                      const std::vector<int> scale_sizes,
-                                     const int dimensions,
                                      std::map<params, stats> &dissim_stats)
 {
 
     const buffer_sizes buf_sizes{sub_insar_data.height(),
                                  sub_insar_data.width(),
-                                 dimensions,
+                                 sub_insar_data.dim(),
                                  search_window_size,
                                  patch_sizes,
                                  scale_sizes};
@@ -68,10 +67,10 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                           covmat_filt,
                                           sub_insar_data.height(),
                                           sub_insar_data.width(),
+                                          sub_insar_data.dim(),
                                           search_window_size,
                                           patch_sizes,
                                           scale_sizes,
-                                          dimensions,
                                           dissim_stats);
 
     covmat_to_data(covmat_filt,
@@ -84,6 +83,58 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     return tm;
 }
 
+
+timings::map nlsar::filter_sub_image(cl::Context context,
+                                     cl_wrappers nl_routines,
+                                     covmat_data& sub_covmat_data,
+                                     const int search_window_size,
+                                     const std::vector<int> patch_sizes,
+                                     const std::vector<int> scale_sizes,
+                                     std::map<params, stats> &dissim_stats)
+{
+  const buffer_sizes buf_sizes{sub_covmat_data.height(),
+                               sub_covmat_data.width(),
+                               sub_covmat_data.dim(),
+                               search_window_size,
+                               patch_sizes,
+                               scale_sizes};
+
+  std::vector<cl::Device> devices;
+  context.getInfo(CL_CONTEXT_DEVICES, &devices);
+
+  cl::CommandQueue cmd_queue{context, devices[0]};
+
+  cl::Buffer covmat_ori{context,
+                        CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                        buf_sizes.io_covmat(),
+                        sub_covmat_data.covmat_raw(),
+                        NULL};
+  cl::Buffer covmat_filt{
+      context, CL_MEM_READ_WRITE, buf_sizes.io_covmat(), NULL, NULL};
+
+  auto tm = nlsar::filter_sub_image_gpu(context,
+                                        nl_routines,
+                                        covmat_ori,
+                                        covmat_filt,
+                                        sub_covmat_data.height(),
+                                        sub_covmat_data.width(),
+                                        sub_covmat_data.dim(),
+                                        search_window_size,
+                                        patch_sizes,
+                                        scale_sizes,
+                                        dissim_stats);
+
+  cmd_queue.enqueueReadBuffer(covmat_filt,
+                              CL_TRUE,
+                              0,
+                              buf_sizes.io_covmat(),
+                              sub_covmat_data.covmat_filt(),
+                              NULL,
+                              NULL);
+
+  return tm;
+}
+
 timings::map
 nlsar::filter_sub_image_gpu(cl::Context context,
                             cl_wrappers nl_routines,
@@ -91,10 +142,10 @@ nlsar::filter_sub_image_gpu(cl::Context context,
                             cl::Buffer& covmat_filt,
                             const int height,
                             const int width,
+                            const int dimensions,
                             const int search_window_size,
                             const std::vector<int> patch_sizes,
                             const std::vector<int> scale_sizes,
-                            const int dimensions,
                             std::map<params, stats>& dissim_stats)
 {
     std::chrono::time_point<std::chrono::system_clock> start, end;

@@ -88,9 +88,6 @@ int nlsar_gen(Data& data,
 {
     logging_setup(enabled_log_levels);
 
-    // FIXME
-    const int dimension = 2;
-
     // legacy opencl setup
     cl::Context context = opencl_setup();
 
@@ -100,7 +97,7 @@ int nlsar_gen(Data& data,
     const std::pair<int, int> tile_dims = nlsar::tile_size(context,
                                                            data.height(),
                                                            data.width(),
-                                                           dimension,
+                                                           data.dim(),
                                                            search_window_size,
                                                            patch_sizes,
                                                            scale_sizes);
@@ -118,7 +115,7 @@ int nlsar_gen(Data& data,
     std::chrono::duration<double> duration = end-start;
     start = std::chrono::system_clock::now();
     VLOG(0) << "Building kernels";
-    nlsar::cl_wrappers nlsar_cl_wrappers (context, search_window_size, dimension);
+    nlsar::cl_wrappers nlsar_cl_wrappers (context, search_window_size, data.dim());
     end = std::chrono::system_clock::now();
     duration = end-start;
     VLOG(0) << "Time it took to build all kernels: " << duration.count() << "secs";
@@ -126,7 +123,7 @@ int nlsar_gen(Data& data,
 
     // filtering
     start = std::chrono::system_clock::now();
-    auto tm = map_filter_tiles(nlsar::filter_sub_image,
+    auto tm = map_filter_tiles(nlsar::filter_sub_image_overload_set{},
                                data, // same image can be used as input and output
                                data,
                                context,
@@ -136,7 +133,6 @@ int nlsar_gen(Data& data,
                                search_window_size,
                                patch_sizes,
                                scale_sizes,
-                               dimension,
                                nlsar_stats);
 
     timings::print(tm);
@@ -173,6 +169,32 @@ int despeckcl::nlsar(float* ampl_master,
     memcpy(ref_filt,   total_image.ref_filt(), total_image.height()*total_image.width()*sizeof(float));
     memcpy(phase_filt, total_image.phase_filt(), total_image.height()*total_image.width()*sizeof(float));
     memcpy(coh_filt,   total_image.coh_filt(), total_image.height()*total_image.width()*sizeof(float));
+
+    return retval;
+}
+
+
+// specialized wrapper using covmat_data
+int despeckcl::nlsar(float* covmat_raw,
+                     float* covmat_filt,
+                     const int height,
+                     const int width,
+                     const int dim,
+                     const int search_window_size,
+                     const std::vector<int> patch_sizes,
+                     const std::vector<int> scale_sizes,
+                     std::map<nlsar::params, nlsar::stats> nlsar_stats,
+                     std::vector<std::string> enabled_log_levels) {
+
+    // prepare data
+    covmat_data total_image{covmat_raw, covmat_filt, height, width, dim};
+
+    int retval = nlsar_gen(total_image, search_window_size, patch_sizes, scale_sizes, nlsar_stats, enabled_log_levels);
+
+    memcpy(covmat_filt,
+           total_image.covmat_filt(),
+           2 * total_image.height() * total_image.width() * total_image.dim() *
+               total_image.dim() * sizeof(float));
 
     return retval;
 }

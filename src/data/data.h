@@ -25,17 +25,17 @@
 #include "sub_images.h"
 #include "tile.h"
 
-template<typename Type, size_t D>
+template<typename Type>
 class sar_data {
     public:
         std::unique_ptr<Type[]> _data;
         int height;
         int width;
-        const int dim = D;
+        int size;
 
         // takes ownership
-        sar_data(std::unique_ptr<Type[]> data, int height, int width)
-            : _data(std::move(data)), height(height), width(width)
+        sar_data(std::unique_ptr<Type[]> data, int height, int width, int size)
+            : _data(std::move(data)), height(height), width(width), size(size)
         {
         }
 
@@ -45,6 +45,7 @@ class sar_data {
         {
           std::swap(height, other.height);
           std::swap(width, other.width);
+          std::swap(size, other.size);
           std::swap(_data, other._data);
         }
 
@@ -53,6 +54,7 @@ class sar_data {
         {
           std::swap(height, other.height);
           std::swap(width, other.width);
+          std::swap(size, other.size);
           std::swap(_data, other._data);
           return *this;
         }
@@ -67,7 +69,7 @@ class sar_data {
 class insar_data
 {
  private:
-  sar_data<float, 6> _cont;
+  sar_data<float> _cont;
 
  public:
   // Allocates memory and copies data.
@@ -84,14 +86,15 @@ class insar_data
 
   // takes ownership
   insar_data(std::unique_ptr<float[]> data, int height, int width)
-      : _cont(std::move(data), height, width)
+      : _cont(std::move(data), height, width, 6)
   {
   }
 
   // pubic interface that abstracts the internel data representation
   int height() const { return _cont.height; };
   int width() const  { return _cont.width; };
-  int dim()   const  { return _cont.dim; };
+  int size()   const  { return _cont.size; };
+  int dim()   const  { return 2; };
   float * data()  const  { return _cont.data(); };
 
   float* ampl_master() const { return _cont._data.get(); };
@@ -103,10 +106,46 @@ class insar_data
   float* coh_filt() const    { return _cont._data.get() + 5 * height() * width(); };
 };
 
+
+class covmat_data
+{
+ private:
+  // storage for raw and filtered covariance matrix: first factor of 2
+  // and also real and imaginary part: second factor of 2
+  sar_data<float> _cont;
+  const int _dim;
+
+ public:
+  // Allocates memory and copies data.
+  // This is for interfacing with C-libraries/programs
+  // or Python via SWIG.
+  covmat_data(float* covmat_raw,
+              float* covmat_filt,
+              int height,
+              int width,
+              int dim);
+
+  // takes ownership
+  covmat_data(std::unique_ptr<float[]> data, int height, int width, int dim)
+      : _cont(std::move(data), height, width, 2*2*dim*dim), _dim(dim)
+  {
+  }
+
+  // pubic interface that abstracts the internel data representation
+  int height() const { return _cont.height; };
+  int width() const  { return _cont.width; };
+  int size()   const  { return _cont.size; };
+  int dim()   const  { return _dim; };
+  float * data()  const  { return _cont.data(); };
+
+  float* covmat_raw()  const { return _cont._data.get(); };
+  float* covmat_filt() const { return _cont._data.get() + 2*height() * width(); };
+};
+
 class ampl_data
 {
  private:
-  sar_data<float, 2> _cont;
+  sar_data<float> _cont;
 
  public:
   // Allocates memory and copies data.
@@ -116,14 +155,14 @@ class ampl_data
 
   // takes ownership
   ampl_data(std::unique_ptr<float[]> data, int height, int width)
-      : _cont(std::move(data), height, width)
+      : _cont(std::move(data), height, width, 2)
   {
   }
 
   // pubic interface that abstracts the internel data representation
   int height() const { return _cont.height; };
   int width() const  { return _cont.width; };
-  int dim()   const  { return _cont.dim; };
+  int size()   const  { return _cont.size; };
   float * data()  const  { return _cont.data(); };
 
   float* ampl()     const { return _cont._data.get(); };
@@ -135,7 +174,7 @@ DataType tileget(const DataType& img_data, tile<2> sub) {
   auto data_sub = get_sub_image(img_data.data(),
                                 img_data.height(),
                                 img_data.width(),
-                                img_data.dim(),
+                                img_data.size(),
                                 sub[0].start,
                                 sub[1].start,
                                 sub[0].stop - sub[0].start,
@@ -145,6 +184,9 @@ DataType tileget(const DataType& img_data, tile<2> sub) {
                   sub[1].stop - sub[1].start};
 }
 
+
+covmat_data tileget(const covmat_data& img_data, tile<2> sub);
+
 // copy img_tile to img_data defined by sub
 // akin to memcpy
 template<typename DataType>
@@ -152,7 +194,7 @@ void tilecpy(DataType& img_data, const DataType& img_tile, tile<2> sub) {
   write_sub_image(img_data.data(),
                   img_data.height(),
                   img_data.width(),
-                  img_data.dim(),
+                  img_data.size(),
                   img_tile.data(),
                   sub[0].start,
                   sub[1].start,

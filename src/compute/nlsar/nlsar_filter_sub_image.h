@@ -27,14 +27,32 @@
 #include "cl_wrappers.h"
 
 namespace nlsar {
-    timings::map filter_sub_image(cl::Context context,
-                                  cl_wrappers nlsar_cl_wrappers,
-                                  insar_data& sub_insar_data,
-                                  const int search_window_size,
-                                  const std::vector<int> patch_sizes,
-                                  const std::vector<int> scale_sizes,
-                                  const int dimension,
-                                  std::map<params, stats> &dissim_stats);
+
+    timings::map filter_sub_image (cl::Context context,
+                                   cl_wrappers nlsar_cl_wrappers,
+                                   insar_data& sub_insar_data,
+                                   const int search_window_size,
+                                   const std::vector<int> patch_sizes,
+                                   const std::vector<int> scale_sizes,
+                                   std::map<params, stats> &dissim_stats);
+
+    timings::map filter_sub_image (cl::Context context,
+                                   cl_wrappers nl_routines,
+                                   covmat_data& sub_covmat_data,
+                                   const int search_window_size,
+                                   const std::vector<int> patch_sizes,
+                                   const std::vector<int> scale_sizes,
+                                   std::map<params, stats>& dissim_stats);
+
+    struct filter_sub_image_overload_set {
+      template <typename... As>
+      auto
+      operator()(As&&... as)
+          -> decltype(filter_sub_image(std::declval<As>()...))
+      {
+        return filter_sub_image(std::forward<As>(as)...);
+      }
+    };
 
     timings::map filter_sub_image_gpu(cl::Context context,
                                       cl_wrappers nl_routines,
@@ -42,11 +60,11 @@ namespace nlsar {
                                       cl::Buffer& covmat_filt,
                                       const int height,
                                       const int width,
+                                      const int dimensions,
                                       const int search_window_size,
                                       const std::vector<int> patch_sizes,
                                       const std::vector<int> scale_sizes,
-                                      const int dimensions,
-                                      std::map<params, stats> &dissim_stats);
+                                      std::map<params, stats>& dissim_stats);
 }
 
 #endif

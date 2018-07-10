@@ -54,6 +54,18 @@ int nlsar(float* ampl_master,
           std::map<nlsar::params, nlsar::stats> nlsar_stats,
           std::vector<std::string> enabled_log_levels);
 
+
+int nlsar(float* covmat_raw,
+          float* covmat_filt,
+          const int height,
+          const int width,
+          const int dim,
+          const int search_window_size,
+          const std::vector<int> patch_sizes,
+          const std::vector<int> scale_sizes,
+          std::map<nlsar::params, nlsar::stats> nlsar_stats,
+          std::vector<std::string> enabled_log_levels);
+
 nlsar_stats_collection
 nlsar_training(float *ampl_master,
                float *ampl_slave,
