@@ -27,9 +27,9 @@ namespace nlsar {
         class data
         {
             private:
-                const uint32_t height;
-                const uint32_t width;
-                const uint32_t dimension;
+                const uint32_t _height;
+                const uint32_t _width;
+                const uint32_t _dimension;
                 float * const covmats;
 
             public:
@@ -42,9 +42,9 @@ namespace nlsar {
 
                 ~data();
 
-                uint32_t get_height(void) const;
-                uint32_t get_width(void) const;
-                uint32_t get_dimension(void) const;
+                uint32_t height(void) const;
+                uint32_t width(void) const;
+                uint32_t dim(void) const;
                 float * get_covmats(void) const;
 
         };
