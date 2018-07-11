@@ -17,6 +17,7 @@
  */
 
 #include "data.h"
+#include <cmath>
 
 insar_data::insar_data(float * a1,
                        float * a2,
@@ -56,7 +57,40 @@ covmat_data::covmat_data(float* covmat_raw, float* covmat_filt, int height, int 
   std::copy(covmat_filt, covmat_filt + single_img_size, this->covmat_filt());
 }
 
-covmat_data tileget(const covmat_data& img_data, tile<2> sub) {
+covmat_data::covmat_data(insar_data data)
+    : _cont(std::make_unique<float[]>(2 * 2 * data.dim() * data.dim() *
+                                      data.height() * data.width()),
+            data.height(),
+            data.width(),
+            2 * 2 * data.dim() * data.dim()),
+      _dim(data.dim())
+{
+    const size_t single_img_size = height()*width();
+    // diagonal elements
+    std::transform(data.ampl_master(), data.ampl_master() + single_img_size, _cont.data(), [] (float a) {return a*a;});
+    std::fill(_cont.data() + single_img_size, _cont.data() + 2*single_img_size, 0);
+
+    std::transform(data.ampl_slave(), data.ampl_slave() + single_img_size, _cont.data() + 6*single_img_size, [] (float a) {return a*a;});
+    std::fill(_cont.data() + 7 * single_img_size, _cont.data() + 8*single_img_size, 0);
+
+    // off diagonal elements
+    float * upper_real = _cont.data() + 2*single_img_size;
+    float * upper_imag = _cont.data() + 3*single_img_size;
+    float * lower_real = _cont.data() + 4*single_img_size;
+    float * lower_imag = _cont.data() + 5*single_img_size;
+    for(size_t i = 0; i<single_img_size; i++) {
+        const float real = data.ampl_master()[i] * data.ampl_slave()[i] * std::cos(data.phase()[i]);
+        const float imag = data.ampl_master()[i] * data.ampl_slave()[i] * std::sin(data.phase()[i]);
+        *upper_real++ = real;
+        *upper_imag++ = imag;
+        *lower_real++ = real;
+        *lower_imag++ = -imag;
+    }
+}
+
+covmat_data
+tileget(const covmat_data& img_data, tile<2> sub)
+{
   auto data_sub = get_sub_image(img_data.data(),
                                 img_data.height(),
                                 img_data.width(),

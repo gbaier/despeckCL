@@ -31,7 +31,7 @@ namespace nlsar {
     namespace training {
         std::vector<float> get_dissims(cl::Context context,
                                        nlsar::cl_wrappers nlsar_cl_wrappers,
-                                       const insar_data& sub_insar_data,
+                                       const covmat_data& training_data,
                                        const int patch_size,
                                        const int window_width);
     }

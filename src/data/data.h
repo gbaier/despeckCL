@@ -131,6 +131,8 @@ class covmat_data
   {
   }
 
+  covmat_data(insar_data data);
+
   // pubic interface that abstracts the internel data representation
   int height() const { return _cont.height; };
   int width() const  { return _cont.width; };

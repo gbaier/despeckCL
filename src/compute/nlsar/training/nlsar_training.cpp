@@ -33,6 +33,25 @@
 using nlsar_stats_collection = std::map<nlsar::params, nlsar::stats>;
 
 nlsar_stats_collection
+nlsar_training(covmat_data& training_data,
+               const std::vector<int> patch_sizes,
+               const std::vector<int> scale_sizes,
+               std::vector<std::string> enabled_log_levels)
+{
+  logging_setup(enabled_log_levels);
+  cl::Context context = opencl_setup();
+
+  size_t dummy_search_window_size = 21;
+  nlsar::cl_wrappers nlsar_cl_wrappers(
+      context, dummy_search_window_size, training_data.dim());
+
+  VLOG(0) << "Training weighting kernels";
+  return nlsar::training::get_stats(
+      patch_sizes, scale_sizes, training_data, context, nlsar_cl_wrappers);
+}
+
+
+nlsar_stats_collection
 despeckcl::nlsar_training(float *ampl_master,
                           float *ampl_slave,
                           float *phase,
@@ -42,30 +61,18 @@ despeckcl::nlsar_training(float *ampl_master,
                           const std::vector<int> scale_sizes,
                           std::vector<std::string> enabled_log_levels)
 {
-  logging_setup(enabled_log_levels);
+  auto dummy = std::make_unique<float[]>(height*width);
+  covmat_data training_data{insar_data{ampl_master,
+                                       ampl_slave,
+                                       phase,
+                                       dummy.get(),
+                                       dummy.get(),
+                                       dummy.get(),
+                                       height,
+                                       width}};
 
-  float *dummy = (float*) malloc(height*width*sizeof(float));
-  insar_data training_data{ampl_master,
-                           ampl_slave,
-                           phase,
-                           dummy,
-                           dummy,
-                           dummy,
-                           height,
-                           width};
-  free(dummy);
-
-  size_t dummy_search_window_size = 21;
-  size_t dimension = 2;
-
-  cl::Context context = opencl_setup();
-
-  nlsar::cl_wrappers nlsar_cl_wrappers(
-      context, dummy_search_window_size, dimension);
-
-  VLOG(0) << "Training weighting kernels";
-  return nlsar::training::get_stats(
-      patch_sizes, scale_sizes, training_data, context, nlsar_cl_wrappers);
+  return nlsar_training(
+      training_data, patch_sizes, scale_sizes, enabled_log_levels);
 }
 
 

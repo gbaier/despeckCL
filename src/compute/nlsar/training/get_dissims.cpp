@@ -31,11 +31,10 @@
 
 std::vector<float> nlsar::training::get_dissims(cl::Context context,
                                                 nlsar::cl_wrappers nlsar_cl_wrappers,
-                                                const insar_data& sub_insar_data,
+                                                const covmat_data& training_data,
                                                 const int patch_size,
                                                 const int scale_size)
 {
-    const int dimension = 2;
     const int nlooks = 1;
 
     std::vector<cl::Device> devices;
@@ -45,8 +44,8 @@ std::vector<float> nlsar::training::get_dissims(cl::Context context,
 
     // overlapped dimension, large enough to include the complete padded data to compute the similarities;
     // also includes overlap for spatial averaging
-    const int height_overlap_avg = sub_insar_data.height();
-    const int width_overlap_avg  = sub_insar_data.width();
+    const int height_overlap_avg = training_data.height();
+    const int width_overlap_avg  = training_data.width();
     const int n_elem_overlap_avg = height_overlap_avg * width_overlap_avg;
 
     // overlapped dimension, large enough to include the complete padded data to compute the similarities;
@@ -67,26 +66,25 @@ std::vector<float> nlsar::training::get_dissims(cl::Context context,
     //
     //***************************************************************************
 
-    cl::Buffer device_ampl_master {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.ampl_master(), NULL};
-    cl::Buffer device_ampl_slave  {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.ampl_slave(), NULL};
-    cl::Buffer device_phase       {context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, n_elem_overlap_avg * sizeof(float), sub_insar_data.phase(), NULL};
+    cl::Buffer device_covmat{context,
+                             CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                             2 * training_data.dim() * training_data.dim() *
+                                 n_elem_overlap_avg * sizeof(float),
+                             training_data.data(),
+                             NULL};
 
-    cl::Buffer device_covmat              {context, CL_MEM_READ_WRITE, 2 * dimension * dimension * n_elem_overlap_avg * sizeof(float), NULL, NULL};
-    cl::Buffer device_covmat_spatial_avg  {context, CL_MEM_READ_WRITE, 2 * dimension * dimension * n_elem_overlap     * sizeof(float), NULL, NULL};
-
-    LOG(DEBUG) << "covmat_create";
-    nlsar_cl_wrappers.covmat_create_routine.timed_run(cmd_queue,
-                                    device_ampl_master,
-                                    device_ampl_slave,
-                                    device_phase,
-                                    device_covmat,
-                                    height_overlap_avg,
-                                    width_overlap_avg);
+    cl::Buffer device_covmat_spatial_avg{context,
+                                         CL_MEM_READ_WRITE,
+                                         2 * training_data.dim() *
+                                             training_data.dim() *
+                                             n_elem_overlap * sizeof(float),
+                                         NULL,
+                                         NULL};
 
     LOG(DEBUG) << "covmat_rescale";
     nlsar_cl_wrappers.covmat_rescale_routine.timed_run(cmd_queue,
                                      device_covmat,
-                                     dimension,
+                                     training_data.dim(),
                                      nlooks,
                                      height_overlap_avg,
                                      width_overlap_avg);
@@ -95,13 +93,13 @@ std::vector<float> nlsar::training::get_dissims(cl::Context context,
     nlsar_cl_wrappers.covmat_spatial_avg_routine.timed_run(cmd_queue,
                                          device_covmat,
                                          device_covmat_spatial_avg,
-                                         dimension,
+                                         training_data.dim(),
                                          height_overlap,
                                          width_overlap,
                                          scale_size,
                                          scale_size);
 
-    std::vector<float> covmat_spatial_avg (2 * dimension * dimension * n_elem_overlap);
+    std::vector<float> covmat_spatial_avg (2 * training_data.dim() * training_data.dim() * n_elem_overlap);
     cmd_queue.enqueueReadBuffer(device_covmat_spatial_avg, CL_TRUE, 0, covmat_spatial_avg.size() * sizeof(float), covmat_spatial_avg.data(), NULL, NULL);
 
     LOG(DEBUG) << "setting up training data";
@@ -109,7 +107,7 @@ std::vector<float> nlsar::training::get_dissims(cl::Context context,
                                      covmat_spatial_avg.data(),
                                      height_overlap,
                                      width_overlap,
-                                     dimension};
+                                     training_data.dim()};
 
     LOG(DEBUG) << "get all patches inside training data";
     std::vector<covmat_data> all_patches = training::get_all_patches(covmat_spatial_avg_c, patch_size);
