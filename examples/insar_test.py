@@ -46,22 +46,22 @@ scale_sizes = [1, 3, 5]
 
 training_area = np.s_[50:75, 50:75]
 
-nlsar_stats = despeckcl.nlsar_train(ampl_master[training_area],
-                                    ampl_slave[training_area],
-                                    phase[training_area],
-                                    patch_sizes,
-                                    scale_sizes,
-                                    log_levels)
+nlsar_stats = despeckcl.nlsar_train_insar(ampl_master[training_area],
+                                          ampl_slave[training_area],
+                                          phase[training_area],
+                                          patch_sizes,
+                                          scale_sizes,
+                                          log_levels)
 
 # store and load NL-SAR statistics
 despeckcl.store_nlsar_stats_collection(nlsar_stats, "nlsar_stats.txt")
 nlsar_stats_res = despeckcl.load_nlsar_stats_collection("nlsar_stats.txt")
 
-methods[despeckcl.nlsar] = (search_window_size,
-                            patch_sizes,
-                            scale_sizes,
-                            nlsar_stats_res,
-                            log_levels)
+methods[despeckcl.nlsar_insar] = (search_window_size,
+                                  patch_sizes,
+                                  scale_sizes,
+                                  nlsar_stats_res,
+                                  log_levels)
 #
 ######################
 #                    #

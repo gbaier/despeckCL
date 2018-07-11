@@ -76,6 +76,23 @@ despeckcl::nlsar_training(float *ampl_master,
 }
 
 
+nlsar_stats_collection
+despeckcl::nlsar_training(float *covmat,
+                          const int height,
+                          const int width,
+                          const int dim,
+                          const std::vector<int> patch_sizes,
+                          const std::vector<int> scale_sizes,
+                          std::vector<std::string> enabled_log_levels)
+{
+  auto dummy = std::make_unique<float[]>(2*dim*dim*height*width);
+  covmat_data training_data{covmat, dummy.get(), height, width, dim};
+
+  return nlsar_training(
+      training_data, patch_sizes, scale_sizes, enabled_log_levels);
+}
+
+
 void despeckcl::store_nlsar_stats_collection(nlsar_stats_collection nsc, std::string filename)
 {
     std::ofstream ofs(filename);

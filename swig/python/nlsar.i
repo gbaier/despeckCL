@@ -40,18 +40,32 @@ namespace std {
     "
 
 %inline %{
-std::map<nlsar::params, nlsar::stats> nlsar_train(float* ampl_master, int h1, int w1,
-                                                  float* ampl_slave,  int h2, int w2,
-                                                  float* phase,       int h3, int w3,
-                                                  const std::vector<int> patch_sizes,
-                                                  const std::vector<int> scale_sizes,
-                                                  const std::vector<std::string> enabled_log_levels = {"error", "warning", "fatal"})
+std::map<nlsar::params, nlsar::stats> nlsar_train_insar(float* ampl_master, int h1, int w1,
+                                                        float* ampl_slave,  int h2, int w2,
+                                                        float* phase,       int h3, int w3,
+                                                        const std::vector<int> patch_sizes,
+                                                        const std::vector<int> scale_sizes,
+                                                        const std::vector<std::string> enabled_log_levels = {"error", "warning", "fatal"})
 {
   return despeckcl::nlsar_training(ampl_master,
                                    ampl_slave,
                                    phase,
                                    h1,
                                    w1,
+                                   patch_sizes,
+                                   scale_sizes,
+                                   enabled_log_levels);
+}
+
+std::map<nlsar::params, nlsar::stats> nlsar_train(float* covmat, int d1, int d2, int h1, int w1,
+                                                  const std::vector<int> patch_sizes,
+                                                  const std::vector<int> scale_sizes,
+                                                  const std::vector<std::string> enabled_log_levels = {"error", "warning", "fatal"})
+{
+  return despeckcl::nlsar_training(covmat,
+                                   h1,
+                                   w1,
+                                   d1,
                                    patch_sizes,
                                    scale_sizes,
                                    enabled_log_levels);
@@ -70,17 +84,17 @@ std::map<nlsar::params, nlsar::stats> load_nlsar_stats_collection(std::string fi
 }
 
 /* NLSAR declaration and wrap */
-void _nlsar_c_wrap(float* ampl_master, int h1, int w1,
-                   float* ampl_slave,  int h2, int w2,
-                   float* phase,      int h3, int w3,
-                   float* ref_filt,   int h4, int w4,
-                   float* phase_filt, int h5, int w5,
-                   float* coh_filt,    int h6, int w6,
-                   const int search_window_size,
-                   const std::vector<int> patch_sizes,
-                   const std::vector<int> scale_sizes,
-                   std::map<nlsar::params, nlsar::stats> nlsar_stats,
-                   const std::vector<std::string> enabled_log_levels)
+void _nlsar_c_wrap_insar(float* ampl_master, int h1, int w1,
+                         float* ampl_slave,  int h2, int w2,
+                         float* phase,      int h3, int w3,
+                         float* ref_filt,   int h4, int w4,
+                         float* phase_filt, int h5, int w5,
+                         float* coh_filt,    int h6, int w6,
+                         const int search_window_size,
+                         const std::vector<int> patch_sizes,
+                         const std::vector<int> scale_sizes,
+                         std::map<nlsar::params, nlsar::stats> nlsar_stats,
+                         const std::vector<std::string> enabled_log_levels)
 {
     despeckcl::nlsar(ampl_master,
                      ampl_slave,
@@ -96,19 +110,72 @@ void _nlsar_c_wrap(float* ampl_master, int h1, int w1,
                      nlsar_stats,
                      enabled_log_levels);
 }
+
+
+void _nlsar_c_wrap(float* covmat_raw,  int d1, int dd1, int h1, int w1, 
+                   float* covmat_filt, int d2, int dd2, int h2, int w2,
+                   const int search_window_size,
+                   const std::vector<int> patch_sizes,
+                   const std::vector<int> scale_sizes,
+                   std::map<nlsar::params, nlsar::stats> nlsar_stats,
+                   const std::vector<std::string> enabled_log_levels)
+{
+    despeckcl::nlsar(covmat_raw,
+                     covmat_filt,
+                     h1,
+                     w1,
+                     d1,
+                     search_window_size,
+                     patch_sizes,
+                     scale_sizes,
+                     nlsar_stats,
+                     enabled_log_levels);
+}
 %}
 
 %pythoncode{
 import numpy as np
 
-def nlsar(ampl_master,
-          ampl_slave,
-          phase,
+def nlsar(covmat_raw,
           search_window_size,
           patch_sizes,
           scale_sizes,
           nlsar_stats,
           enabled_log_levels = ['error', 'warning', 'fatal']):
+    """
+    filters the input with the nlsar filter
+
+    :param ndarray covmat_raw: unfiltered covariance/scattering matrix
+    :param int search_window_size: width of the search window, has to be an odd number
+    :param [int] patch_sizes: widths of the patches, have to be odd numbers
+    :param [int] scale_sizes: widths of the scales, have to be odd numbers
+    :param wrapped std\:\:map nlsar_stats: statistics of a homogenous training area produced by **nlsar_train**
+    :param [string] enabled_log_levels: enabled log levels, log levels are: error, fatal, warning, debug, info
+    :return: a tuple containing the reflectivity, phase and coherence estimates
+    :rtype: tuple of ndarrays
+
+    """
+
+    covmat_filt = np.zeros_like(covmat_raw)
+
+    _despeckcl._nlsar_c_wrap(covmat_raw,
+                             covmat_filt,
+                             search_window_size,
+                             patch_sizes,
+                             scale_sizes,
+                             nlsar_stats,
+                             enabled_log_levels)
+
+    return covmat_filt
+
+def nlsar_insar(ampl_master,
+                ampl_slave,
+                phase,
+                search_window_size,
+                patch_sizes,
+                scale_sizes,
+                nlsar_stats,
+                enabled_log_levels = ['error', 'warning', 'fatal']):
     """
     filters the input with the nlsar filter
 
@@ -127,19 +194,19 @@ def nlsar(ampl_master,
 
     ref_filt   = np.zeros_like(ampl_master)
     phase_filt = np.zeros_like(ampl_master)
-    coh_filt    = np.zeros_like(ampl_master)
+    coh_filt   = np.zeros_like(ampl_master)
 
-    _despeckcl._nlsar_c_wrap(ampl_master,
-                             ampl_slave,
-                             phase,
-                             ref_filt,
-                             phase_filt,
-                             coh_filt,
-                             search_window_size,
-                             patch_sizes,
-                             scale_sizes,
-                             nlsar_stats,
-                             enabled_log_levels)
+    _despeckcl._nlsar_c_wrap_insar(ampl_master,
+                                   ampl_slave,
+                                   phase,
+                                   ref_filt,
+                                   phase_filt,
+                                   coh_filt,
+                                   search_window_size,
+                                   patch_sizes,
+                                   scale_sizes,
+                                   nlsar_stats,
+                                   enabled_log_levels)
 
     return (ref_filt, phase_filt, coh_filt)
 }
