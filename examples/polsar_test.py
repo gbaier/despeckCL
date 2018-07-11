@@ -7,6 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import gdal
 
+import os
+
 # add the build directory to the python search paths for finding the module
 # without installing it
 import sys
@@ -60,14 +62,23 @@ except FileNotFoundError:
 covmat = covmat[dim_sub]
 
 search_window_size = 21
-patch_sizes = [3, 5, 7]
-scale_sizes = [1, 3]
+patch_sizes = [3, 5, 7, 9, 11]
+scale_sizes = [1, 3, 5]
 log_levels = ['warning', 'fatal', 'error']#, 'debug', 'info']
 
-from IPython import embed
-print('computing similarity statistics')
-nlsar_stats = despeckcl.nlsar_train(covmat[train_sub], patch_sizes,
-                                    scale_sizes)
+
+# store and load NL-SAR statistics
+stats_file = 'polsar_stats.txt'
+
+print('getting similarity statistics')
+if os.path.isfile(stats_file):
+    print('found saved statistics... restoring')
+    nlsar_stats = despeckcl.load_nlsar_stats_collection(stats_file)
+else:
+    print('computing statistics')
+    nlsar_stats = despeckcl.nlsar_train(covmat[train_sub], patch_sizes, scale_sizes)
+    print('storing statistics')
+    despeckcl.store_nlsar_stats_collection(nlsar_stats, stats_file)
 
 print('filtering')
 covmat_filt = despeckcl.nlsar(covmat[area_sub], search_window_size,
