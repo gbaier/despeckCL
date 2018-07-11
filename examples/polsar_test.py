@@ -21,7 +21,7 @@ filename = 'AIRSAR_Flevoland'
 dataname = 'FLEVOL.STK'
 
 train_sub = np.s_[:, :, 200:230, 200:230]
-area_sub = np.s_[:, :, :300, :400]
+area_sub = np.s_[:, :, :400, :600]
 dim_sub = np.s_[:2, :2]
 
 
@@ -62,8 +62,8 @@ except FileNotFoundError:
 covmat = covmat[dim_sub]
 
 search_window_size = 21
-patch_sizes = [3, 5, 7, 9, 11]
-scale_sizes = [1, 3, 5]
+patch_sizes = [3, 5, 7]
+scale_sizes = [1, 3]
 log_levels = ['warning', 'fatal', 'error']#, 'debug', 'info']
 
 
