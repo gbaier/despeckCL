@@ -19,4 +19,6 @@ namespace std {
 %apply( float* INPLACE_ARRAY2, int DIM1, int DIM2) {(float* phase_filt, int h5, int w5)}
 %apply( float* INPLACE_ARRAY2, int DIM1, int DIM2) {(float* coh_filt,    int h6, int w6)}
 
-%apply( float* INPLACE_ARRAY4, int DIM1, int DIM2, int DIM3, int DIM4) {(float* covmat, int d1, int d2, int h1, int w2)}
+%apply( float* INPLACE_ARRAY3, int DIM1, int DIM2, int DIM3) {(float* covmat_raw, int d1, int h1, int w1)}
+%apply( float* INPLACE_ARRAY3, int DIM1, int DIM2, int DIM3) {(float* covmat_filt, int d2, int h2, int w2)}
+%apply( float* INPLACE_ARRAY4, int DIM1, int DIM2, int DIM3, int DIM4) {(float* covmat, int d1, int d2, int h1, int w1)}

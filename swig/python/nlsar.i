@@ -57,15 +57,16 @@ std::map<nlsar::params, nlsar::stats> nlsar_train_insar(float* ampl_master, int 
                                    enabled_log_levels);
 }
 
-std::map<nlsar::params, nlsar::stats> nlsar_train(float* covmat, int d1, int d2, int h1, int w1,
-                                                  const std::vector<int> patch_sizes,
-                                                  const std::vector<int> scale_sizes,
-                                                  const std::vector<std::string> enabled_log_levels = {"error", "warning", "fatal"})
+
+std::map<nlsar::params, nlsar::stats> _nlsar_train_c_wrap(float* covmat_raw, int d1, int h1, int w1,
+                                                          const std::vector<int> patch_sizes,
+                                                          const std::vector<int> scale_sizes,
+                                                          const std::vector<std::string> enabled_log_levels = {"error", "warning", "fatal"})
 {
-  return despeckcl::nlsar_training(covmat,
+  return despeckcl::nlsar_training(covmat_raw,
                                    h1,
                                    w1,
-                                   d1,
+                                   2, //FIXME
                                    patch_sizes,
                                    scale_sizes,
                                    enabled_log_levels);
@@ -112,8 +113,8 @@ void _nlsar_c_wrap_insar(float* ampl_master, int h1, int w1,
 }
 
 
-void _nlsar_c_wrap(float* covmat_raw,  int d1, int dd1, int h1, int w1, 
-                   float* covmat_filt, int d2, int dd2, int h2, int w2,
+void _nlsar_c_wrap(float* covmat_raw,  int d1, int h1, int w1, 
+                   float* covmat_filt, int d2, int h2, int w2,
                    const int search_window_size,
                    const std::vector<int> patch_sizes,
                    const std::vector<int> scale_sizes,
@@ -124,7 +125,7 @@ void _nlsar_c_wrap(float* covmat_raw,  int d1, int dd1, int h1, int w1,
                      covmat_filt,
                      h1,
                      w1,
-                     d1,
+                     2, // FIXME
                      search_window_size,
                      patch_sizes,
                      scale_sizes,
@@ -135,6 +136,23 @@ void _nlsar_c_wrap(float* covmat_raw,  int d1, int dd1, int h1, int w1,
 
 %pythoncode{
 import numpy as np
+
+
+def nlsar_train(covmat_raw, 
+                patch_sizes,
+                scale_sizes,
+                enabled_log_levels = ['error', 'warning', 'fatal']):
+
+    d, dd, h, w = covmat_raw.shape
+    real = covmat_raw.real.reshape((-1, h, w))
+    imag = covmat_raw.imag.reshape((-1, h, w))
+    covmat_raw_interlace = np.empty((2*d*d, h, w), np.float32)
+    covmat_raw_interlace[::2] = real
+    covmat_raw_interlace[1::2] = imag
+
+    return _despeckcl._nlsar_train_c_wrap(covmat_raw_interlace, patch_sizes, scale_sizes, enabled_log_levels)
+
+
 
 def nlsar(covmat_raw,
           search_window_size,
@@ -156,17 +174,27 @@ def nlsar(covmat_raw,
 
     """
 
-    covmat_filt = np.zeros_like(covmat_raw)
+    d, dd, h, w = covmat_raw.shape
+    real = covmat_raw.real.reshape((-1, h, w))
+    imag = covmat_raw.imag.reshape((-1, h, w))
+    covmat_raw_interlace = np.empty((2*d*d, h, w), np.float32)
+    covmat_raw_interlace[::2] = real
+    covmat_raw_interlace[1::2] = imag
 
-    _despeckcl._nlsar_c_wrap(covmat_raw,
-                             covmat_filt,
+    covmat_filt_interlace = np.zeros_like(covmat_raw_interlace)
+
+    _despeckcl._nlsar_c_wrap(covmat_raw_interlace,
+                             covmat_filt_interlace,
                              search_window_size,
                              patch_sizes,
                              scale_sizes,
                              nlsar_stats,
                              enabled_log_levels)
 
-    return covmat_filt
+    real_filt = covmat_filt_interlace[::2].reshape((d, d, h, w))
+    imag_filt = covmat_filt_interlace[1::2].reshape((d, d, h, w))
+
+    return real_filt + 1j*imag_filt
 
 def nlsar_insar(ampl_master,
                 ampl_slave,
