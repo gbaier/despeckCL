@@ -59,6 +59,7 @@ std::map<nlsar::params, nlsar::stats> nlsar_train_insar(float* ampl_master, int 
 
 
 std::map<nlsar::params, nlsar::stats> _nlsar_train_c_wrap(float* covmat_raw, int d1, int h1, int w1,
+                                                          int dim,
                                                           const std::vector<int> patch_sizes,
                                                           const std::vector<int> scale_sizes,
                                                           const std::vector<std::string> enabled_log_levels = {"error", "warning", "fatal"})
@@ -66,7 +67,7 @@ std::map<nlsar::params, nlsar::stats> _nlsar_train_c_wrap(float* covmat_raw, int
   return despeckcl::nlsar_training(covmat_raw,
                                    h1,
                                    w1,
-                                   2, //FIXME
+                                   dim,
                                    patch_sizes,
                                    scale_sizes,
                                    enabled_log_levels);
@@ -115,6 +116,7 @@ void _nlsar_c_wrap_insar(float* ampl_master, int h1, int w1,
 
 void _nlsar_c_wrap(float* covmat_raw,  int d1, int h1, int w1, 
                    float* covmat_filt, int d2, int h2, int w2,
+                   int dim,
                    const int search_window_size,
                    const std::vector<int> patch_sizes,
                    const std::vector<int> scale_sizes,
@@ -125,7 +127,7 @@ void _nlsar_c_wrap(float* covmat_raw,  int d1, int h1, int w1,
                      covmat_filt,
                      h1,
                      w1,
-                     2, // FIXME
+                     dim,
                      search_window_size,
                      patch_sizes,
                      scale_sizes,
@@ -150,7 +152,7 @@ def nlsar_train(covmat_raw,
     covmat_raw_interlace[::2] = real
     covmat_raw_interlace[1::2] = imag
 
-    return _despeckcl._nlsar_train_c_wrap(covmat_raw_interlace, patch_sizes, scale_sizes, enabled_log_levels)
+    return _despeckcl._nlsar_train_c_wrap(covmat_raw_interlace, d, patch_sizes, scale_sizes, enabled_log_levels)
 
 
 
@@ -185,6 +187,7 @@ def nlsar(covmat_raw,
 
     _despeckcl._nlsar_c_wrap(covmat_raw_interlace,
                              covmat_filt_interlace,
+                             d,
                              search_window_size,
                              patch_sizes,
                              scale_sizes,
