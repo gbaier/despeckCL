@@ -21,6 +21,13 @@ if(OpenCL_FOUND)
     link_directories(${OpenCL_LIBRARY_DIR})
 endif()
 
+
+find_package(Boost REQUIRED)
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+    message(STATUS "BOOST ASDF ${Boost_INCLUDE_DIRS}")
+endif()
+
 find_package(OpenMP)
 if (OPENMP_FOUND)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
