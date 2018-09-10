@@ -73,18 +73,6 @@ std::map<nlsar::params, nlsar::stats> _nlsar_train_c_wrap(float* covmat_raw, int
                                    enabled_log_levels);
 }
 
-void store_nlsar_stats_collection(std::map<nlsar::params, nlsar::stats> nsc, std::string filename)
-{
-   return despeckcl::store_nlsar_stats_collection(nsc, filename);
-
-}
-
-std::map<nlsar::params, nlsar::stats> load_nlsar_stats_collection(std::string filename)
-{
-   return despeckcl::load_nlsar_stats_collection(filename);
-
-}
-
 /* NLSAR declaration and wrap */
 void _nlsar_c_wrap_insar(float* ampl_master, int h1, int w1,
                          float* ampl_slave,  int h2, int w2,
@@ -183,6 +171,8 @@ def nlsar(covmat_raw,
     covmat_raw_interlace[::2] = real
     covmat_raw_interlace[1::2] = imag
 
+    del real, imag
+
     covmat_filt_interlace = np.zeros_like(covmat_raw_interlace)
 
     _despeckcl._nlsar_c_wrap(covmat_raw_interlace,
@@ -194,8 +184,12 @@ def nlsar(covmat_raw,
                              nlsar_stats,
                              enabled_log_levels)
 
+    del covmat_raw_interlace
+
     real_filt = covmat_filt_interlace[::2].reshape((d, d, h, w))
     imag_filt = covmat_filt_interlace[1::2].reshape((d, d, h, w))
+
+    del covmat_filt_interlace
 
     return real_filt + 1j*imag_filt
 
