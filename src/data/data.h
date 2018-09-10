@@ -141,7 +141,7 @@ class covmat_data
   float * data()  const  { return _cont.data(); };
 
   float* covmat_raw()  const { return _cont._data.get(); };
-  float* covmat_filt() const { return _cont._data.get() + 2 * dim() * dim() * height() * width(); };
+  float* covmat_filt() const { return _cont._data.get() + 2 * dim() * dim() * (size_t)height() * width(); };
 };
 
 class ampl_data

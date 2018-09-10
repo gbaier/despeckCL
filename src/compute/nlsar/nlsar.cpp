@@ -140,7 +140,6 @@ int nlsar_gen(Data& data,
     duration = end-start;
     VLOG(0) << "filtering ran for " << duration.count() << " secs" << std::endl;
 
-
     return 0;
 }
 
@@ -185,7 +184,6 @@ int despeckcl::nlsar(float* covmat_raw,
                      const std::vector<int> scale_sizes,
                      std::map<nlsar::params, nlsar::stats> nlsar_stats,
                      std::vector<std::string> enabled_log_levels) {
-
     // prepare data
     covmat_data total_image{covmat_raw, covmat_filt, height, width, dim};
 
@@ -193,7 +191,7 @@ int despeckcl::nlsar(float* covmat_raw,
 
     memcpy(covmat_filt,
            total_image.covmat_filt(),
-           2 * total_image.height() * total_image.width() * total_image.dim() *
+           2 * (size_t)total_image.height() * total_image.width() * total_image.dim() *
                total_image.dim() * sizeof(float));
 
     return retval;

@@ -41,7 +41,7 @@ insar_data::insar_data(float * a1,
 ampl_data::ampl_data(float* ampl, float* ref_filt, int height, int width)
     : _cont(std::make_unique<float[]>(2 * (size_t)height * width), height, width, 2)
 {
-    const size_t single_img_size = height*width;
+    const size_t single_img_size = (size_t)height*width;
 
     std::copy(ampl, ampl+single_img_size, this->ampl());
     std::copy(ref_filt, ref_filt+single_img_size, this->ref_filt());
@@ -51,7 +51,7 @@ ampl_data::ampl_data(float* ampl, float* ref_filt, int height, int width)
 covmat_data::covmat_data(float* covmat_raw, float* covmat_filt, int height, int width, int dim)
     : _cont(std::make_unique<float[]>(2 * 2 * dim * dim * (size_t)height * width), height, width, 2*2*dim*dim), _dim(dim)
 {
-  const size_t single_img_size = height * width * 2 * dim * dim;
+  const size_t single_img_size = (size_t)height * width * 2 * dim * dim;
 
   std::copy(covmat_raw, covmat_raw + single_img_size, this->covmat_raw());
   std::copy(covmat_filt, covmat_filt + single_img_size, this->covmat_filt());
@@ -65,7 +65,7 @@ covmat_data::covmat_data(insar_data data)
             2 * 2 * data.dim() * data.dim()),
       _dim(data.dim())
 {
-    const size_t single_img_size = height()*width();
+    const size_t single_img_size = (size_t)height()*width();
     // diagonal elements
     std::transform(data.ampl_master(), data.ampl_master() + single_img_size, _cont.data(), [] (float a) {return a*a;});
     std::fill(_cont.data() + single_img_size, _cont.data() + 2*single_img_size, 0);
