@@ -26,7 +26,7 @@ insar_data::insar_data(float * a1,
                        float * phi_filt,
                        float * coh_filt,
                        int height,
-                       int width) : _cont(std::make_unique<float[]>(6*height*width), height, width, 6)
+                       int width) : _cont(std::make_unique<float[]>(6 * (size_t)height*width), height, width, 6)
 {
     const size_t single_img_size = height*width;
 
@@ -39,7 +39,7 @@ insar_data::insar_data(float * a1,
 }
 
 ampl_data::ampl_data(float* ampl, float* ref_filt, int height, int width)
-    : _cont(std::make_unique<float[]>(2 * height * width), height, width, 2)
+    : _cont(std::make_unique<float[]>(2 * (size_t)height * width), height, width, 2)
 {
     const size_t single_img_size = height*width;
 
@@ -49,7 +49,7 @@ ampl_data::ampl_data(float* ampl, float* ref_filt, int height, int width)
 
 
 covmat_data::covmat_data(float* covmat_raw, float* covmat_filt, int height, int width, int dim)
-    : _cont(std::make_unique<float[]>(2 * 2 * dim * dim * height * width), height, width, 2*2*dim*dim), _dim(dim)
+    : _cont(std::make_unique<float[]>(2 * 2 * dim * dim * (size_t)height * width), height, width, 2*2*dim*dim), _dim(dim)
 {
   const size_t single_img_size = height * width * 2 * dim * dim;
 
@@ -59,7 +59,7 @@ covmat_data::covmat_data(float* covmat_raw, float* covmat_filt, int height, int 
 
 covmat_data::covmat_data(insar_data data)
     : _cont(std::make_unique<float[]>(2 * 2 * data.dim() * data.dim() *
-                                      data.height() * data.width()),
+                                      (size_t)data.height() * data.width()),
             data.height(),
             data.width(),
             2 * 2 * data.dim() * data.dim()),

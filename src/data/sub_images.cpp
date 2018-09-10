@@ -37,7 +37,7 @@ get_sub_image(const float* image,
           const int h_img = std::min(height - 1, std::max(0, h + h_low));
           const int w_img = std::min(width - 1, std::max(0, w + w_low));
           sub_image[d * sub_img_height * sub_img_width + h * sub_img_width +
-                    w]    = image[d * height * width + h_img * width + w_img];
+                    w]    = image[(size_t) d * height * width + h_img * width + w_img];
         }
       }
     }
@@ -60,7 +60,7 @@ void write_sub_image(float * image,
       for (int w = overlap; w < sub_img_width - overlap; w++) {
         const int h_img = std::min(height - 1, std::max(0, h + h_low));
         const int w_img = std::min(width - 1, std::max(0, w + w_low));
-        image[d * height * width + h_img * width + w_img] =
+        image[(size_t) d * height * width + h_img * width + w_img] =
             sub_image[d * sub_img_height * sub_img_width + h * sub_img_width +
                       w];
       }
