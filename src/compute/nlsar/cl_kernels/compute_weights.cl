@@ -22,15 +22,14 @@ __kernel void compute_weights (__global float * patch_similarities,
                                const int width_symm,
                                const int search_window_size,
                                const int patch_size,
+                               const float h,
+                               const float c,
                                __constant float * dissims2relidx,
                                __constant float * chi2cdf_inv,
                                const int lut_size,
                                const float dissims_min,
                                const float dissims_max)
 {
-    const float h = 16.0f;
-    const float c = 49.0f;
-
     const int tx = get_global_id(0);
 
     const int wsh = (search_window_size-1)/2;

@@ -25,13 +25,21 @@
 
 namespace nlsar
     {
-    class compute_weights : public kernel_env_build<compute_weights>
+    class compute_weights : public kernel_env_single<compute_weights>
     {
         public:
-            using kernel_env_build::kernel_env_build;
+            const float h_param;
+            const float c_param;
 
             static constexpr const char* routine_name {"compute_weights"};
             static constexpr const char* kernel_source {"@CMAKE_KERNEL_SOURCE@"};
+
+            compute_weights(const size_t block_size,
+                            cl::Context context,
+                            const float h_param,
+                            const float c_param);
+
+            compute_weights(const compute_weights& other);
 
             void run(cl::CommandQueue cmd_queue,
                      cl::Buffer patch_similarities,

@@ -1,7 +1,9 @@
 %ignore nlsar_training;
+%ignore nlsar;
 
 %include "despeckcl_typemaps.i"
 %include "std_map.i"
+%include "std_string.i"
 
 %include "despeckcl.h"
 %include "parameters.h"
@@ -84,6 +86,8 @@ void _nlsar_c_wrap_insar(float* ampl_master, int h1, int w1,
                          const std::vector<int> patch_sizes,
                          const std::vector<int> scale_sizes,
                          std::map<nlsar::params, nlsar::stats> nlsar_stats,
+                         const float h_param,
+                         const float c_param,
                          const std::vector<std::string> enabled_log_levels)
 {
     despeckcl::nlsar(ampl_master,
@@ -98,6 +102,8 @@ void _nlsar_c_wrap_insar(float* ampl_master, int h1, int w1,
                      patch_sizes,
                      scale_sizes,
                      nlsar_stats,
+                     h_param,
+                     c_param,
                      enabled_log_levels);
 }
 
@@ -109,6 +115,8 @@ void _nlsar_c_wrap(float* covmat_raw,  int d1, int h1, int w1,
                    const std::vector<int> patch_sizes,
                    const std::vector<int> scale_sizes,
                    std::map<nlsar::params, nlsar::stats> nlsar_stats,
+                   const float h_param,
+                   const float c_param,
                    const std::vector<std::string> enabled_log_levels)
 {
     despeckcl::nlsar(covmat_raw,
@@ -120,6 +128,8 @@ void _nlsar_c_wrap(float* covmat_raw,  int d1, int h1, int w1,
                      patch_sizes,
                      scale_sizes,
                      nlsar_stats,
+                     h_param,
+                     c_param,
                      enabled_log_levels);
 }
 %}
@@ -149,6 +159,8 @@ def nlsar(covmat_raw,
           patch_sizes,
           scale_sizes,
           nlsar_stats,
+          h=15.0,
+          c=49.0,
           enabled_log_levels = ['error', 'warning', 'fatal']):
     """
     filters the input with the nlsar filter
@@ -158,16 +170,18 @@ def nlsar(covmat_raw,
     :param [int] patch_sizes: widths of the patches, have to be odd numbers
     :param [int] scale_sizes: widths of the scales, have to be odd numbers
     :param wrapped std\:\:map nlsar_stats: statistics of a homogenous training area produced by **nlsar_train**
+    :param float h: nonlocal smoothing parameter
+    :param float c: degrees of freedom of Chi-squared distribution
     :param [string] enabled_log_levels: enabled log levels, log levels are: error, fatal, warning, debug, info
     :return: a tuple containing the reflectivity, phase and coherence estimates
     :rtype: tuple of ndarrays
 
     """
 
-    d, dd, h, w = covmat_raw.shape
-    real = covmat_raw.real.reshape((-1, h, w))
-    imag = covmat_raw.imag.reshape((-1, h, w))
-    covmat_raw_interlace = np.empty((2*d*d, h, w), np.float32)
+    d, dd, height, width = covmat_raw.shape
+    real = covmat_raw.real.reshape((-1, height, width))
+    imag = covmat_raw.imag.reshape((-1, height, width))
+    covmat_raw_interlace = np.empty((2*d*d, height, width), np.float32)
     covmat_raw_interlace[::2] = real
     covmat_raw_interlace[1::2] = imag
 
@@ -182,12 +196,14 @@ def nlsar(covmat_raw,
                              patch_sizes,
                              scale_sizes,
                              nlsar_stats,
+                             h,
+                             c,
                              enabled_log_levels)
 
     del covmat_raw_interlace
 
-    real_filt = covmat_filt_interlace[::2].reshape((d, d, h, w))
-    imag_filt = covmat_filt_interlace[1::2].reshape((d, d, h, w))
+    real_filt = covmat_filt_interlace[::2].reshape((d, d, height, width))
+    imag_filt = covmat_filt_interlace[1::2].reshape((d, d, height, width))
 
     del covmat_filt_interlace
 
@@ -200,6 +216,8 @@ def nlsar_insar(ampl_master,
                 patch_sizes,
                 scale_sizes,
                 nlsar_stats,
+                h=15.0,
+                c=49.0,
                 enabled_log_levels = ['error', 'warning', 'fatal']):
     """
     filters the input with the nlsar filter
@@ -211,6 +229,8 @@ def nlsar_insar(ampl_master,
     :param [int] patch_sizes: widths of the patches, have to be odd numbers
     :param [int] scale_sizes: widths of the scales, have to be odd numbers
     :param wrapped std\:\:map nlsar_stats: statistics of a homogenous training area produced by **nlsar_train**
+    :param float h: nonlocal smoothing parameter
+    :param float c: degrees of freedom of Chi-squared distribution
     :param [string] enabled_log_levels: enabled log levels, log levels are: error, fatal, warning, debug, info
     :return: a tuple containing the reflectivity, phase and coherence estimates
     :rtype: tuple of ndarrays
@@ -231,6 +251,8 @@ def nlsar_insar(ampl_master,
                                    patch_sizes,
                                    scale_sizes,
                                    nlsar_stats,
+                                   h,
+                                   c,
                                    enabled_log_levels)
 
     return (ref_filt, phase_filt, coh_filt)

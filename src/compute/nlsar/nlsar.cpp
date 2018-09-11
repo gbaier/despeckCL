@@ -84,6 +84,8 @@ int nlsar_gen(Data& data,
               const std::vector<int> patch_sizes,
               const std::vector<int> scale_sizes,
               std::map<nlsar::params, nlsar::stats> nlsar_stats,
+              const float h_param,
+              const float c_param,
               std::vector<std::string> enabled_log_levels)
 {
     logging_setup(enabled_log_levels);
@@ -115,7 +117,7 @@ int nlsar_gen(Data& data,
     std::chrono::duration<double> duration = end-start;
     start = std::chrono::system_clock::now();
     VLOG(0) << "Building kernels";
-    nlsar::cl_wrappers nlsar_cl_wrappers (context, search_window_size, data.dim());
+    nlsar::cl_wrappers nlsar_cl_wrappers (context, search_window_size, data.dim(), h_param, c_param);
     end = std::chrono::system_clock::now();
     duration = end-start;
     VLOG(0) << "Time it took to build all kernels: " << duration.count() << "secs";
@@ -156,6 +158,8 @@ int despeckcl::nlsar(float* ampl_master,
                      const std::vector<int> patch_sizes,
                      const std::vector<int> scale_sizes,
                      std::map<nlsar::params, nlsar::stats> nlsar_stats,
+                     const float h_param,
+                     const float c_param,
                      std::vector<std::string> enabled_log_levels) {
 
     // prepare data
@@ -163,7 +167,7 @@ int despeckcl::nlsar(float* ampl_master,
                            ref_filt, phase_filt, coh_filt,
                            height, width};
 
-    int retval = nlsar_gen(total_image, search_window_size, patch_sizes, scale_sizes, nlsar_stats, enabled_log_levels);
+    int retval = nlsar_gen(total_image, search_window_size, patch_sizes, scale_sizes, nlsar_stats, h_param, c_param, enabled_log_levels);
 
     memcpy(ref_filt,   total_image.ref_filt(), total_image.height()*total_image.width()*sizeof(float));
     memcpy(phase_filt, total_image.phase_filt(), total_image.height()*total_image.width()*sizeof(float));
@@ -183,11 +187,13 @@ int despeckcl::nlsar(float* covmat_raw,
                      const std::vector<int> patch_sizes,
                      const std::vector<int> scale_sizes,
                      std::map<nlsar::params, nlsar::stats> nlsar_stats,
+                     const float h_param,
+                     const float c_param,
                      std::vector<std::string> enabled_log_levels) {
     // prepare data
     covmat_data total_image{covmat_raw, covmat_filt, height, width, dim};
 
-    int retval = nlsar_gen(total_image, search_window_size, patch_sizes, scale_sizes, nlsar_stats, enabled_log_levels);
+    int retval = nlsar_gen(total_image, search_window_size, patch_sizes, scale_sizes, nlsar_stats, h_param, c_param, enabled_log_levels);
 
     memcpy(covmat_filt,
            total_image.covmat_filt(),

@@ -56,6 +56,8 @@ namespace nlsar {
         cl_wrappers(cl::Context context,
                     const int search_window_size,
                     const int dimension,
+                    const float h_param = 15.0f,
+                    const float c_param = 49.0f,
                     const int block_size = 16);
 
         cl_wrappers(const cl_wrappers& other);

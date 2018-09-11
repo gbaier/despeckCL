@@ -43,6 +43,8 @@ methods[despeckcl.boxcar] = (window_size,)
 search_window_size = 21
 patch_sizes = [3, 5, 7, 9, 11]
 scale_sizes = [1, 3, 5]
+hparam = 15.0
+cparam = 49.0
 
 training_area = np.s_[50:75, 50:75]
 
@@ -61,6 +63,8 @@ methods[despeckcl.nlsar_insar] = (search_window_size,
                                   patch_sizes,
                                   scale_sizes,
                                   nlsar_stats_res,
+                                  hparam,
+                                  cparam,
                                   log_levels)
 #
 ######################

@@ -21,6 +21,27 @@
 constexpr const char* nlsar::compute_weights::routine_name;
 constexpr const char* nlsar::compute_weights::kernel_source;
 
+nlsar::compute_weights::compute_weights(const size_t block_size,
+                                        cl::Context context,
+                                        const float h_param,
+                                        const float c_param)
+    : kernel_env_single<compute_weights>(block_size, context),
+      h_param(h_param),
+      c_param(c_param)
+{
+  program = build_program(build_opts(), kernel_source);
+  kernel  = build_kernel(program, routine_name);
+}
+
+nlsar::compute_weights::compute_weights(const compute_weights& other)
+    : kernel_env_single<compute_weights>(other),
+      h_param(other.h_param),
+      c_param(other.c_param)
+{
+  program = other.program;
+  kernel  = build_kernel(program, routine_name);
+}
+
 void nlsar::compute_weights::run(cl::CommandQueue cmd_queue,
                                  cl::Buffer patch_similarities,
                                  cl::Buffer weights,
@@ -40,11 +61,13 @@ void nlsar::compute_weights::run(cl::CommandQueue cmd_queue,
     kernel.setArg( 3, width_symm);
     kernel.setArg( 4, search_window_size);
     kernel.setArg( 5, patch_size);
-    kernel.setArg( 6, dissims2relidx);
-    kernel.setArg( 7, chi2cdf_inv);
-    kernel.setArg( 8, lut_size);
-    kernel.setArg( 9, dissims_min);
-    kernel.setArg(10, dissims_max);
+    kernel.setArg( 6, this->h_param);
+    kernel.setArg( 7, this->c_param);
+    kernel.setArg( 8, dissims2relidx);
+    kernel.setArg( 9, chi2cdf_inv);
+    kernel.setArg(10, lut_size);
+    kernel.setArg(11, dissims_min);
+    kernel.setArg(12, dissims_max);
 
     const int wsh = (search_window_size-1)/2;
 
