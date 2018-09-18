@@ -61,12 +61,9 @@ TEST(patches_packing, random_unpack_pack) {
         }
 
         // opencl setup
-        cl::Context context = opencl_setup();
-
-        std::vector<cl::Device> devices;
-        context.getInfo(CL_CONTEXT_DEVICES, &devices);
-
-        cl::CommandQueue cmd_queue{context, devices[0]};
+        auto cl_devs = get_platform_devs(0);
+        cl::Context context{cl_devs};
+        cl::CommandQueue cmd_queue{context};
 
         // kernel setup
         const int block_size = 16;

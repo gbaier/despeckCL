@@ -47,10 +47,7 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                  patch_sizes,
                                  scale_sizes};
 
-    std::vector<cl::Device> devices;
-    context.getInfo(CL_CONTEXT_DEVICES, &devices);
-
-    cl::CommandQueue cmd_queue{context, devices[0]};
+    cl::CommandQueue cmd_queue{context};
 
     cl::Buffer covmat_ori =
         nlsar::data_to_covmat(sub_insar_data,
@@ -61,17 +58,24 @@ timings::map nlsar::filter_sub_image(cl::Context context,
     cl::Buffer covmat_filt{
         context, CL_MEM_READ_WRITE, buf_sizes.io_covmat(), NULL, NULL};
 
-    auto tm = nlsar::filter_sub_image_gpu(context,
-                                          nl_routines,
-                                          covmat_ori,
-                                          covmat_filt,
-                                          sub_insar_data.height(),
-                                          sub_insar_data.width(),
-                                          sub_insar_data.dim(),
-                                          search_window_size,
-                                          patch_sizes,
-                                          scale_sizes,
-                                          dissim_stats);
+    timings::map tm;
+    try {
+        tm = nlsar::filter_sub_image_gpu(context,
+                nl_routines,
+                covmat_ori,
+                covmat_filt,
+                sub_insar_data.height(),
+                sub_insar_data.width(),
+                sub_insar_data.dim(),
+                search_window_size,
+                patch_sizes,
+                scale_sizes,
+                dissim_stats);
+    } catch (cl::Error &error) {
+        LOG(ERROR) << error.what() << "(" << error.err() << ")";
+        LOG(ERROR) << "ERR while filtering sub image";
+        std::terminate();
+    }
 
     covmat_to_data(covmat_filt,
                    sub_insar_data,
@@ -99,10 +103,7 @@ timings::map nlsar::filter_sub_image(cl::Context context,
                                patch_sizes,
                                scale_sizes};
 
-  std::vector<cl::Device> devices;
-  context.getInfo(CL_CONTEXT_DEVICES, &devices);
-
-  cl::CommandQueue cmd_queue{context, devices[0]};
+  cl::CommandQueue cmd_queue{context};
 
   cl::Buffer covmat_ori{context,
                         CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
@@ -112,31 +113,38 @@ timings::map nlsar::filter_sub_image(cl::Context context,
   cl::Buffer covmat_filt{
       context, CL_MEM_READ_WRITE, buf_sizes.io_covmat(), NULL, NULL};
 
-  auto tm = nlsar::filter_sub_image_gpu(context,
-                                        nl_routines,
-                                        covmat_ori,
-                                        covmat_filt,
-                                        sub_covmat_data.height(),
-                                        sub_covmat_data.width(),
-                                        sub_covmat_data.dim(),
-                                        search_window_size,
-                                        patch_sizes,
-                                        scale_sizes,
-                                        dissim_stats);
+  timings::map tm;
+  try {
+      tm = nlsar::filter_sub_image_gpu(context,
+              nl_routines,
+              covmat_ori,
+              covmat_filt,
+              sub_covmat_data.height(),
+              sub_covmat_data.width(),
+              sub_covmat_data.dim(),
+              search_window_size,
+              patch_sizes,
+              scale_sizes,
+              dissim_stats);
+  } catch (cl::Error &error) {
+      LOG(ERROR) << error.what() << "(" << error.err() << ")";
+      LOG(ERROR) << "ERR while filtering sub image";
+      std::terminate();
+  }
 
   cmd_queue.enqueueReadBuffer(covmat_filt,
-                              CL_TRUE,
-                              0,
-                              buf_sizes.io_covmat(),
-                              sub_covmat_data.covmat_filt(),
-                              NULL,
-                              NULL);
+          CL_TRUE,
+          0,
+          buf_sizes.io_covmat(),
+          sub_covmat_data.covmat_filt(),
+          NULL,
+          NULL);
 
   return tm;
 }
 
 timings::map
-nlsar::filter_sub_image_gpu(cl::Context context,
+nlsar::filter_sub_image_gpu(cl::Context& context,
                             cl_wrappers nl_routines,
                             cl::Buffer& covmat_ori,
                             cl::Buffer& covmat_filt,
@@ -191,10 +199,8 @@ nlsar::filter_sub_image_gpu(cl::Context context,
     //
     //***************************************************************************
 
-    std::vector<cl::Device> devices;
-    context.getInfo(CL_CONTEXT_DEVICES, &devices);
-    cl::CommandQueue cmd_queue{context, devices[0]};
-    cl::CommandQueue cmd_copy_queue{context, devices[0]};
+    cl::CommandQueue cmd_queue{context};
+    cl::CommandQueue cmd_copy_queue{context};
 
     //***************************************************************************
     //
@@ -297,7 +303,7 @@ nlsar::filter_sub_image_gpu(cl::Context context,
                                         buf_sizes.weights(),
                                         NULL, NULL);
 
-            cl::Buffer device_alphas      {context, CL_MEM_READ_WRITE, buf_sizes.weights(), NULL, NULL};
+            cl::Buffer device_alphas      {context, CL_MEM_READ_WRITE, buf_sizes.alphas(), NULL, NULL};
             cl::Buffer device_enls_nobias {context, CL_MEM_READ_WRITE, buf_sizes.equivalent_number_of_looks(), NULL, NULL};
             timings::map tm_enls_nobias_and_alphas = routines::get_enls_nobias_and_alphas (context,
                                                                                            device_weights,
@@ -325,7 +331,13 @@ nlsar::filter_sub_image_gpu(cl::Context context,
             tm["copy_dev2host"] = duration.count();
         }
     }
-    cmd_copy_queue.finish();
+    try {
+        cmd_copy_queue.finish();
+    } catch (cl::Error &error) {
+        LOG(ERROR) << error.what() << "(" << error.err() << ")";
+        LOG(ERROR) << "ERR while calling finish() member function of command copy queue";
+        std::terminate();
+    }
 
     LOG(DEBUG) << "get best params";
     std::vector<params> best_parameters = get_best_params(enls_nobias);
@@ -365,6 +377,14 @@ nlsar::filter_sub_image_gpu(cl::Context context,
                                                                         search_window_size,
                                                                         patch_size_max,
                                                                         scale_size_max);
+
+    try {
+        cmd_queue.finish();
+    } catch (cl::Error &error) {
+        LOG(ERROR) << error.what() << "(" << error.err() << ")";
+        LOG(ERROR) << "ERR while calling finish() member function of command queue";
+        std::terminate();
+    }
 
     return tm;
 }

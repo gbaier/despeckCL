@@ -28,7 +28,7 @@
 #include "../compute/compute_env.h"
 #include "../utils/easylogging++.h"
 
-cl::Context opencl_setup(void);
+std::vector<cl::Device> get_platform_devs(int platform_id);
 
 std::string read_cl_file(std::string kernel_path);
 

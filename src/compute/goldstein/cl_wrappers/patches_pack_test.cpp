@@ -54,12 +54,9 @@ TEST(patches_pack, completeness) {
         std::vector<float> interf_imag_packed   (height_packed*width_packed, -1.0);
 
         // opencl setup
-        cl::Context context = opencl_setup();
-
-        std::vector<cl::Device> devices;
-        context.getInfo(CL_CONTEXT_DEVICES, &devices);
-
-        cl::CommandQueue cmd_queue{context, devices[0]};
+        auto cl_devs = get_platform_devs(0);
+        cl::Context context{cl_devs};
+        cl::CommandQueue cmd_queue{context};
 
         // kernel setup
         const int block_size = 16;
@@ -138,12 +135,9 @@ TEST(patches_pack, random) {
         }
 
         // opencl setup
-        cl::Context context = opencl_setup();
-
-        std::vector<cl::Device> devices;
-        context.getInfo(CL_CONTEXT_DEVICES, &devices);
-
-        cl::CommandQueue cmd_queue{context, devices[0]};
+        auto cl_devs = get_platform_devs(0);
+        cl::Context context{cl_devs};
+        cl::CommandQueue cmd_queue{context};
 
         // kernel setup
         const int block_size = 16;

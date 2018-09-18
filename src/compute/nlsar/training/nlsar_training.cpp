@@ -39,15 +39,16 @@ nlsar_training(covmat_data& training_data,
                std::vector<std::string> enabled_log_levels)
 {
   logging_setup(enabled_log_levels);
-  cl::Context context = opencl_setup();
+  auto cl_devs = get_platform_devs(0);
+  cl::Context cl_context (cl_devs);
 
   size_t dummy_search_window_size = 21;
   nlsar::cl_wrappers nlsar_cl_wrappers(
-      context, dummy_search_window_size, training_data.dim());
+      cl_context, dummy_search_window_size, training_data.dim());
 
   VLOG(0) << "Training weighting kernels";
   return nlsar::training::get_stats(
-      patch_sizes, scale_sizes, training_data, context, nlsar_cl_wrappers);
+      patch_sizes, scale_sizes, training_data, cl_context, nlsar_cl_wrappers);
 }
 
 

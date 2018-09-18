@@ -28,7 +28,7 @@
 namespace nlsar {
     int round_down(const int num, const int multiple);
 
-    std::pair<int, int> tile_size(cl::Context context,
+    std::pair<int, int> tile_size(const std::vector<cl::Device>& devices,
         const int img_height,
         const int img_width,
         const int dimensions,

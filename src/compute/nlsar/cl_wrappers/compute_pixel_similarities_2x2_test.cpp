@@ -66,7 +66,8 @@ TEST(compute_pixel_similarities_2x2, nonzero) {
         }
          
         // opencl setup
-        cl::Context context = opencl_setup();
+        auto cl_devs = get_platform_devs(0);
+        cl::Context context{cl_devs};
 
         std::vector<cl::Device> devices;
         context.getInfo(CL_CONTEXT_DEVICES, &devices);

@@ -91,7 +91,7 @@ int despeckcl::nlinsar(float* ampl_master,
     LOG(INFO) << "width: " << width;
 
     // legacy opencl setup
-    cl::Context context = opencl_setup();
+    auto cl_devs = get_platform_devs(0);
 
     // filtering
     LOG(INFO) << "starting filtering";
@@ -111,7 +111,15 @@ int despeckcl::nlinsar(float* ampl_master,
     std::chrono::duration<double> duration = end-start;
     start = std::chrono::system_clock::now();
     VLOG(0) << "Building kernels";
-    nlinsar::cl_wrappers nl_routines_base(context, search_window_size, patch_size, 16);
+    std::vector<cl::Context> cl_contexts;
+    std::vector<nlinsar::cl_wrappers> cl_wrappers;
+    for(auto & cl_dev : cl_devs) {
+        cl::Context cl_context (cl_dev);
+        nlinsar::cl_wrappers nclw(cl_context, search_window_size, patch_size, 16);
+
+        cl_contexts.push_back(cl_context);
+        cl_wrappers.push_back(nclw);
+    }
     end = std::chrono::system_clock::now();
     duration = end-start;
     VLOG(0) << "Time it took to build all kernels: " << duration.count() << "secs";
@@ -133,8 +141,8 @@ int despeckcl::nlinsar(float* ampl_master,
         auto tm = map_filter_tiles(nlinsar::nlinsar_sub_image,
                                    total_image,
                                    total_image_temp,
-                                   context,
-                                   nl_routines_base,
+                                   cl_contexts,
+                                   cl_wrappers,
                                    tile_dims,
                                    overlap,
                                    search_window_size, patch_size, lmin, h_para, T_para); // filter parameters

@@ -54,7 +54,7 @@ namespace nlsar {
       }
     };
 
-    timings::map filter_sub_image_gpu(cl::Context context,
+    timings::map filter_sub_image_gpu(cl::Context& context,
                                       cl_wrappers nl_routines,
                                       cl::Buffer& covmat_ori,
                                       cl::Buffer& covmat_filt,

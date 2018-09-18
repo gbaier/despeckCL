@@ -61,12 +61,13 @@ TEST(compute_nl_statistics, sanity_check) {
         std::vector<float> desired_weighted_variances (stats_nelem,  0.0);
 
         // opencl setup
-        cl::Context context = opencl_setup();
+        auto cl_devs = get_platform_devs(0);
+        cl::Context context{cl_devs};
 
         std::vector<cl::Device> devices;
         context.getInfo(CL_CONTEXT_DEVICES, &devices);
 
-        cl::CommandQueue cmd_queue{context, devices[0]};
+        cl::CommandQueue cmd_queue{context};
 
         // kernel setup
         const int block_size = 16;

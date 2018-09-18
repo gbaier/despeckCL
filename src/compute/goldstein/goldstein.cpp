@@ -60,27 +60,33 @@ int despeckcl::goldstein(float* ampl_master,
     LOG(INFO) << "height: " << height;
     LOG(INFO) << "width: "  << width;
 
-    // legacy opencl setup
-    cl::Context context = opencl_setup();
-
+    auto cl_devs = get_platform_devs(0);
 
     // get the maximum possible tile_size, but make sure that it is not larger (only by patch_size - 2*overlap)
     // than the height or width of the image
     const int sub_image_size = std::min(goldstein::round_up(std::max(height + 2*overlap,
                                                                      width  + 2*overlap), patch_size - 2*overlap),
-                                        goldstein::tile_size(context, patch_size, overlap));
+                                        goldstein::tile_size(cl_devs, patch_size, overlap));
     std::pair<int, int> tile_dims{sub_image_size, sub_image_size};
-
 
     // new build kernel interface
     std::chrono::time_point<std::chrono::system_clock> start, end;
     std::chrono::duration<double> duration = end-start;
     start = std::chrono::system_clock::now();
     VLOG(0) << "Building kernels";
-    goldstein::cl_wrappers goldstein_cl_wrappers (context, 16);
+    std::vector<cl::Context> cl_contexts;
+    std::vector<goldstein::cl_wrappers> cl_wrappers;
+    for(auto & cl_dev : cl_devs) {
+        cl::Context cl_context (cl_dev);
+        goldstein::cl_wrappers clw {cl_context, 16};
+
+        cl_contexts.push_back(cl_context);
+        cl_wrappers.push_back(clw);
+    }
     end = std::chrono::system_clock::now();
     duration = end-start;
     VLOG(0) << "Time it took to build all kernels: " << duration.count() << "secs";
+
 
     // prepare data
     insar_data total_image{ampl_master, ampl_slave, phase,
@@ -92,8 +98,8 @@ int despeckcl::goldstein(float* ampl_master,
     auto tm = map_filter_tiles(goldstein::filter_sub_image,
                                total_image, // same image can be used as input and output
                                total_image,
-                               context,
-                               goldstein_cl_wrappers,
+                               cl_contexts,
+                               cl_wrappers,
                                tile_dims,
                                overlap,
                                patch_size,

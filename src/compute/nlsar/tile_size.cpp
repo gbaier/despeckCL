@@ -28,7 +28,7 @@
 #include "easylogging++.h"
 #include "optimal_tiling.h"
 
-std::pair<int, int> nlsar::tile_size(cl::Context context,
+std::pair<int, int> nlsar::tile_size(const std::vector<cl::Device>& devices,
                                      const int img_height,
                                      const int img_width,
                                      const int dimensions,
@@ -48,8 +48,6 @@ std::pair<int, int> nlsar::tile_size(cl::Context context,
                       (scale_size_max - 1) / 2;
   VLOG(0) << "Getting device memory characteristics";
 
-  std::vector<cl::Device> devices;
-  context.getInfo(CL_CONTEXT_DEVICES, &devices);
   cl::Device dev = devices[0];
 
   size_t global_mem_size;
@@ -61,12 +59,8 @@ std::pair<int, int> nlsar::tile_size(cl::Context context,
   VLOG(0) << "maximum memory allocation size = " << max_mem_alloc_size;
 
 
-#ifdef _OPENMP
-  const unsigned int n_threads = omp_get_max_threads();
-#else
-  const unsigned int n_threads = 1;
-#endif
-  VLOG(0) << "number of threads = " << n_threads;
+  const unsigned int n_threads_per_device = 2;
+  VLOG(0) << "number of threads = " << n_threads_per_device;
   constexpr int step = 16;
   constexpr int nitems = 128;
 
@@ -95,7 +89,7 @@ std::pair<int, int> nlsar::tile_size(cl::Context context,
 
     const float safety_factor = 0.8;
 
-    if(req_mem > safety_factor*max_mem_alloc_size || req_mem > safety_factor*(global_mem_size/n_threads) ) {
+    if(req_mem > safety_factor*max_mem_alloc_size || req_mem > safety_factor*(global_mem_size/n_threads_per_device) ) {
       continue;
     } else {
       pairs_fit.push_back(p);

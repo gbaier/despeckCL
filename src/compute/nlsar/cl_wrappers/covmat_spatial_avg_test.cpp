@@ -49,12 +49,10 @@ TEST(covmat_spatial_avg, averaging) {
         std::vector<float> desired_output (2*dimension*dimension*(height-scale_size+1)*(width-scale_size+1), 1.0);
 
         // opencl setup
-        cl::Context context = opencl_setup();
+        auto cl_devs = get_platform_devs(0);
+        cl::Context context{cl_devs};
 
-        std::vector<cl::Device> devices;
-        context.getInfo(CL_CONTEXT_DEVICES, &devices);
-
-        cl::CommandQueue cmd_queue{context, devices[0]};
+        cl::CommandQueue cmd_queue{context};
 
         // kernel setup
         const int block_size = 16;
@@ -117,7 +115,8 @@ TEST(covmat_spatial_avg,  no_averaging) {
         }
 
         // opencl setup
-        cl::Context context = opencl_setup();
+        auto cl_devs = get_platform_devs(0);
+        cl::Context context{cl_devs};
 
         std::vector<cl::Device> devices;
         context.getInfo(CL_CONTEXT_DEVICES, &devices);
@@ -149,7 +148,9 @@ TEST(covmat_spatial_avg,  no_averaging) {
 TEST(covmat_spatial_avg, gauss) {
 
         const unsigned int scale_size = 5;
-        cl::Context context = opencl_setup();
+        // opencl setup
+        auto cl_devs = get_platform_devs(0);
+        cl::Context context{cl_devs};
         const int block_size = 16;
         covmat_spatial_avg KUT{block_size, context};
 

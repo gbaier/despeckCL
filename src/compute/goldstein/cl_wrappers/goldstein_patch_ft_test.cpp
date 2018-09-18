@@ -49,12 +49,9 @@ TEST(goldstein_patch_ft, const2dirac) {
         std::vector<float> imag_out (height*width, -1.0);
 
         // opencl setup
-        cl::Context context = opencl_setup();
-
-        std::vector<cl::Device> devices;
-        context.getInfo(CL_CONTEXT_DEVICES, &devices);
-
-        cl::CommandQueue cmd_queue{context, devices[0]};
+        auto cl_devs = get_platform_devs(0);
+        cl::Context context{cl_devs};
+        cl::CommandQueue cmd_queue{context};
 
         // io buffers
         cl::Buffer dev_real {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), real_in.data(), NULL};
@@ -154,12 +151,9 @@ TEST(goldstein_patch_ft_rand,  ) {
         }
 
         // opencl setup
-        cl::Context context = opencl_setup();
-
-        std::vector<cl::Device> devices;
-        context.getInfo(CL_CONTEXT_DEVICES, &devices);
-
-        cl::CommandQueue cmd_queue{context, devices[0]};
+        auto cl_devs = get_platform_devs(0);
+        cl::Context context{cl_devs};
+        cl::CommandQueue cmd_queue{context};
 
         // io buffers
         cl::Buffer dev_real {context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, height * width * sizeof(float), real_in.data(), NULL};

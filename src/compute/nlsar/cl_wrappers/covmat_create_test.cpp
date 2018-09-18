@@ -47,7 +47,8 @@ TEST(covmat_create, determinant) {
         std::vector<float> covmat      (2*dimension*dimension*height*width, 1.0);
 
         // opencl setup
-        cl::Context context = opencl_setup();
+        auto cl_devs = get_platform_devs(0);
+        cl::Context context{cl_devs};
 
         std::vector<cl::Device> devices;
         context.getInfo(CL_CONTEXT_DEVICES, &devices);
@@ -113,7 +114,8 @@ TEST(covmat_create, sanity_check) {
         }
 
         // opencl setup
-        cl::Context context = opencl_setup();
+        auto cl_devs = get_platform_devs(0);
+        cl::Context context{cl_devs};
 
         std::vector<cl::Device> devices;
         context.getInfo(CL_CONTEXT_DEVICES, &devices);

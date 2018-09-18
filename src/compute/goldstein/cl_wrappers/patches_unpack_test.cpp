@@ -1,4 +1,7 @@
 /* Copyright 2015, 2016 Gerald Baier
+        auto cl_devs = get_platform_devs(0);
+        cl::Context context{cl_devs};
+        cl::CommandQueue cmd_queue{context};
  *
  * This file is part of despeckCL.
  *
@@ -55,12 +58,9 @@ TEST(patches_unpack, completeness) {
 
 
         // opencl setup
-        cl::Context context = opencl_setup();
-
-        std::vector<cl::Device> devices;
-        context.getInfo(CL_CONTEXT_DEVICES, &devices);
-
-        cl::CommandQueue cmd_queue{context, devices[0]};
+        auto cl_devs = get_platform_devs(0);
+        cl::Context context{cl_devs};
+        cl::CommandQueue cmd_queue{context};
 
         // kernel setup
         const int block_size = 16;
@@ -139,12 +139,9 @@ TEST(patches_unpack, rand_big) {
         }
 
         // opencl setup
-        cl::Context context = opencl_setup();
-
-        std::vector<cl::Device> devices;
-        context.getInfo(CL_CONTEXT_DEVICES, &devices);
-
-        cl::CommandQueue cmd_queue{context, devices[0]};
+        auto cl_devs = get_platform_devs(0);
+        cl::Context context{cl_devs};
+        cl::CommandQueue cmd_queue{context};
 
         // kernel setup
         const int block_size = 16;

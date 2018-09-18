@@ -26,7 +26,7 @@ namespace goldstein {
     int round_down(const int num, const int multiple);
     int round_up(const int num, const int multiple);
 
-    int tile_size(cl::Context context,
+    int tile_size(const std::vector<cl::Device>& devices,
                   const int patch_size,
                   const int overlap);
 }

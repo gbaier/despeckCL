@@ -90,13 +90,12 @@ int nlsar_gen(Data& data,
 {
     logging_setup(enabled_log_levels);
 
-    // legacy opencl setup
-    cl::Context context = opencl_setup();
+    auto cl_devs = get_platform_devs(0);
 
     const int overlap = get_overlap(search_window_size, patch_sizes, scale_sizes);
 
     // compute maximum tile size that fits into the GPU's VRAM
-    const std::pair<int, int> tile_dims = nlsar::tile_size(context,
+    const std::pair<int, int> tile_dims = nlsar::tile_size(cl_devs,
                                                            data.height(),
                                                            data.width(),
                                                            data.dim(),
@@ -117,7 +116,15 @@ int nlsar_gen(Data& data,
     std::chrono::duration<double> duration = end-start;
     start = std::chrono::system_clock::now();
     VLOG(0) << "Building kernels";
-    nlsar::cl_wrappers nlsar_cl_wrappers (context, search_window_size, data.dim(), h_param, c_param);
+    std::vector<cl::Context> cl_contexts;
+    std::vector<nlsar::cl_wrappers> nlsar_cl_wrappers;
+    for(auto & cl_dev : cl_devs) {
+        cl::Context cl_context (cl_dev);
+        nlsar::cl_wrappers nclw{cl_context, search_window_size, data.dim(), h_param, c_param};
+
+        cl_contexts.push_back(cl_context);
+        nlsar_cl_wrappers.push_back(nclw);
+    }
     end = std::chrono::system_clock::now();
     duration = end-start;
     VLOG(0) << "Time it took to build all kernels: " << duration.count() << "secs";
@@ -128,7 +135,7 @@ int nlsar_gen(Data& data,
     auto tm = map_filter_tiles(nlsar::filter_sub_image_overload_set{},
                                data, // same image can be used as input and output
                                data,
-                               context,
+                               cl_contexts,
                                nlsar_cl_wrappers,
                                tile_dims,
                                overlap,

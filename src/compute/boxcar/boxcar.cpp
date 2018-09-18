@@ -58,8 +58,7 @@ despeckcl::boxcar(float* ampl_master,
 
     const int overlap = (window_width - 1) / 2;
 
-    // legacy opencl setup
-    cl::Context context = opencl_setup();
+    auto cl_devs = get_platform_devs(0);
 
     // filtering
     LOG(INFO) << "starting filtering";
@@ -72,7 +71,15 @@ despeckcl::boxcar(float* ampl_master,
     std::chrono::duration<double> duration;
     start = std::chrono::system_clock::now();
     VLOG(0) << "Building kernel";
-    boxcar_wrapper boxcar_routine{16, context, window_width};
+    std::vector<cl::Context> cl_contexts;
+    std::vector<boxcar_wrapper> boxcar_wrappers;
+    for(auto & cl_dev : cl_devs) {
+        cl::Context cl_context (cl_dev);
+        boxcar_wrapper bclw{16, cl_context, window_width};
+
+        cl_contexts.push_back(cl_context);
+        boxcar_wrappers.push_back(bclw);
+    }
     end = std::chrono::system_clock::now();
     duration = end-start;
     VLOG(0) << "Time it took to build the kernels: " << duration.count() << "secs";
@@ -82,8 +89,8 @@ despeckcl::boxcar(float* ampl_master,
     auto tm = map_filter_tiles(boxcar_sub_image,
                                total_image, // same image can be used as input and output
                                total_image,
-                               context,
-                               boxcar_routine,
+                               cl_contexts,
+                               boxcar_wrappers,
                                tile_dims,
                                overlap);
 
