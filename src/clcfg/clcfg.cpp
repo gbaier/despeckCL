@@ -63,6 +63,9 @@ std::vector<cl::Device> get_platform_devs(int platform_id) {
                                              << max_work_item_sizes[1] << ", "
                                              << max_work_item_sizes[2];
 
+        LOG(INFO) << "global memory size: " << dev.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>();
+        LOG(INFO) << "maximum memory allocation size: " << dev.getInfo<CL_DEVICE_MAX_MEM_ALLOC_SIZE>();
+
         LOG(INFO) << "device profile: " << dev.getInfo<CL_DEVICE_PROFILE>();
         LOG(INFO) << "device version: " << dev.getInfo<CL_DEVICE_VERSION>();
         LOG(INFO) << "driver version: " << dev.getInfo<CL_DRIVER_VERSION>();
