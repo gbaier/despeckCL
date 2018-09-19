@@ -130,7 +130,7 @@ int nlsar_gen(Data& data,
     timings::print(tm);
     end = std::chrono::system_clock::now();
     std::chrono::duration<double> duration = end-start;
-    VLOG(0) << "filtering ran for " << duration.count() << " secs" << std::endl;
+    LOG(INFO) << "filtering ran for " << duration.count() << " secs" << std::endl;
 
     return 0;
 }

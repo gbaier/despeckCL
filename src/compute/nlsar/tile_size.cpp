@@ -87,7 +87,7 @@ std::pair<int, int> nlsar::tile_size(const std::vector<cl::Device>& devices,
 
     size_t req_mem = bs.all();
 
-    const float safety_factor = 0.8;
+    const float safety_factor = 0.75;
 
     if(req_mem > safety_factor*max_mem_alloc_size || req_mem > safety_factor*(global_mem_size/n_threads_per_device) ) {
       continue;
