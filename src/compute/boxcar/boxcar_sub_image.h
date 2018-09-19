@@ -26,8 +26,10 @@
 #include "cl_wrapper/boxcar_wrapper.h"
 #include "timings.h"
 
-timings::map boxcar_sub_image(cl::Context context,
-                              boxcar_wrapper boxcar_routine,
-                              insar_data& sub_insar_data);
+namespace boxcar {
+    timings::map boxcar_sub_image(cl::Context context,
+                                  boxcar::cl_wrappers boxcar_routine,
+                                  insar_data& sub_insar_data);
+}
 
 #endif

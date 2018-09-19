@@ -111,32 +111,15 @@ int nlsar_gen(Data& data,
                  overlap,
                  tile_dims);
 
-    // new build kernel interface
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    std::chrono::duration<double> duration = end-start;
-    start = std::chrono::system_clock::now();
-    VLOG(0) << "Building kernels";
-    std::vector<cl::Context> cl_contexts;
-    std::vector<nlsar::cl_wrappers> nlsar_cl_wrappers;
-    for(auto & cl_dev : cl_devs) {
-        cl::Context cl_context (cl_dev);
-        nlsar::cl_wrappers nclw{cl_context, search_window_size, data.dim(), h_param, c_param};
-
-        cl_contexts.push_back(cl_context);
-        nlsar_cl_wrappers.push_back(nclw);
-    }
-    end = std::chrono::system_clock::now();
-    duration = end-start;
-    VLOG(0) << "Time it took to build all kernels: " << duration.count() << "secs";
-
+    nlsar::kernel_params nkp{search_window_size, data.dim(), h_param, c_param, 16};
 
     // filtering
+    std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
     auto tm = map_filter_tiles(nlsar::filter_sub_image_overload_set{},
                                data, // same image can be used as input and output
                                data,
-                               cl_contexts,
-                               nlsar_cl_wrappers,
+                               nkp,
                                tile_dims,
                                overlap,
                                search_window_size,
@@ -146,7 +129,7 @@ int nlsar_gen(Data& data,
 
     timings::print(tm);
     end = std::chrono::system_clock::now();
-    duration = end-start;
+    std::chrono::duration<double> duration = end-start;
     VLOG(0) << "filtering ran for " << duration.count() << " secs" << std::endl;
 
     return 0;

@@ -16,8 +16,8 @@
  * along with despeckCL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CL_WRAPPERS_H
-#define CL_WRAPPERS_H
+#ifndef NLSAR_CL_WRAPPERS_H
+#define NLSAR_CL_WRAPPERS_H
 
 #include <CL/cl.h>
 
@@ -37,6 +37,15 @@
 #include "weighted_means.h"
 
 namespace nlsar {
+
+    struct kernel_params {
+        const int search_window_size;
+        const int dimension;
+        const float h_param = 15.0f;
+        const float c_param = 49.0f;
+        const int block_size = 16;
+    };
+
     struct cl_wrappers {
         covmat_create                  covmat_create_routine;
         covmat_rescale                 covmat_rescale_routine;
@@ -54,14 +63,24 @@ namespace nlsar {
         weighted_means                 weighted_means_routine;
 
         cl_wrappers(cl::Context context,
-                    const int search_window_size,
-                    const int dimension,
-                    const float h_param = 15.0f,
-                    const float c_param = 49.0f,
-                    const int block_size = 16);
+                    const kernel_params kp) : covmat_create_routine                  (kp.block_size, context),
+                                              covmat_rescale_routine                 (kp.block_size, context),
+                                              covmat_spatial_avg_routine             (kp.block_size, context),
+                                              compute_pixel_similarities_2x2_routine (kp.block_size, context),
+                                              compute_patch_similarities_routine     (context, 16, 4, 4, 4),
+                                              compute_weights_routine                (64, context, kp.h_param, kp.c_param),
+                                              compute_number_of_looks_routine        (kp.block_size, context),
+                                              compute_nl_statistics_routine          (kp.block_size, context, kp.search_window_size, kp.dimension),
+                                              compute_alphas_routine                 (kp.block_size, context),
+                                              compute_enls_nobias_routine            (kp.block_size, context),
+                                              copy_best_weights_routine              (64, context),
+                                              copy_symm_weights_routine              (-1, context),
+                                              covmat_decompose_routine               (kp.block_size, context),
+                                              weighted_means_routine                 (kp.block_size, context, kp.search_window_size, kp.dimension) {};
 
-        cl_wrappers(const cl_wrappers& other);
     };
+
+    cl_wrappers get_cl_wrappers(cl::Context cl_context, kernel_params pm);
 }
 
 #endif

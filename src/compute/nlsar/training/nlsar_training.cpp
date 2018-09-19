@@ -43,8 +43,10 @@ nlsar_training(covmat_data& training_data,
   cl::Context cl_context (cl_devs);
 
   size_t dummy_search_window_size = 21;
-  nlsar::cl_wrappers nlsar_cl_wrappers(
-      cl_context, dummy_search_window_size, training_data.dim());
+  size_t dummy_h_param = 5.0f;
+  size_t dummy_c_param = 49.0f;
+  nlsar::kernel_params nkp{dummy_search_window_size, training_data.dim(), dummy_h_param, dummy_c_param, 16};
+  nlsar::cl_wrappers nlsar_cl_wrappers(cl_context, nkp);
 
   VLOG(0) << "Training weighting kernels";
   return nlsar::training::get_stats(

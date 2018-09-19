@@ -69,24 +69,7 @@ int despeckcl::goldstein(float* ampl_master,
                                         goldstein::tile_size(cl_devs, patch_size, overlap));
     std::pair<int, int> tile_dims{sub_image_size, sub_image_size};
 
-    // new build kernel interface
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    std::chrono::duration<double> duration = end-start;
-    start = std::chrono::system_clock::now();
-    VLOG(0) << "Building kernels";
-    std::vector<cl::Context> cl_contexts;
-    std::vector<goldstein::cl_wrappers> cl_wrappers;
-    for(auto & cl_dev : cl_devs) {
-        cl::Context cl_context (cl_dev);
-        goldstein::cl_wrappers clw {cl_context, 16};
-
-        cl_contexts.push_back(cl_context);
-        cl_wrappers.push_back(clw);
-    }
-    end = std::chrono::system_clock::now();
-    duration = end-start;
-    VLOG(0) << "Time it took to build all kernels: " << duration.count() << "secs";
-
+    goldstein::kernel_params kp {16};
 
     // prepare data
     insar_data total_image{ampl_master, ampl_slave, phase,
@@ -94,12 +77,12 @@ int despeckcl::goldstein(float* ampl_master,
                            (int) height, (int) width};
 
     // filtering
+    std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
     auto tm = map_filter_tiles(goldstein::filter_sub_image,
                                total_image, // same image can be used as input and output
                                total_image,
-                               cl_contexts,
-                               cl_wrappers,
+                               kp,
                                tile_dims,
                                overlap,
                                patch_size,
@@ -108,7 +91,7 @@ int despeckcl::goldstein(float* ampl_master,
 
     timings::print(tm);
     end = std::chrono::system_clock::now();
-    duration = end-start;
+    std::chrono::duration<double> duration = end-start;
     VLOG(0) << "filtering ran for " << duration.count() << " secs" << std::endl;
 
     memcpy(ref_filt,   total_image.ref_filt(), total_image.height()*total_image.width()*sizeof(float));

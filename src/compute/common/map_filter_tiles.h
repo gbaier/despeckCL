@@ -10,26 +10,50 @@
 #include "tile_iterator.h"
 #include "tile.h"
 
-template <typename Type, typename Filter, typename Clroutines, typename... Params>
+namespace boxcar {
+    struct cl_wrappers;
+    struct kernel_params;;
+    cl_wrappers get_cl_wrappers(cl::Context cl_context, kernel_params pm);
+};
+
+namespace nlsar {
+    struct cl_wrappers;
+    struct kernel_params;;
+    cl_wrappers get_cl_wrappers(cl::Context cl_context, kernel_params pm);
+}
+
+namespace nlinsar{
+    struct cl_wrappers;
+    struct kernel_params;;
+    cl_wrappers get_cl_wrappers(cl::Context cl_context, kernel_params pm);
+}
+
+namespace goldstein{
+    struct cl_wrappers;
+    struct kernel_params;;
+    cl_wrappers get_cl_wrappers(cl::Context cl_context, kernel_params pm);
+}
+
+template <typename Type, typename Filter, typename Kernelparams, typename... Params>
 timings::map
 map_filter_tiles(Filter func,
                  Type& total_image_in,
                  Type& total_image_out,
-                 std::vector<cl::Context> cl_contexts,
-                 const std::vector<Clroutines>& cl_wrapperss,
+                 Kernelparams kernel_params,
                  std::pair<int, int> tile_dims,
                  int overlap,
                  Params... parameters)
 {
   // for each device a context and kernels were created
-  int n_devices = cl_contexts.size();
-  omp_set_num_threads(n_devices);
+  auto cl_devs = get_platform_devs(0);
+  int n_devices = cl_devs.size();
+  // omp_set_num_threads(n_devices);
   timings::map tm;
   LOG(INFO) << "starting filtering";
 #pragma omp parallel shared(total_image_in, total_image_out)
   {
-    auto context = cl_contexts[omp_get_thread_num() % n_devices];
-    auto cl_wrappers = cl_wrapperss[omp_get_thread_num() % n_devices];
+    cl::Context cl_context{cl_devs[omp_get_thread_num() % n_devices]};
+    auto cl_routines(get_cl_wrappers(cl_context, kernel_params));
 #pragma omp master
     {
       LOG(INFO) << "using " << omp_get_num_threads() << " threads for " << n_devices << " GPUs";
@@ -44,7 +68,7 @@ map_filter_tiles(Filter func,
           Type imgtile(tileget(total_image_in, t));
           try {
             timings::map tm_sub =
-                func(context, cl_wrappers, imgtile, parameters...);
+                func(cl_context, cl_routines, imgtile, parameters...);
 #pragma omp critical
             tm = timings::join(tm, tm_sub);
           } catch (cl::Error &error) {

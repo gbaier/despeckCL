@@ -105,26 +105,10 @@ int despeckcl::nlinsar(float* ampl_master,
     // sws^2 * sis^2 * n_threads * 4 (float) * 5
     std::pair<int, int> tile_dims {80, 80};
 
-    
-    // new build kernel interface
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    std::chrono::duration<double> duration = end-start;
-    start = std::chrono::system_clock::now();
-    VLOG(0) << "Building kernels";
-    std::vector<cl::Context> cl_contexts;
-    std::vector<nlinsar::cl_wrappers> cl_wrappers;
-    for(auto & cl_dev : cl_devs) {
-        cl::Context cl_context (cl_dev);
-        nlinsar::cl_wrappers nclw(cl_context, search_window_size, patch_size, 16);
-
-        cl_contexts.push_back(cl_context);
-        cl_wrappers.push_back(nclw);
-    }
-    end = std::chrono::system_clock::now();
-    duration = end-start;
-    VLOG(0) << "Time it took to build all kernels: " << duration.count() << "secs";
+    nlinsar::kernel_params kp{search_window_size, patch_size, 16};
     
     // filtering
+    std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
     for(int n = 0; n<niter; n++) {
         LOG(INFO) << "Iteration " << n + 1 << " of " << niter;
@@ -141,8 +125,7 @@ int despeckcl::nlinsar(float* ampl_master,
         auto tm = map_filter_tiles(nlinsar::nlinsar_sub_image,
                                    total_image,
                                    total_image_temp,
-                                   cl_contexts,
-                                   cl_wrappers,
+                                   kp,
                                    tile_dims,
                                    overlap,
                                    search_window_size, patch_size, lmin, h_para, T_para); // filter parameters
@@ -152,7 +135,7 @@ int despeckcl::nlinsar(float* ampl_master,
     }
     timings::print(tm_tot);
     end = std::chrono::system_clock::now();
-    duration = end-start;
+    std::chrono::duration<double> duration = end-start;
     VLOG(0) << "filtering ran for " << duration.count() << " secs" << std::endl;
 
     memcpy(ref_filt,   total_image.ref_filt(), total_image.height()*total_image.width()*sizeof(float));

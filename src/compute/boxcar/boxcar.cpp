@@ -25,6 +25,7 @@
 #include <math.h>
 #include "logging.h"
 
+#include "timings.h"
 #include "boxcar_sub_image.h"
 #include "data.h"
 #include "tile_iterator.h"
@@ -66,37 +67,21 @@ despeckcl::boxcar(float* ampl_master,
     // the sub image size needs to be picked so that all buffers fit in the GPUs memory
     std::pair<int, int> tile_dims {512, 512};
 
-    // new build kernel interface
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    std::chrono::duration<double> duration;
-    start = std::chrono::system_clock::now();
-    VLOG(0) << "Building kernel";
-    std::vector<cl::Context> cl_contexts;
-    std::vector<boxcar_wrapper> boxcar_wrappers;
-    for(auto & cl_dev : cl_devs) {
-        cl::Context cl_context (cl_dev);
-        boxcar_wrapper bclw{16, cl_context, window_width};
-
-        cl_contexts.push_back(cl_context);
-        boxcar_wrappers.push_back(bclw);
-    }
-    end = std::chrono::system_clock::now();
-    duration = end-start;
-    VLOG(0) << "Time it took to build the kernels: " << duration.count() << "secs";
+    boxcar::kernel_params kp{window_width, 16};
 
     // filtering
+    std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
-    auto tm = map_filter_tiles(boxcar_sub_image,
+    auto tm = map_filter_tiles(boxcar::boxcar_sub_image,
                                total_image, // same image can be used as input and output
                                total_image,
-                               cl_contexts,
-                               boxcar_wrappers,
+                               kp,
                                tile_dims,
                                overlap);
 
     timings::print(tm);
     end = std::chrono::system_clock::now();
-    duration = end-start;
+    std::chrono::duration<double> duration = end-start;
     VLOG(0) << "filtering ran for " << duration.count() << " secs" << std::endl;
 
     memcpy(ref_filt,   total_image.ref_filt(), total_image.height()*total_image.width()*sizeof(float));

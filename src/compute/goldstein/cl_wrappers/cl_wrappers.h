@@ -16,8 +16,8 @@
  * along with despeckCL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CL_WRAPPERS_H
-#define CL_WRAPPERS_H
+#ifndef GOLDSTEIN_CL_WRAPPERS_H
+#define GOLDSTEIN_CL_WRAPPERS_H
 
 #include <CL/cl.h>
 
@@ -28,6 +28,10 @@
 #include "slc2real.h"
 
 namespace goldstein {
+    struct kernel_params {
+        const int block_size = 16;
+    };
+
     struct cl_wrappers {
         raw_interferogram raw_interferogram_routine;
         patches_unpack    patches_unpack_routine;
@@ -36,10 +40,20 @@ namespace goldstein {
         slc2real          slc2real_routine;
 
         cl_wrappers(cl::Context context,
-                    const int block_size = 16);
+                    kernel_params kp) : raw_interferogram_routine (kp.block_size, context),
+                                        patches_unpack_routine    (kp.block_size, context),
+                                        weighted_multiply_routine (kp.block_size, context),
+                                        patches_pack_routine      (kp.block_size, context),
+                                        slc2real_routine          (kp.block_size, context) {};
 
-        cl_wrappers(const cl_wrappers& other);
+        cl_wrappers(const cl_wrappers& other) : raw_interferogram_routine (other.raw_interferogram_routine),
+                                                patches_unpack_routine    (other.patches_unpack_routine),
+                                                weighted_multiply_routine (other.weighted_multiply_routine),
+                                                patches_pack_routine      (other.patches_pack_routine),
+                                                slc2real_routine          (other.slc2real_routine) {};
     };
+
+    cl_wrappers get_cl_wrappers(cl::Context cl_context, kernel_params pm);
 }
 
 #endif

@@ -22,9 +22,9 @@
 
 #include "timings.h"
 
-timings::map boxcar_sub_image(cl::Context context,
-                              boxcar_wrapper boxcar_routine,
-                              insar_data& sub_insar_data)
+timings::map boxcar::boxcar_sub_image(cl::Context context,
+                                      boxcar::cl_wrappers boxcar_routine,
+                                      insar_data& sub_insar_data)
 {
     std::chrono::time_point<std::chrono::system_clock> start, end;
     std::chrono::duration<double> duration;
