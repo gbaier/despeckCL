@@ -47,24 +47,22 @@ map_filter_tiles(Filter func,
   // for each device a context and kernels were created
   auto cl_devs = get_platform_devs(0);
   int n_devices = cl_devs.size();
+
+  std::vector<cl::Context> cl_contexts;
+  std::vector<decltype(get_cl_wrappers(cl::Context(), kernel_params))> cl_routiness;
+
+  for(const auto& dev : cl_devs) {
+      auto cl_context = cl::Context{dev};
+      auto cl_routines(get_cl_wrappers(cl_context, kernel_params));
+      cl_contexts.push_back(cl_context);
+      cl_routiness.push_back(cl_routines);
+  }
+
   omp_set_num_threads(2*n_devices);
   timings::map tm;
   LOG(INFO) << "starting filtering";
 #pragma omp parallel shared(total_image_in, total_image_out)
   {
-    const int dev_idx = omp_get_thread_num() % n_devices;
-
-    cl::Context threadprivate_cl_context{cl_devs[dev_idx]};
-    auto threadprivate_cl_routines(get_cl_wrappers(threadprivate_cl_context, kernel_params));
-#pragma omp critical
-    {
-    LOG(INFO) << "this is thread " << omp_get_thread_num() << ", should gets device " << dev_idx << " of " << n_devices;
-    auto cl_context_devs{threadprivate_cl_context.getInfo<CL_CONTEXT_DEVICES>()};
-    LOG(INFO) << "associated devices:";
-    for(const auto& dev : cl_context_devs) {
-        print_cl_device_info(dev);
-    }
-}
 #pragma omp master
     {
       LOG(INFO) << "using " << omp_get_num_threads() << " threads for " << n_devices << " GPUs";
@@ -77,6 +75,9 @@ map_filter_tiles(Filter func,
 #pragma omp task firstprivate(t)
         {
           Type imgtile(tileget(total_image_in, t));
+          const int dev_idx = omp_get_thread_num() % cl_devs.size();
+          auto threadprivate_cl_context{cl_contexts[dev_idx]};
+          auto threadprivate_cl_routines{cl_routiness[dev_idx]};
           try {
             timings::map tm_sub =
                 func(threadprivate_cl_context, threadprivate_cl_routines, imgtile, parameters...);
