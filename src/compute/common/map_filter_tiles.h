@@ -47,7 +47,7 @@ map_filter_tiles(Filter func,
   // for each device a context and kernels were created
   auto cl_devs = get_platform_devs(0);
   int n_devices = cl_devs.size();
-  // omp_set_num_threads(n_devices);
+  omp_set_num_threads(2*n_devices);
   timings::map tm;
   LOG(INFO) << "starting filtering";
 #pragma omp parallel shared(total_image_in, total_image_out)
@@ -56,7 +56,15 @@ map_filter_tiles(Filter func,
 
     cl::Context threadprivate_cl_context{cl_devs[dev_idx]};
     auto threadprivate_cl_routines(get_cl_wrappers(threadprivate_cl_context, kernel_params));
-    LOG(DEBUG) << "this is thread " << omp_get_thread_num() << ", which should get device " << dev_idx << " of " << n_devices;
+#pragma omp critical
+    {
+    LOG(INFO) << "this is thread " << omp_get_thread_num() << ", should gets device " << dev_idx << " of " << n_devices;
+    auto cl_context_devs{threadprivate_cl_context.getInfo<CL_CONTEXT_DEVICES>()};
+    LOG(INFO) << "associated devices:";
+    for(const auto& dev : cl_context_devs) {
+        print_cl_device_info(dev);
+    }
+}
 #pragma omp master
     {
       LOG(INFO) << "using " << omp_get_num_threads() << " threads for " << n_devices << " GPUs";

@@ -29,6 +29,7 @@
 #include "../utils/easylogging++.h"
 
 std::vector<cl::Device> get_platform_devs(int platform_id);
+void print_cl_device_info(const cl::Device& dev);
 
 std::string read_cl_file(std::string kernel_path);
 
