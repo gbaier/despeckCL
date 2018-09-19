@@ -28,16 +28,16 @@
 
 namespace nlsar {
 
-    timings::map filter_sub_image (cl::Context context,
-                                   cl_wrappers nlsar_cl_wrappers,
+    timings::map filter_sub_image (const cl::Context& context,
+                                   cl_wrappers& nlsar_cl_wrappers,
                                    insar_data& sub_insar_data,
                                    const int search_window_size,
                                    const std::vector<int> patch_sizes,
                                    const std::vector<int> scale_sizes,
                                    std::map<params, stats> &dissim_stats);
 
-    timings::map filter_sub_image (cl::Context context,
-                                   cl_wrappers nl_routines,
+    timings::map filter_sub_image (const cl::Context& context,
+                                   cl_wrappers& nl_routines,
                                    covmat_data& sub_covmat_data,
                                    const int search_window_size,
                                    const std::vector<int> patch_sizes,
@@ -54,8 +54,8 @@ namespace nlsar {
       }
     };
 
-    timings::map filter_sub_image_gpu(cl::Context& context,
-                                      cl_wrappers nl_routines,
+    timings::map filter_sub_image_gpu(const cl::Context& context,
+                                      cl_wrappers& nl_routines,
                                       cl::Buffer& covmat_ori,
                                       cl::Buffer& covmat_filt,
                                       const int height,

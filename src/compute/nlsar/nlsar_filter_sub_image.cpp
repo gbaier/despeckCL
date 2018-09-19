@@ -31,8 +31,8 @@
 #include "conversion.h"
 
 
-timings::map nlsar::filter_sub_image(cl::Context context,
-                                     cl_wrappers nl_routines,
+timings::map nlsar::filter_sub_image(const cl::Context& context,
+                                     cl_wrappers& nl_routines,
                                      insar_data& sub_insar_data,
                                      const int search_window_size,
                                      const std::vector<int> patch_sizes,
@@ -88,8 +88,8 @@ timings::map nlsar::filter_sub_image(cl::Context context,
 }
 
 
-timings::map nlsar::filter_sub_image(cl::Context context,
-                                     cl_wrappers nl_routines,
+timings::map nlsar::filter_sub_image(const cl::Context& context,
+                                     cl_wrappers& nl_routines,
                                      covmat_data& sub_covmat_data,
                                      const int search_window_size,
                                      const std::vector<int> patch_sizes,
@@ -144,8 +144,8 @@ timings::map nlsar::filter_sub_image(cl::Context context,
 }
 
 timings::map
-nlsar::filter_sub_image_gpu(cl::Context& context,
-                            cl_wrappers nl_routines,
+nlsar::filter_sub_image_gpu(const cl::Context& context,
+                            cl_wrappers& nl_routines,
                             cl::Buffer& covmat_ori,
                             cl::Buffer& covmat_filt,
                             const int height,
