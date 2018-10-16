@@ -28,7 +28,8 @@
 nlsar::stats::stats(std::vector<float> dissims, unsigned int lut_size): lut_size(lut_size)
 {
     std::sort(dissims.begin(), dissims.end());
-    std::remove_if(dissims.begin(), dissims.end(), [] (float num) { return std::isnan(num);} );
+    dissims.erase(std::remove_if(dissims.begin(), dissims.end(), [] (float num) { return std::isnan(num);}), dissims.end() );
+    dissims.erase(std::remove_if(dissims.begin(), dissims.end(), [] (float num) { return std::isinf(num);}), dissims.end() );
     dissims_min = *std::min_element(dissims.begin(), dissims.end());
     dissims_max = *std::max_element(dissims.begin(), dissims.end());
 
