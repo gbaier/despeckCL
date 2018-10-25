@@ -6,10 +6,9 @@ include_directories(${despeckCL_SOURCE_DIR}/include/compute/nlsar)
 #set(PYTHON_LIBRARY /usr/lib64/libpython3.4m.so)
 #set(PYTHON_INCLUDE_DIR /usr/include/python3.4m)
 
-find_package(Python3 REQUIRED)
-find_package(PythonLibs REQUIRED)
-if(PYTHONLIBS_FOUND)
-    include_directories(${PYTHON_INCLUDE_DIRS})
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+if(Python3_FOUND)
+    include_directories(${Python3_INCLUDE_DIRS})
 endif()
 
 # get platform specific sites_packages and remove prefix
