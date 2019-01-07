@@ -64,6 +64,8 @@ covmat = covmat[dim_sub]
 search_window_size = 21
 patch_sizes = [3, 5, 7]
 scale_sizes = [1, 3]
+h_param = 2.5
+c_param = 49
 log_levels = ['warning', 'fatal', 'error']#, 'debug', 'info']
 
 
@@ -82,7 +84,7 @@ else:
 
 print('filtering')
 covmat_filt = despeckcl.nlsar(covmat[area_sub], search_window_size,
-                              patch_sizes, scale_sizes, nlsar_stats, log_levels)
+                              patch_sizes, scale_sizes, nlsar_stats, h_param, c_param, log_levels)
 
 
 def plot_covmats(covmats, fig):
