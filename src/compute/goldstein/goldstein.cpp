@@ -23,6 +23,7 @@
 #include <vector>
 #include <string>
 #include <omp.h>
+#include <clFFT.h>
 
 #include "cl_wrappers.h"
 #include "data.h"
@@ -88,6 +89,9 @@ int despeckcl::goldstein(float* ampl_master,
                                patch_size,
                                overlap,
                                alpha);
+
+    /* Release clFFT library. */
+    clfftTeardown( );
 
     timings::print(tm);
     end = std::chrono::system_clock::now();

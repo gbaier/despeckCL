@@ -180,9 +180,6 @@ timings::map goldstein::filter_sub_image(cl::Context context,
     /* Release the plan. */
     clfftDestroyPlan( &plan_handle );
 
-    /* Release clFFT library. */
-    clfftTeardown( );
-
     cmd_queue.enqueueReadBuffer(dev_ampl_master, CL_TRUE, 0, height * width * sizeof(float), sub_insar_data.ref_filt(), NULL, NULL);
     cmd_queue.enqueueReadBuffer(dev_phase,       CL_TRUE, 0, height * width * sizeof(float), sub_insar_data.phase_filt(), NULL, NULL);
 
