@@ -20,6 +20,7 @@ execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import
 execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import numpy as np; print(np.get_include())"
                 OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
+message("numpy include directory: " ${NUMPY_INCLUDE_DIR})
 include_directories(${NUMPY_INCLUDE_DIR})
 
 
