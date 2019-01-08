@@ -27,15 +27,17 @@
 using testing::FloatEq;
 
 TEST(sim_measures, 2x2_mat_determinant) {
+  std::complex<float> el00{2, 0};
+  std::complex<float> el01{4, 3};
+  std::complex<float> el10{4, -3};
+  std::complex<float> el11{2, 0};
 
-        std::complex<float> el00{2,  0};
-        std::complex<float> el01{4,  3};
-        std::complex<float> el10{4, -3};
-        std::complex<float> el11{2,  0};
+  std::complex<float> det = el00 * el11 - el01 * el10;
 
-        std::complex<float> det = el00*el11 - el01*el10;
-
-        ASSERT_THAT(det_covmat_2x2(1, 0, 0, 1), FloatEq(1.0f));
-        ASSERT_THAT(std::imag(det), FloatEq(0.0f));
-        ASSERT_THAT(std::real(det), FloatEq(det_covmat_2x2(std::real(el00), std::real(el01), std::imag(el01), std::real(el11))));
+  ASSERT_THAT(det_covmat_2x2(1, 0, 0, 1), FloatEq(1.0f));
+  ASSERT_THAT(std::imag(det), FloatEq(0.0f));
+  ASSERT_THAT(
+      std::real(det),
+      FloatEq(det_covmat_2x2(
+          std::real(el00), std::real(el01), std::imag(el01), std::real(el11))));
 }
