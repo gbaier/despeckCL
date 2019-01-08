@@ -23,10 +23,46 @@
 #include <cmath>
 #endif
 
+// square of the absolute value
+inline float abs2(float real, float imag) {
+    return real*real + imag*imag;
+}
 
 inline float det_covmat_2x2(float el_00, float el_01real, float el_01imag, float el_11)
 {
     return (el_00*el_11) - (el_01real*el_01real + el_01imag*el_01imag);
+}
+
+/* computes the docstring of a 3x3 hermitian matrix using Leibniz formula:
+ *
+ * In general the formula for a 3x3 determinant is
+ *
+ * a_00*a_11*a_22 - a_00*a_12*a_21 - a_01*a_10*a22 + a_01*a_12*a_20 + a_02*a_10*a_21 - a_02*a_11*a_20
+ *
+ * For a hermitian matrix this simplifies due to symmetries:
+ *
+ * a_00*a_11*a_22 - a_00*|a_12|^2 - a_11*|a_02|^2 - a_22*|a_01|^2 + 2Re{a_01*a_12*a_20}
+ *
+ */
+inline float
+det_covmat_3x3(float a_00,
+               float a_11,
+               float a_22,
+               float a_01_real,
+               float a_01_imag,
+               float a_02_real,
+               float a_02_imag,
+               float a_12_real,
+               float a_12_imag)
+{
+  // a_20_real ==  a_02_real
+  // a_20_imag == -a_02_imag
+  return a_00 * a_11 * a_22 - a_00 * abs2(a_12_real, a_12_imag) -
+         a_11 * abs2(a_02_real, a_02_imag) - a_22 * abs2(a_01_real, a_01_imag) +
+         2 * (a_01_real * a_12_real * a_02_real -
+              a_01_imag * a_12_imag * a_02_real +
+              a_01_real * a_12_imag * a_02_imag +
+              a_01_imag * a_12_real * a_02_imag);
 }
 
 inline float

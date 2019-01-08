@@ -41,3 +41,29 @@ TEST(sim_measures, 2x2_mat_determinant) {
       FloatEq(det_covmat_2x2(
           std::real(el00), std::real(el01), std::imag(el01), std::real(el11))));
 }
+
+
+TEST(sim_measures, 3x3_mat_determinant) {
+  std::array<std::array<std::complex<float>, 3>, 3> mat = {{{{{2,  0}, {4,  3}, {1, 2}}}, 
+                                                            {{{4, -3}, {3,  0}, {1, 1}}},
+                                                            {{{1, -2}, {1, -1}, {1, 0}}}}};
+
+  auto det = mat[0][0] * (mat[1][1] * mat[2][2] - mat[1][2] * mat[2][1])
+           - mat[0][1] * (mat[1][0] * mat[2][2] - mat[1][2] * mat[2][0])
+           + mat[0][2] * (mat[1][0] * mat[2][1] - mat[1][1] * mat[2][0]);
+
+  ASSERT_THAT(det_covmat_3x3(1, 2, 3, 0, 0, 0, 0, 0, 0), FloatEq(6.0f));
+  ASSERT_THAT(std::imag(det), FloatEq(0.0f));
+  ASSERT_THAT(
+      std::real(det),
+      FloatEq(det_covmat_3x3(
+          std::real(mat[0][0]),
+          std::real(mat[1][1]),
+          std::real(mat[2][2]),
+          std::real(mat[1][0]),
+          std::imag(mat[1][0]),
+          std::real(mat[2][0]),
+          std::imag(mat[2][0]),
+          std::real(mat[2][1]),
+          std::imag(mat[2][1]))));
+}
