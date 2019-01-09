@@ -153,9 +153,10 @@ pixel_similarity_3x3(float p1_a_00,
 
   float similarity = -nlooks * (2 * dimensions * log(2.0f) + log(nom1) +
                                 log(nom2) - 2 * log(det));
-  if (isnan(similarity)) {
-    similarity = 0;
-  }
+  //if (isnan(similarity)) {
+  // similarity = 0;
+  //}
+  return det;
   return similarity;
 }
 #endif

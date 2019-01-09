@@ -42,28 +42,63 @@ TEST(sim_measures, 2x2_mat_determinant) {
           std::real(el00), std::real(el01), std::imag(el01), std::real(el11))));
 }
 
+using CovMat3x3 = std::array<std::array<std::complex<float>, 3>, 3>;
 
-TEST(sim_measures, 3x3_mat_determinant) {
-  std::array<std::array<std::complex<float>, 3>, 3> mat = {{{{{2,  0}, {4,  3}, {1, 2}}}, 
-                                                            {{{4, -3}, {3,  0}, {1, 1}}},
-                                                            {{{1, -2}, {1, -1}, {1, 0}}}}};
+struct TestPair
+{
+    CovMat3x3 cm;
+    float det; // determinatn
+};
 
-  auto det = mat[0][0] * (mat[1][1] * mat[2][2] - mat[1][2] * mat[2][1])
-           - mat[0][1] * (mat[1][0] * mat[2][2] - mat[1][2] * mat[2][0])
-           + mat[0][2] * (mat[1][0] * mat[2][1] - mat[1][1] * mat[2][0]);
+// vector with test values
+std::vector<TestPair> test_values{
+    TestPair{{{{{{3, 0}, {0, 0}, {0, 0}}},
+               {{{0, 0}, {2, 0}, {0, 0}}},
+               {{{0, 0}, {0, 0}, {1, 0}}}}},
+             6.0f},
+    TestPair{{{{{{2, 0}, {4, 3}, {1, 2}}},
+               {{{4, -3}, {3, 0}, {1, 1}}},
+               {{{1, -2}, {1, -1}, {1, 0}}}}},
+             -8.0f},
+    TestPair{{{{{{3, 0}, {0, 3}, {2, -1}}},
+               {{{0, -3}, {2, 0}, {0, 0}}},
+               {{{2, 1}, {0, 0}, {1, 0}}}}},
+             -13.0f},
+    TestPair{{{{{{3, 0}, {0, 3}, {2, -1}}},
+               {{{0, -3}, {5, 0}, {1, 1}}},
+               {{{2, 1}, {1, -1}, {1, 0}}}}},
+             -43.0f},
+    TestPair{{{{{{4, 0}, {0, 1}, {2, -1}}},
+               {{{0, -1}, {5, 0}, {1, 1}}},
+               {{{2, 1}, {1, -1}, {3, 0}}}}},
+             18.0f},
+};
 
-  ASSERT_THAT(det_covmat_3x3(1, 2, 3, 0, 0, 0, 0, 0, 0), FloatEq(6.0f));
-  ASSERT_THAT(std::imag(det), FloatEq(0.0f));
-  ASSERT_THAT(
-      std::real(det),
-      FloatEq(det_covmat_3x3(
-          std::real(mat[0][0]),
-          std::real(mat[1][1]),
-          std::real(mat[2][2]),
-          std::real(mat[1][0]),
-          std::imag(mat[1][0]),
-          std::real(mat[2][0]),
-          std::imag(mat[2][0]),
-          std::real(mat[2][1]),
-          std::imag(mat[2][1]))));
+struct CovMatTest : public ::testing::TestWithParam<TestPair> {
+  CovMat3x3 cov_mat;
+  float det;
+
+  CovMatTest()
+  {
+    cov_mat = GetParam().cm;
+    det     = GetParam().det;
+  }
+};
+
+TEST_P(CovMatTest, determinant)
+{
+    float test_det = det_covmat_3x3(std::real(cov_mat[0][0]),
+                                    std::real(cov_mat[1][1]),
+                                    std::real(cov_mat[2][2]),
+                                    std::real(cov_mat[1][0]),
+                                    std::imag(cov_mat[1][0]),
+                                    std::real(cov_mat[2][0]),
+                                    std::imag(cov_mat[2][0]),
+                                    std::real(cov_mat[2][1]),
+                                    std::imag(cov_mat[2][1]));
+
+    ASSERT_THAT(std::imag(test_det), FloatEq(0.0f));
+    ASSERT_THAT(std::real(test_det), FloatEq(det));
 }
+
+INSTANTIATE_TEST_CASE_P(Default, CovMatTest, testing::ValuesIn(test_values));
