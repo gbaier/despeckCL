@@ -1,0 +1,103 @@
+/* Copyright 2015, 2016 Gerald Baier
+ *
+ * This file is part of despeckCL.
+ *
+ * despeckCL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * despeckCL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with despeckCL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+@SIM_MEASURES@
+
+__kernel void compute_pixel_similarities_3x3 (__global float * covmat,
+                                              __global float * pixel_similarities,
+                                              const int height_overlap,
+                                              const int width_overlap,
+                                              const int dimensions,
+                                              const int nlooks,
+                                              const int search_window_size,
+                                              const int hh_start,
+                                              const int hh_stop,
+                                              const int ww_start,
+                                              const int ww_stop)
+{
+    const int wsh = (search_window_size - 1)/2;
+
+    const int h = get_global_id(0);
+    const int w = get_global_id(1);
+
+    const int width_symm  = width_overlap;
+    const int height_symm = height_overlap - wsh;
+
+    if(h < height_symm && w < width_symm) {
+        for(int hh=hh_start; hh<hh_stop; hh++) {
+            for(int ww=ww_start; ww<ww_stop; ww++) {
+
+                const int center_h = h + wsh;
+                const int center_w = w;
+
+                const int window_h = center_h - wsh + hh;
+                const int window_w = center_w - wsh + ww;
+
+                const int center_idx = center_h * width_overlap + center_w;
+                const int window_idx = window_h * width_overlap + window_w;
+
+                const int offset = height_overlap*width_overlap;
+
+                const float p1_a_00      = covmat[center_idx];
+                const float p1_a_11      = covmat[center_idx + 8  * offset];
+                const float p1_a_22      = covmat[center_idx + 16 * offset];
+                const float p1_a_01_real = covmat[center_idx + 2  * offset];
+                const float p1_a_01_imag = covmat[center_idx + 3  * offset];
+                const float p1_a_02_real = covmat[center_idx + 4  * offset];
+                const float p1_a_02_imag = covmat[center_idx + 5  * offset];
+                const float p1_a_12_real = covmat[center_idx + 10 * offset];
+                const float p1_a_12_imag = covmat[center_idx + 11 * offset];
+
+                const float p2_a_00      = covmat[window_idx];
+                const float p2_a_11      = covmat[window_idx + 8  * offset];
+                const float p2_a_22      = covmat[window_idx + 16 * offset];
+                const float p2_a_01_real = covmat[window_idx + 2  * offset];
+                const float p2_a_01_imag = covmat[window_idx + 3  * offset];
+                const float p2_a_02_real = covmat[window_idx + 4  * offset];
+                const float p2_a_02_imag = covmat[window_idx + 5  * offset];
+                const float p2_a_12_real = covmat[window_idx + 10 * offset];
+                const float p2_a_12_imag = covmat[window_idx + 11 * offset];
+
+                const int idx = hh * search_window_size * height_symm * width_symm \
+                              + ww * height_symm * width_symm \
+                              + h * width_symm \
+                              + w;
+
+                pixel_similarities[idx] = pixel_similarity_3x3(p1_a_00,
+                                                               p1_a_11,
+                                                               p1_a_22,
+                                                               p1_a_01_real,
+                                                               p1_a_01_imag,
+                                                               p1_a_02_real,
+                                                               p1_a_02_imag,
+                                                               p1_a_12_real,
+                                                               p1_a_12_imag,
+                                                               p2_a_00,
+                                                               p2_a_11,
+                                                               p2_a_22,
+                                                               p2_a_01_real,
+                                                               p2_a_01_imag,
+                                                               p2_a_02_real,
+                                                               p2_a_02_imag,
+                                                               p2_a_12_real,
+                                                               p2_a_12_imag,
+                                                               nlooks);
+            }
+        }
+    }
+}
