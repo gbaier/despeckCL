@@ -35,6 +35,7 @@ add_library(nlsar_cl_wrappers OBJECT
             covmat_rescale.cpp
             covmat_create.cpp
             compute_pixel_similarities_2x2.cpp
+            compute_pixel_similarities_3x3.cpp
             compute_patch_similarities.cpp
             compute_weights.cpp
             compute_nl_statistics.cpp

@@ -95,23 +95,23 @@ float nlsar::training::dissimilarity_2x2(const float * const first_pix, const fl
 
 float nlsar::training::dissimilarity_3x3(const float * const first_pix, const float * const second_pix, const int offset) {
   const float p1_a_00      = *first_pix;
-  const float p1_a_11      = *(first_pix + 8*offset);
-  const float p1_a_22      = *(first_pix + 16*offset);
-  const float p1_a_01_real = *(first_pix + 2*offset);
-  const float p1_a_01_imag = *(first_pix + 3*offset);
-  const float p1_a_02_real = *(first_pix + 4*offset);
-  const float p1_a_02_imag = *(first_pix + 5*offset);
-  const float p1_a_12_real = *(first_pix + 6*offset);
-  const float p1_a_12_imag = *(first_pix + 7*offset);
+  const float p1_a_11      = *(first_pix +  8 * offset);
+  const float p1_a_22      = *(first_pix + 16 * offset);
+  const float p1_a_01_real = *(first_pix +  2 * offset);
+  const float p1_a_01_imag = *(first_pix +  3 * offset);
+  const float p1_a_02_real = *(first_pix +  4 * offset);
+  const float p1_a_02_imag = *(first_pix +  5 * offset);
+  const float p1_a_12_real = *(first_pix + 10 * offset);
+  const float p1_a_12_imag = *(first_pix + 11 * offset);
   const float p2_a_00      = *second_pix;
-  const float p2_a_11      = *(second_pix + 8*offset);
-  const float p2_a_22      = *(second_pix + 16*offset);
-  const float p2_a_01_real = *(second_pix + 2*offset);
-  const float p2_a_01_imag = *(second_pix + 3*offset);
-  const float p2_a_02_real = *(second_pix + 4*offset);
-  const float p2_a_02_imag = *(second_pix + 5*offset);
-  const float p2_a_12_real = *(second_pix + 6*offset);
-  const float p2_a_12_imag = *(second_pix + 7 * offset);
+  const float p2_a_11      = *(second_pix +  8 * offset);
+  const float p2_a_22      = *(second_pix + 16 * offset);
+  const float p2_a_01_real = *(second_pix +  2 * offset);
+  const float p2_a_01_imag = *(second_pix +  3 * offset);
+  const float p2_a_02_real = *(second_pix +  4 * offset);
+  const float p2_a_02_imag = *(second_pix +  5 * offset);
+  const float p2_a_12_real = *(second_pix + 10 * offset);
+  const float p2_a_12_imag = *(second_pix + 11 * offset);
 
   const int nlooks = 1;
 

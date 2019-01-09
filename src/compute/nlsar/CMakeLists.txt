@@ -34,6 +34,7 @@ add_executable(nlsar_unit_tests nlsar_unit_test.cpp
   cl_wrappers/covmat_spatial_avg_test.cpp
   cl_wrappers/covmat_create_test.cpp
   cl_wrappers/compute_pixel_similarities_2x2_test.cpp
+  cl_wrappers/compute_pixel_similarities_3x3_test.cpp
   cl_wrappers/compute_patch_similarities_test.cpp
   cl_wrappers/compute_nl_statistics_test.cpp
   cl_wrappers/compute_alphas_test.cpp
