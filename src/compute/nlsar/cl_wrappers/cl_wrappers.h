@@ -25,6 +25,7 @@
 #include "covmat_rescale.h"
 #include "covmat_spatial_avg.h"
 #include "compute_pixel_similarities_2x2.h"
+#include "compute_pixel_similarities_3x3.h"
 #include "compute_patch_similarities.h"
 #include "compute_weights.h"
 #include "compute_number_of_looks.h"
@@ -51,6 +52,7 @@ namespace nlsar {
         covmat_rescale                 covmat_rescale_routine;
         covmat_spatial_avg             covmat_spatial_avg_routine;
         compute_pixel_similarities_2x2 compute_pixel_similarities_2x2_routine;
+        compute_pixel_similarities_3x3 compute_pixel_similarities_3x3_routine;
         compute_patch_similarities     compute_patch_similarities_routine;
         compute_weights                compute_weights_routine;
         compute_number_of_looks        compute_number_of_looks_routine;
@@ -67,6 +69,7 @@ namespace nlsar {
                                               covmat_rescale_routine                 (kp.block_size, context),
                                               covmat_spatial_avg_routine             (kp.block_size, context),
                                               compute_pixel_similarities_2x2_routine (kp.block_size, context),
+                                              compute_pixel_similarities_3x3_routine (kp.block_size, context),
                                               compute_patch_similarities_routine     (context, 16, 4, 4, 4),
                                               compute_weights_routine                (64, context, kp.h_param, kp.c_param),
                                               compute_number_of_looks_routine        (kp.block_size, context),

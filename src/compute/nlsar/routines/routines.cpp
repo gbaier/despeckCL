@@ -50,15 +50,34 @@ timings::map nlsar::routines::get_pixel_similarities (cl::Context context,
                                                                                 scale_size,
                                                                                 scale_size_max);
 
-    LOG(DEBUG) << "covmat_pixel_similarities";
-    tm["covmat_pixel_similarities"] = nl_routines.compute_pixel_similarities_2x2_routine.timed_run(cmd_queue,
-                                                                                                   covmat_spatial_avg,
-                                                                                                   device_pixel_similarities,
-                                                                                                   height_overlap,
-                                                                                                   width_overlap,
-                                                                                                   dimension,
-                                                                                                   nlooks,
-                                                                                                   search_window_size);
+    if (dimension == 2) {
+      LOG(DEBUG) << "covmat_pixel_similarities_2x2";
+      tm["covmat_pixel_similarities"] =
+          nl_routines.compute_pixel_similarities_2x2_routine.timed_run(
+              cmd_queue,
+              covmat_spatial_avg,
+              device_pixel_similarities,
+              height_overlap,
+              width_overlap,
+              dimension,
+              nlooks,
+              search_window_size);
+    } else if (dimension == 3) {
+      LOG(DEBUG) << "covmat_pixel_similarities_3x3";
+      tm["covmat_pixel_similarities"] =
+          nl_routines.compute_pixel_similarities_3x3_routine.timed_run(
+              cmd_queue,
+              covmat_spatial_avg,
+              device_pixel_similarities,
+              height_overlap,
+              width_overlap,
+              dimension,
+              nlooks,
+              search_window_size);
+    } else {
+      throw std::runtime_error(
+          "currently only 2x2 or 3x3 covariance matrices are supported");
+    }
 
     return tm;
 }
