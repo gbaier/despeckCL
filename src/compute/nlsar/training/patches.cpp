@@ -44,10 +44,11 @@ float
 nlsar::training::dissimilarity(const covmat_data& first,
                                const covmat_data& second)
 {
-  if (first.height() != second.height() || first.width() != second.width()) {
-    std::cout << first.height() << ", " << second.height() << std::endl;
-    std::cout << first.width() << ", " << second.width() << std::endl;
-    throw std::out_of_range("patch sizes do not match");
+  if (first.height() != second.height() || first.width() != second.width() || first.dim() != second.dim()) {
+    std::cout << "heights: " << first.height() << ", " << second.height() << std::endl;
+    std::cout << "width:   " << first.width() << ", " << second.width() << std::endl;
+    std::cout << "dim:     " << first.dim() << ", " << second.dim() << std::endl;
+    throw std::out_of_range("patch dimensions do not match");
   }
   float sum                    = 0.0f;
   const float* const firstptr  = first.data();
@@ -55,7 +56,15 @@ nlsar::training::dissimilarity(const covmat_data& first,
   const int offset             = first.height() * first.width();
 
   for (int i = 0; i < offset; i++) {
-    sum += dissimilarity_2x2(firstptr + i, secondptr + i, offset);
+      if (first.dim() == 2) {
+        sum += dissimilarity_2x2(firstptr + i, secondptr + i, offset);
+      }
+      else if (first.dim() == 3) {
+        sum += dissimilarity_3x3(firstptr + i, secondptr + i, offset);
+      }
+      else {
+        throw std::runtime_error("currently only 2x2 or 3x3 covariance matrices are supported");
+      }
   }
   return sum;
 }
@@ -82,4 +91,47 @@ float nlsar::training::dissimilarity_2x2(const float * const first_pix, const fl
                               el_01imag_p2,
                               el_11_p2,
                               nlooks);
+}
+
+float nlsar::training::dissimilarity_3x3(const float * const first_pix, const float * const second_pix, const int offset) {
+  const float p1_a_00      = *first_pix;
+  const float p1_a_11      = *(first_pix + 8*offset);
+  const float p1_a_22      = *(first_pix + 16*offset);
+  const float p1_a_01_real = *(first_pix + 2*offset);
+  const float p1_a_01_imag = *(first_pix + 3*offset);
+  const float p1_a_02_real = *(first_pix + 4*offset);
+  const float p1_a_02_imag = *(first_pix + 5*offset);
+  const float p1_a_12_real = *(first_pix + 6*offset);
+  const float p1_a_12_imag = *(first_pix + 7*offset);
+  const float p2_a_00      = *second_pix;
+  const float p2_a_11      = *(second_pix + 8*offset);
+  const float p2_a_22      = *(second_pix + 16*offset);
+  const float p2_a_01_real = *(second_pix + 2*offset);
+  const float p2_a_01_imag = *(second_pix + 3*offset);
+  const float p2_a_02_real = *(second_pix + 4*offset);
+  const float p2_a_02_imag = *(second_pix + 5*offset);
+  const float p2_a_12_real = *(second_pix + 6*offset);
+  const float p2_a_12_imag = *(second_pix + 7 * offset);
+
+  const int nlooks = 1;
+
+  pixel_similarity_3x3(p1_a_00,
+                       p1_a_11,
+                       p1_a_22,
+                       p1_a_01_real,
+                       p1_a_01_imag,
+                       p1_a_02_real,
+                       p1_a_02_imag,
+                       p1_a_12_real,
+                       p1_a_12_imag,
+                       p2_a_00,
+                       p2_a_11,
+                       p2_a_22,
+                       p2_a_01_real,
+                       p2_a_01_imag,
+                       p2_a_02_real,
+                       p2_a_02_imag,
+                       p2_a_12_real,
+                       p2_a_12_imag,
+                       nlooks);
 }

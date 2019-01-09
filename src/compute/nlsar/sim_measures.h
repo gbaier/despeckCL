@@ -33,6 +33,38 @@ inline float det_covmat_2x2(float el_00, float el_01real, float el_01imag, float
     return (el_00*el_11) - (el_01real*el_01real + el_01imag*el_01imag);
 }
 
+
+inline float
+pixel_similarity_2x2(float el_00_p1,
+                     float el_01real_p1,
+                     float el_01imag_p1,
+                     float el_11_p1,
+                     float el_00_p2,
+                     float el_01real_p2,
+                     float el_01imag_p2,
+                     float el_11_p2,
+                     const int nlooks)
+{
+#ifndef __OPENCL_VERSION__
+  using std::isnan;
+#endif
+  const int dimensions = 2;
+  float nom1 = det_covmat_2x2(el_00_p1, el_01real_p1, el_01imag_p1, el_11_p1);
+  float nom2 = det_covmat_2x2(el_00_p2, el_01real_p2, el_01imag_p2, el_11_p2);
+  float det  = det_covmat_2x2(el_00_p1 + el_00_p2,
+                             el_01real_p1 + el_01real_p2,
+                             el_01imag_p1 + el_01imag_p2,
+                             el_11_p1 + el_11_p2);
+
+  float similarity = -nlooks * (2 * dimensions * log(2.0f) + log(nom1) +
+                                log(nom2) - 2 * log(det));
+  if (isnan(similarity)) {
+    similarity = 0;
+  }
+  return similarity;
+}
+
+
 /* computes the docstring of a 3x3 hermitian matrix using Leibniz formula:
  *
  * In general the formula for a 3x3 determinant is
@@ -65,27 +97,59 @@ det_covmat_3x3(float a_00,
               a_01_imag * a_12_real * a_02_imag);
 }
 
+
 inline float
-pixel_similarity_2x2(float el_00_p1,
-                     float el_01real_p1,
-                     float el_01imag_p1,
-                     float el_11_p1,
-                     float el_00_p2,
-                     float el_01real_p2,
-                     float el_01imag_p2,
-                     float el_11_p2,
+pixel_similarity_3x3(float p1_a_00,
+                     float p1_a_11,
+                     float p1_a_22,
+                     float p1_a_01_real,
+                     float p1_a_01_imag,
+                     float p1_a_02_real,
+                     float p1_a_02_imag,
+                     float p1_a_12_real,
+                     float p1_a_12_imag,
+                     float p2_a_00,
+                     float p2_a_11,
+                     float p2_a_22,
+                     float p2_a_01_real,
+                     float p2_a_01_imag,
+                     float p2_a_02_real,
+                     float p2_a_02_imag,
+                     float p2_a_12_real,
+                     float p2_a_12_imag,
                      const int nlooks)
 {
 #ifndef __OPENCL_VERSION__
   using std::isnan;
 #endif
-  const int dimensions = 2;
-  float nom1 = det_covmat_2x2(el_00_p1, el_01real_p1, el_01imag_p1, el_11_p1);
-  float nom2 = det_covmat_2x2(el_00_p2, el_01real_p2, el_01imag_p2, el_11_p2);
-  float det  = det_covmat_2x2(el_00_p1 + el_00_p2,
-                             el_01real_p1 + el_01real_p2,
-                             el_01imag_p1 + el_01imag_p2,
-                             el_11_p1 + el_11_p2);
+  const int dimensions = 3;
+  float nom1 = det_covmat_3x3(p1_a_00,
+                              p1_a_11,
+                              p1_a_22,
+                              p1_a_01_real,
+                              p1_a_01_imag,
+                              p1_a_02_real,
+                              p1_a_02_imag,
+                              p1_a_12_real,
+                              p1_a_12_imag);
+  float nom2 = det_covmat_3x3(p2_a_00,
+                              p2_a_11,
+                              p2_a_22,
+                              p2_a_01_real,
+                              p2_a_01_imag,
+                              p2_a_02_real,
+                              p2_a_02_imag,
+                              p2_a_12_real,
+                              p2_a_12_imag);
+  float det = det_covmat_3x3(p1_a_00      + p2_a_00,
+                             p1_a_11      + p2_a_11,
+                             p1_a_22      + p2_a_22,
+                             p1_a_01_real + p2_a_01_real,
+                             p1_a_01_imag + p2_a_01_imag,
+                             p1_a_02_real + p2_a_02_real,
+                             p1_a_02_imag + p2_a_02_imag,
+                             p1_a_12_real + p2_a_12_real,
+                             p1_a_12_imag + p2_a_12_imag);
 
   float similarity = -nlooks * (2 * dimensions * log(2.0f) + log(nom1) +
                                 log(nom2) - 2 * log(det));
