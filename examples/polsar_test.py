@@ -88,21 +88,18 @@ covmat_filt = despeckcl.nlsar(covmat[area_sub], search_window_size,
 
 
 def plot_covmats(covmats, fig):
-    nrows = len(covmats)
-    ncols = covmats[0].shape[0]
+    ncols = len(covmats)
     ax = None
-    for nr, covmat in enumerate(covmats):
+    for nr, (covmat, title) in enumerate(zip(covmats, ['input', 'filtered']), 1):
         # diagonal
         diag = np.abs(np.diagonal(covmat)) + 0.000001
         rgb_comp = 20 * np.log10(diag)
-        #rgb_comp_norm = rgb_comp - rgb_comp.min()
-        #rgb_comp_norm /= rgb_comp_norm.max()
-        for nc in range(ncols):
-            ax = fig.add_subplot(
-                nrows, ncols, nr * ncols + nc + 1, sharex=ax, sharey=ax)
-            #ax.imshow(rgb_comp_norm[:, :, nc], vmin=0, vmax=1)
-            ax.imshow(rgb_comp[:, :, nc], vmin=-70, vmax=-10)
-            ax.set_title('channel {}'.format(nc + 1))
+        rgb_comp_norm = rgb_comp - rgb_comp.min()
+        rgb_comp_norm /= rgb_comp_norm.max()
+
+        ax = fig.add_subplot(1, ncols, nr, sharex=ax, sharey=ax)
+        ax.imshow(rgb_comp_norm)
+        ax.set_title(title)
 
 
 fig = plt.figure()
