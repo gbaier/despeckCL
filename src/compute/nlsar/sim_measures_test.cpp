@@ -72,6 +72,10 @@ std::vector<TestPair> test_values{
                {{{0, -1}, {5, 0}, {1, 1}}},
                {{{2, 1}, {1, -1}, {3, 0}}}}},
              18.0f},
+    TestPair{{{{{{5,  0}, {0, -4}, {-4, 0}}},
+               {{{0,  4}, {5,  0}, {0, -4}}},
+               {{{-4, 0}, {0,  4}, {5,  0}}}}},
+             13.0f},
 };
 
 struct CovMatTest : public ::testing::TestWithParam<TestPair> {
