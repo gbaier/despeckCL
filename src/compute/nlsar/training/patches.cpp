@@ -40,34 +40,46 @@ std::vector<covmat_data> nlsar::training::get_all_patches(const covmat_data& tra
     return all_patches;
 }
 
-float nlsar::training::dissimilarity(const covmat_data& first, const covmat_data& second)
+float
+nlsar::training::dissimilarity(const covmat_data& first,
+                               const covmat_data& second)
 {
-    if (first.height() != second.height() || first.width() != second.width()) {
-        std::cout << first.height() << ", " << second.height() << std::endl;
-        std::cout << first.width()  << ", " << second.width()  << std::endl;
-        throw std::out_of_range("patch sizes do not match");
-    }
-    float sum = 0.0f;
-    const float * const firstptr  = first.data();
-    const float * const secondptr = second.data();
-    const int offset = first.height()*first.width();
+  if (first.height() != second.height() || first.width() != second.width()) {
+    std::cout << first.height() << ", " << second.height() << std::endl;
+    std::cout << first.width() << ", " << second.width() << std::endl;
+    throw std::out_of_range("patch sizes do not match");
+  }
+  float sum                    = 0.0f;
+  const float* const firstptr  = first.data();
+  const float* const secondptr = second.data();
+  const int offset             = first.height() * first.width();
 
-    for(int i=0; i<offset; i++) {
-        const float el_00_p1     = firstptr[i];
-        const float el_01real_p1 = firstptr[i + 2*offset];
-        const float el_01imag_p1 = firstptr[i + 3*offset];
-        const float el_11_p1     = firstptr[i + 6*offset];
+  for (int i = 0; i < offset; i++) {
+    sum += dissimilarity_2x2(firstptr + i, secondptr + i, offset);
+  }
+  return sum;
+}
 
-        const float el_00_p2     = secondptr[i];
-        const float el_01real_p2 = secondptr[i + 2*offset];
-        const float el_01imag_p2 = secondptr[i + 3*offset];
-        const float el_11_p2     = secondptr[i + 6*offset];
+float nlsar::training::dissimilarity_2x2(const float * const first_pix, const float * const second_pix, const int offset) {
+  const float el_00_p1     = *first_pix;
+  const float el_01real_p1 = *(first_pix + 2 * offset);
+  const float el_01imag_p1 = *(first_pix + 3 * offset);
+  const float el_11_p1     = *(first_pix + 6 * offset);
 
-        const int nlooks = 1;
+  const float el_00_p2     = *second_pix;
+  const float el_01real_p2 = *(second_pix + 2 * offset);
+  const float el_01imag_p2 = *(second_pix + 3 * offset);
+  const float el_11_p2     = *(second_pix + 6 * offset);
 
-        sum += pixel_similarity_2x2(el_00_p1, el_01real_p1, el_01imag_p1, el_11_p1, \
-                                    el_00_p2, el_01real_p2, el_01imag_p2, el_11_p2, \
-                                    nlooks);
-    }
-    return sum;
+  const int nlooks = 1;
+
+  return pixel_similarity_2x2(el_00_p1,
+                              el_01real_p1,
+                              el_01imag_p1,
+                              el_11_p1,
+                              el_00_p2,
+                              el_01real_p2,
+                              el_01imag_p2,
+                              el_11_p2,
+                              nlooks);
 }

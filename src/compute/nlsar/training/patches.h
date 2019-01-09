@@ -37,6 +37,7 @@ std::vector<covmat_data> get_all_patches(const covmat_data& training_data,
                                          int patch_size);
 
 float dissimilarity(const covmat_data& first, const covmat_data& second);
+float dissimilarity_2x2(const float * const first_pix, const float * const second_pix, const int offset);
 }  // namespace training
 }  // namespace nlsar
 
