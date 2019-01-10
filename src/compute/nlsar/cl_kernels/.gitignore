@@ -1,1 +1,2 @@
 compute_pixel_similarities_2x2.cl
+compute_pixel_similarities_3x3.cl
