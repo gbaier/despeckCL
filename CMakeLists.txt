@@ -47,5 +47,5 @@ enable_testing()
 # documentation
 find_package(Sphinx)
 if(Sphinx_FOUND OR SPHINX_FOUND)
-    subdirs(doc)
+    subdirs(sphinx)
 endif()
