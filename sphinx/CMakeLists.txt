@@ -4,8 +4,8 @@ set(BINARY_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/_build")
 # Sphinx cache with pickled ReST documents
 set(SPHINX_CACHE_DIR "${CMAKE_CURRENT_BINARY_DIR}/_doctrees")
  
-# HTML output directory
-set(SPHINX_HTML_DIR "${CMAKE_CURRENT_BINARY_DIR}/html")
+# HTML output directory. Put everything in docs easy hosting with github
+set(SPHINX_HTML_DIR "${CMAKE_SOURCE_DIR}/docs")
  
 add_custom_target(despeckCL_docs ALL
     ${SPHINX_EXECUTABLE}

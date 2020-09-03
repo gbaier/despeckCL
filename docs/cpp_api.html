@@ -1,0 +1,386 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>C++ API &#8212; despeckCL 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Python API" href="python_api.html" />
+    <link rel="prev" title="Welcome to despeckCL’s documentation!" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="python_api.html" title="Python API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to despeckCL’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">despeckCL 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="c-api">
+<h1>C++ API<a class="headerlink" href="#c-api" title="Permalink to this headline">¶</a></h1>
+<p>I strongly advise to use the Python bindings instead of calling the C++ code directly.
+Primarily because this is the way I call and test the code all the time.</p>
+<p>In any case, just include <strong>despeckcl.h</strong> and call the following functions for denoising a SAR interferogram, or, in the case of NL-SAR, any SAR covariance matrix.</p>
+<div class="section" id="boxcar">
+<h2>Boxcar<a class="headerlink" href="#boxcar" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="_CPPv36boxcarPfPfPfPfPfPfKiKiKiNSt6vectorINSt6stringEEE">
+<span id="_CPPv26boxcarPfPfPfPfPfPfKiKiKiNSt6vectorINSt6stringEEE"></span><span id="boxcar__floatP.floatP.floatP.floatP.floatP.floatP.iC.iC.iC.std::vector:ss:"></span>int <code class="descname">boxcar</code><span class="sig-paren">(</span>float *<em>ampl_master</em>, float *<em>ampl_slave</em>, float *<em>phase</em>, float *<em>ref_filt</em>, float *<em>phase_filt</em>, float *<em>coh_filt</em>, <em class="property">const</em> int <em>height</em>, <em class="property">const</em> int <em>width</em>, <em class="property">const</em> int <em>window_width</em>, std::vector&lt;std::string&gt; <em>enabled_log_levels</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv36boxcarPfPfPfPfPfPfKiKiKiNSt6vectorINSt6stringEEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Filters the input with a boxcar filter</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ampl_master</strong> – the amplitude of the master image</li>
+<li><strong>ampl_slave</strong> – the amplitude of the slave image</li>
+<li><strong>phase</strong> – the interferometric phase of the master and slave images</li>
+<li><strong>ref_filt</strong> – the filtered reflectivity estimate</li>
+<li><strong>phase_filt</strong> – the interferometric phase estimate</li>
+<li><strong>coh_filt</strong> – the coherence estimate</li>
+<li><strong>height</strong> – height of the images</li>
+<li><strong>width</strong> – width of the images</li>
+<li><strong>window_width</strong> – the window width of the boxcar window, has to be an odd number</li>
+<li><strong>enabled_log_levels</strong> – enabled log levels, log levels are: error, fatal, warning, debug, info</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="nl-insar">
+<h2>NL-InSAR<a class="headerlink" href="#nl-insar" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="_CPPv37nlinsarPfPfPfPfPfPfKiKiKiKiKiKiNSt6vectorINSt6stringEEE">
+<span id="_CPPv27nlinsarPfPfPfPfPfPfKiKiKiKiKiKiNSt6vectorINSt6stringEEE"></span><span id="nlinsar__floatP.floatP.floatP.floatP.floatP.floatP.iC.iC.iC.iC.iC.iC.std::vector:ss:"></span>int <code class="descname">nlinsar</code><span class="sig-paren">(</span>float *<em>ampl_master</em>, float *<em>ampl_slave</em>, float *<em>phase</em>, float *<em>ref_filt</em>, float *<em>phase_filt</em>, float *<em>coh_filt</em>, <em class="property">const</em> int <em>height</em>, <em class="property">const</em> int <em>width</em>, <em class="property">const</em> int <em>search_window_size</em>, <em class="property">const</em> int <em>patch_size</em>, <em class="property">const</em> int <em>niter</em>, <em class="property">const</em> int <em>lmin</em>, std::vector&lt;std::string&gt; <em>enabled_log_levels</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv37nlinsarPfPfPfPfPfPfKiKiKiKiKiKiNSt6vectorINSt6stringEEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Filters the input with the NL-InSAR filter</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ampl_master</strong> – the amplitude of the master image</li>
+<li><strong>ampl_slave</strong> – the amplitude of the slave image</li>
+<li><strong>phase</strong> – the interferometric phase of the master and slave images</li>
+<li><strong>ref_filt</strong> – the filtered reflectivity estimate</li>
+<li><strong>phase_filt</strong> – the interferometric phase estimate</li>
+<li><strong>coh_filt</strong> – the coherence estimate</li>
+<li><strong>height</strong> – height of the images</li>
+<li><strong>width</strong> – width of the images</li>
+<li><strong>search_window_size</strong> – width of the search window, has to be an odd number</li>
+<li><strong>patch_size</strong> – width of the patch, has to be an odd number</li>
+<li><strong>niter</strong> – number of iterations</li>
+<li><strong>lmin</strong> – minimum number of looks for the smoothing step</li>
+<li><strong>enabled_log_levels</strong> – enabled log levels, log levels are: error, fatal, warning, debug, info</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="nl-sar">
+<h2>NL-SAR<a class="headerlink" href="#nl-sar" title="Permalink to this headline">¶</a></h2>
+<p>The functions for NL-SAR are overloaded and can be called either passing in the master and slave acquisitions’ amplitudes and their interferometric phase for InSAR, or point to the covariance matrix for InSAR and PolSAR.
+There is slight changes to Charles Deledalle’s original implementation (<a class="reference external" href="https://www.math.u-bordeaux.fr/~cdeledal/nlsar.php">https://www.math.u-bordeaux.fr/~cdeledal/nlsar.php</a>).
+This implementation only uses a quadratic search window of fixed size.</p>
+<dl class="type">
+<dt id="_CPPv322nlsar_stats_collection">
+<span id="_CPPv222nlsar_stats_collection"></span><em class="property">using </em><code class="descname">nlsar_stats_collection</code> = std::map&lt;<a class="reference internal" href="#_CPPv35nlsarPfPfPfPfPfPfKiKiKiKNSt6vectorIiEEKNSt6vectorIiEENSt3mapIN5nlsar6paramsEN5nlsar5statsEEEKfKfNSt6vectorINSt6stringEEE" title="nlsar">nlsar</a>::<a class="reference internal" href="#_CPPv3N5nlsar6paramsE" title="nlsar::params">params</a>, <a class="reference internal" href="#_CPPv35nlsarPfPfPfPfPfPfKiKiKiKNSt6vectorIiEEKNSt6vectorIiEENSt3mapIN5nlsar6paramsEN5nlsar5statsEEEKfKfNSt6vectorINSt6stringEEE" title="nlsar">nlsar</a>::<a class="reference internal" href="#_CPPv3N5nlsar5statsE" title="nlsar::stats">stats</a>&gt;<a class="headerlink" href="#_CPPv322nlsar_stats_collection" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Stores for each parameter set, i.e. the combinations of scale size and patch size, the corresponding statistics calculated on a homogeneous area.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv3N5nlsar6paramsE">
+<span id="_CPPv2N5nlsar6paramsE"></span><span id="nlsar::params"></span><em class="property">class </em><code class="descclassname"><a class="reference internal" href="#_CPPv35nlsarPfPfPfPfPfPfKiKiKiKNSt6vectorIiEEKNSt6vectorIiEENSt3mapIN5nlsar6paramsEN5nlsar5statsEEEKfKfNSt6vectorINSt6stringEEE" title="nlsar">nlsar</a><code class="descclassname">::</code></code><code class="descname">params</code><a class="headerlink" href="#_CPPv3N5nlsar6paramsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Stores one parameter set</p>
+<blockquote>
+<div><dl class="member">
+<dt id="_CPPv3N5nlsar6params10patch_sizeE">
+<span id="_CPPv2N5nlsar6params10patch_sizeE"></span><span id="nlsar::params::patch_size__i"></span>int <code class="descname">patch_size</code><a class="headerlink" href="#_CPPv3N5nlsar6params10patch_sizeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv3N5nlsar6params10scale_sizeE">
+<span id="_CPPv2N5nlsar6params10scale_sizeE"></span><span id="nlsar::params::scale_size__i"></span>int <code class="descname">scale_size</code><a class="headerlink" href="#_CPPv3N5nlsar6params10scale_sizeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div></blockquote>
+</dd></dl>
+
+<dl class="class">
+<dt id="_CPPv3N5nlsar5statsE">
+<span id="_CPPv2N5nlsar5statsE"></span><span id="nlsar::stats"></span><em class="property">class </em><code class="descclassname">nlsar<code class="descclassname">::</code></code><code class="descname">stats</code><a class="headerlink" href="#_CPPv3N5nlsar5statsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Computes and stores the statitics gathered over a homogenous terrain</p>
+<dl class="function">
+<dt id="_CPPv3N5nlsar5stats5nlsar5stats5statsENSt6vectorIfEEj">
+<span id="_CPPv2N5nlsar5stats5nlsar5stats5statsENSt6vectorIfEEj"></span><span id="nlsar::stats::nlsar::stats::stats__std::vector:float:.unsigned-i"></span><code class="descclassname">nlsar::stats<code class="descclassname">::</code></code><code class="descname">stats</code><span class="sig-paren">(</span>std::vector&lt;float&gt; <em>dissims</em>, unsigned int <em>lut_size</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv3N5nlsar5stats5nlsar5stats5statsENSt6vectorIfEEj" title="Permalink to this definition">¶</a><br /></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dissims</strong> – computed dissimilarities on the homogenous area</li>
+<li><strong>lut_size</strong> – size of the quantilles’ look-up-table</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv314nlsar_trainingPfPfPfKiKiKNSt6vectorIiEEKNSt6vectorIiEE">
+<span id="_CPPv214nlsar_trainingPfPfPfKiKiKNSt6vectorIiEEKNSt6vectorIiEE"></span><span id="nlsar_training__floatP.floatP.floatP.iC.iC.std::vector:i:C.std::vector:i:C"></span><a class="reference internal" href="#_CPPv322nlsar_stats_collection" title="nlsar_stats_collection">nlsar_stats_collection</a> <code class="descname">nlsar_training</code><span class="sig-paren">(</span>float *<em>ampl_master</em>, float *<em>ampl_slave</em>, float *<em>phase</em>, <em class="property">const</em> int <em>height</em>, <em class="property">const</em> int <em>width</em>, <em class="property">const</em> std::vector&lt;int&gt; <em>patch_sizes</em>, <em class="property">const</em> std::vector&lt;int&gt; <em>scale_sizes</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv314nlsar_trainingPfPfPfKiKiKNSt6vectorIiEEKNSt6vectorIiEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Gathers the statistics for NL-SAR’s weighting kernel on a homogeneous area.
+The area should be small.
+Around 30 by 30 pixels.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ampl_master</strong> – the amplitude of the master image</li>
+<li><strong>ampl_slave</strong> – the amplitude of the slave image</li>
+<li><strong>phase</strong> – the interferometric phase of the master and slave images</li>
+<li><strong>patch_sizes</strong> – widths of the patches, have to be odd numbers</li>
+<li><strong>scale_sizes</strong> – widths of the scales, have to be odd numbers</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv314nlsar_trainingPfKiKiKNSt6vectorIiEEKNSt6vectorIiEE">
+<span id="_CPPv214nlsar_trainingPfKiKiKNSt6vectorIiEEKNSt6vectorIiEE"></span><span id="nlsar_training__floatP.iC.iC.std::vector:i:C.std::vector:i:C"></span><a class="reference internal" href="#_CPPv322nlsar_stats_collection" title="nlsar_stats_collection">nlsar_stats_collection</a> <code class="descname">nlsar_training</code><span class="sig-paren">(</span>float *<em>covmat_raw</em>, <em class="property">const</em> int <em>height</em>, <em class="property">const</em> int <em>width</em>, <em class="property">const</em> std::vector&lt;int&gt; <em>patch_sizes</em>, <em class="property">const</em> std::vector&lt;int&gt; <em>scale_sizes</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv314nlsar_trainingPfKiKiKNSt6vectorIiEEKNSt6vectorIiEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Gathers the statistics for NL-SAR’s weighting kernel on a homogeneous area.
+The area should be small.
+Around 30 by 30 pixels.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>covmat_raw</strong> – the unfiltered covariance matrix</li>
+<li><strong>patch_sizes</strong> – widths of the patches, have to be odd numbers</li>
+<li><strong>scale_sizes</strong> – widths of the scales, have to be odd numbers</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv328store_nlsar_stats_collection22nlsar_stats_collectionNSt6stringE">
+<span id="_CPPv228store_nlsar_stats_collection22nlsar_stats_collectionNSt6stringE"></span><span id="store_nlsar_stats_collection__nlsar_stats_collection.ss"></span>void <code class="descname">store_nlsar_stats_collection</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv322nlsar_stats_collection" title="nlsar_stats_collection">nlsar_stats_collection</a> <em>nsc</em>, std::string <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv328store_nlsar_stats_collection22nlsar_stats_collectionNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Stores the computed statistics in a file for later use.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv327load_nlsar_stats_collectionNSt6stringE">
+<span id="_CPPv227load_nlsar_stats_collectionNSt6stringE"></span><span id="load_nlsar_stats_collection__ss"></span><a class="reference internal" href="#_CPPv322nlsar_stats_collection" title="nlsar_stats_collection">nlsar_stats_collection</a> <code class="descname">load_nlsar_stats_collection</code><span class="sig-paren">(</span>std::string <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv327load_nlsar_stats_collectionNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Loads previously computed statistics from a file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv35nlsarPfPfPfPfPfPfKiKiKiKNSt6vectorIiEEKNSt6vectorIiEENSt3mapIN5nlsar6paramsEN5nlsar5statsEEEKfKfNSt6vectorINSt6stringEEE">
+<span id="_CPPv25nlsarPfPfPfPfPfPfKiKiKiKNSt6vectorIiEEKNSt6vectorIiEENSt3mapIN5nlsar6paramsEN5nlsar5statsEEEKfKfNSt6vectorINSt6stringEEE"></span><span id="nlsar__floatP.floatP.floatP.floatP.floatP.floatP.iC.iC.iC.std::vector:i:C.std::vector:i:C.std::map:nlsar::params.nlsar::stats:.floatC.floatC.std::vector:ss:"></span>int <code class="descname">nlsar</code><span class="sig-paren">(</span>float *<em>ampl_master</em>, float *<em>ampl_slave</em>, float *<em>phase</em>, float *<em>ref_filt</em>, float *<em>phase_filt</em>, float *<em>coh_filt</em>, <em class="property">const</em> int <em>height</em>, <em class="property">const</em> int <em>width</em>, <em class="property">const</em> int <em>search_window_size</em>, <em class="property">const</em> std::vector&lt;int&gt; <em>patch_sizes</em>, <em class="property">const</em> std::vector&lt;int&gt; <em>scale_sizes</em>, std::map&lt;<a class="reference internal" href="#_CPPv35nlsarPfPfPfPfPfPfKiKiKiKNSt6vectorIiEEKNSt6vectorIiEENSt3mapIN5nlsar6paramsEN5nlsar5statsEEEKfKfNSt6vectorINSt6stringEEE" title="nlsar">nlsar</a>::<a class="reference internal" href="#_CPPv3N5nlsar6paramsE" title="nlsar::params">params</a>, <a class="reference internal" href="#_CPPv35nlsarPfPfPfPfPfPfKiKiKiKNSt6vectorIiEEKNSt6vectorIiEENSt3mapIN5nlsar6paramsEN5nlsar5statsEEEKfKfNSt6vectorINSt6stringEEE" title="nlsar">nlsar</a>::<a class="reference internal" href="#_CPPv3N5nlsar5statsE" title="nlsar::stats">stats</a>&gt; <em>nlsar_stats</em>, <em class="property">const</em> float <em>h_param</em>, <em class="property">const</em> float <em>c_param</em>, std::vector&lt;std::string&gt; <em>enabled_log_levels</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv35nlsarPfPfPfPfPfPfKiKiKiKNSt6vectorIiEEKNSt6vectorIiEENSt3mapIN5nlsar6paramsEN5nlsar5statsEEEKfKfNSt6vectorINSt6stringEEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Filters the input with the NL-SAR filter</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ampl_master</strong> – the amplitude of the master image</li>
+<li><strong>ampl_slave</strong> – the amplitude of the slave image</li>
+<li><strong>phase</strong> – the interferometric phase of the master and slave images</li>
+<li><strong>ref_filt</strong> – the filtered reflectivity estimate</li>
+<li><strong>phase_filt</strong> – the interferometric phase estimate</li>
+<li><strong>coh_filt</strong> – the coherence estimate</li>
+<li><strong>height</strong> – height of the images</li>
+<li><strong>width</strong> – width of the images</li>
+<li><strong>search_window_size</strong> – width of the search window, has to be an odd number</li>
+<li><strong>patch_sizes</strong> – widths of the patches, have to be odd numbers</li>
+<li><strong>scale_sizes</strong> – widths of the scales, have to be odd numbers</li>
+<li><strong>std::map&lt;nlsar::params, nlsar::stats&gt; nlsar_stats</strong> – statistics computed on homogenous training area for all parameters</li>
+<li><strong>h_param</strong> – parameter h of the weighting kernel. In my experience 3 is a good default value.</li>
+<li><strong>c_param</strong> – parameter c of the weighting kernel. Can most probably always be set to 49, as in the original paper.</li>
+<li><strong>enabled_log_levels</strong> – enabled log levels, log levels are: error, fatal, warning, debug, info</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv35nlsarPfPfKiKiKiKNSt6vectorIiEEKNSt6vectorIiEENSt3mapIN5nlsar6paramsEN5nlsar5statsEEEKfKfNSt6vectorINSt6stringEEE">
+<span id="_CPPv25nlsarPfPfKiKiKiKNSt6vectorIiEEKNSt6vectorIiEENSt3mapIN5nlsar6paramsEN5nlsar5statsEEEKfKfNSt6vectorINSt6stringEEE"></span><span id="nlsar__floatP.floatP.iC.iC.iC.std::vector:i:C.std::vector:i:C.std::map:nlsar::params.nlsar::stats:.floatC.floatC.std::vector:ss:"></span>int <code class="descname">nlsar</code><span class="sig-paren">(</span>float *<em>covmat_raw</em>, float *<em>covmat_filt</em>, <em class="property">const</em> int <em>height</em>, <em class="property">const</em> int <em>width</em>, <em class="property">const</em> int <em>search_window_size</em>, <em class="property">const</em> std::vector&lt;int&gt; <em>patch_sizes</em>, <em class="property">const</em> std::vector&lt;int&gt; <em>scale_sizes</em>, std::map&lt;<a class="reference internal" href="#_CPPv35nlsarPfPfPfPfPfPfKiKiKiKNSt6vectorIiEEKNSt6vectorIiEENSt3mapIN5nlsar6paramsEN5nlsar5statsEEEKfKfNSt6vectorINSt6stringEEE" title="nlsar">nlsar</a>::<a class="reference internal" href="#_CPPv3N5nlsar6paramsE" title="nlsar::params">params</a>, <a class="reference internal" href="#_CPPv35nlsarPfPfPfPfPfPfKiKiKiKNSt6vectorIiEEKNSt6vectorIiEENSt3mapIN5nlsar6paramsEN5nlsar5statsEEEKfKfNSt6vectorINSt6stringEEE" title="nlsar">nlsar</a>::<a class="reference internal" href="#_CPPv3N5nlsar5statsE" title="nlsar::stats">stats</a>&gt; <em>nlsar_stats</em>, <em class="property">const</em> float <em>h_param</em>, <em class="property">const</em> float <em>c_param</em>, std::vector&lt;std::string&gt; <em>enabled_log_levels</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv35nlsarPfPfKiKiKiKNSt6vectorIiEEKNSt6vectorIiEENSt3mapIN5nlsar6paramsEN5nlsar5statsEEEKfKfNSt6vectorINSt6stringEEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Filters the input with the NL-SAR filter</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>covmat_raw</strong> – the unfilterered covariance matrix</li>
+<li><strong>covmat_filt</strong> – the filtered covariance matrix</li>
+<li><strong>height</strong> – height of the image</li>
+<li><strong>width</strong> – width of the image</li>
+<li><strong>search_window_size</strong> – width of the search window, has to be an odd number</li>
+<li><strong>patch_sizes</strong> – widths of the patches, have to be odd numbers</li>
+<li><strong>scale_sizes</strong> – widths of the scales, have to be odd numbers</li>
+<li><strong>std::map&lt;nlsar::params, nlsar::stats&gt; nlsar_stats</strong> – statistics computed on homogenous training area for all parameters</li>
+<li><strong>h_param</strong> – parameter h of the weighting kernel. In my experience 3 is a good default value.</li>
+<li><strong>c_param</strong> – parameter c of the weighting kernel. Can most probably always be set to 49, as in the original paper.</li>
+<li><strong>enabled_log_levels</strong> – enabled log levels, log levels are: error, fatal, warning, debug, info</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="goldstein">
+<h2>Goldstein<a class="headerlink" href="#goldstein" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="_CPPv39goldsteinPfPfPfPfPfPfKjKjKjKjKfNSt6vectorINSt6stringEEE">
+<span id="_CPPv29goldsteinPfPfPfPfPfPfKjKjKjKjKfNSt6vectorINSt6stringEEE"></span><span id="goldstein__floatP.floatP.floatP.floatP.floatP.floatP.unsigned-iC.unsigned-iC.unsigned-iC.unsigned-iC.floatC.std::vector:ss:"></span>int <code class="descname">goldstein</code><span class="sig-paren">(</span>float *<em>ampl_master</em>, float *<em>ampl_slave</em>, float *<em>phase</em>, float *<em>ref_filt</em>, float *<em>phase_filt</em>, float *<em>coh_filt</em>, <em class="property">const</em> unsigned int <em>height</em>, <em class="property">const</em> unsigned int <em>width</em>, <em class="property">const</em> unsigned int <em>patch_size</em>, <em class="property">const</em> unsigned int <em>overlap</em>, <em class="property">const</em> float <em>alpha</em>, std::vector&lt;std::string&gt; <em>enabled_log_levels</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv39goldsteinPfPfPfPfPfPfKjKjKjKjKfNSt6vectorINSt6stringEEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Filters the input with the Goldstein filter</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ampl_master</strong> – the amplitude of the master image</li>
+<li><strong>ampl_slave</strong> – the amplitude of the slave image</li>
+<li><strong>phase</strong> – the interferometric phase of the master and slave images</li>
+<li><strong>ref_filt</strong> – the filtered reflectivity estimate</li>
+<li><strong>phase_filt</strong> – the interferometric phase estimate</li>
+<li><strong>coh_filt</strong> – the coherence estimate</li>
+<li><strong>patch_size</strong> – width of the patch for each 2D FFT</li>
+<li><strong>overlap</strong> – overlap of the patches</li>
+<li><strong>alpha</strong> – strength of filtering</li>
+<li><strong>enabled_log_levels</strong> – enabled log levels, log levels are: error, fatal, warning, debug, info</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a tuple containing the reflectivy, phase and coherence estimates</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Rtype:</th><td class="field-body"><p class="first last">tuple of ndarrays</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">C++ API</a><ul>
+<li><a class="reference internal" href="#boxcar">Boxcar</a></li>
+<li><a class="reference internal" href="#nl-insar">NL-InSAR</a></li>
+<li><a class="reference internal" href="#nl-sar">NL-SAR</a></li>
+<li><a class="reference internal" href="#goldstein">Goldstein</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to despeckCL’s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="python_api.html"
+                        title="next chapter">Python API</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cpp_api.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="python_api.html" title="Python API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to despeckCL’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">despeckCL 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2015-2019, Gerald Baier.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+  </body>
+</html>
