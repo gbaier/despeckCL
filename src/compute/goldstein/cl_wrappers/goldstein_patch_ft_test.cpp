@@ -129,7 +129,7 @@ TEST(goldstein_patch_ft, const2dirac) {
         ASSERT_THAT(imag_out, Pointwise(FloatNearPointwise(1e-4), desired_imag_out));
 }
 
-TEST(goldstein_patch_ft_rand,  ) {
+TEST(goldstein_patch_ft_rand, ft_rand) {
 
         // data setup
         const int height     = 64;
