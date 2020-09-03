@@ -7,6 +7,8 @@ add_executable(utils_unit_tests
                optimal_tiling.cpp
                optimal_tiling_test.cpp)
 
+set_property(TARGET utils_unit_tests PROPERTY CXX_STANDARD 14)
+
 target_link_libraries(utils_unit_tests
                       gtest
                       gtest_main

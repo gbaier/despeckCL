@@ -52,6 +52,8 @@ target_link_libraries(despeckcl ${OpenCL_LIBRARIES}
                                 ${GSL_LIBRARIES}
                                 ${CLFFT_LIBRARIES})
 
+set_property(TARGET despeckcl PROPERTY CXX_STANDARD 14)
+
 INSTALL(TARGETS despeckcl
         DESTINATION "lib"
         )
